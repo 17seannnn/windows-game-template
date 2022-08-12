@@ -1,0 +1,12 @@
+DEBUG
+RELEASE
+*.cur
+*.wav
+*.ico
+*.aps
+*.exe
+*.obj
+*.plg
+*.dsp
+*.dsw
+*.ncb
