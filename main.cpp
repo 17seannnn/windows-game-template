@@ -2,15 +2,55 @@
  * - Complete it
 */
 
+// Windows stuff >>>>
+#define WIN32_LEAN_AND_MEAN // No MFC
+
 #include <windows.h>
 #include <windowsx.h>
+// <<<< Windows stuff
 
-// Defines
+// Defines >>>>
+
+// Window
 #define WINDOW_CLASS_NAME "WINDOW_CLASS"
+#define WINDOW_WIDTH  800
+#define WINDOW_HEIGHT 640
 
-// Globals
+// Keyboard macroses
+#define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
+#define KEYUP(VK)   (GetAsyncKeyState(VK) & 0x8000 ? 0 : 1)
+
+// <<<< Defines
+
+// Globals >>>>
 static HINSTANCE g_hInstance = NULL;
 static HWND g_hWindow = NULL;
+// <<<< Globals
+
+static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+    
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hDC = BeginPaint(hWindow, &ps);
+        EndPaint(hWindow, &ps);
+    } break;
+
+    case WM_DESTROY:
+    {
+        PostQuitMessage(0);
+    } break;
+
+    default:
+        return DefWindowProc(hWindow, msg, wParam, lParam);
+
+    }
+
+    return 0;
+}
 
 static bool InitWin(HINSTANCE hInstance)
 {
@@ -28,7 +68,7 @@ static bool InitWin(HINSTANCE hInstance)
     WinClass.hInstance = g_hInstance;
     WinClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     WinClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    WinClass.hbrBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    WinClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     WinClass.lpszMenuName = NULL;
     WinClass.lpszClassName = WINDOW_CLASS_NAME;
     WinClass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
@@ -61,7 +101,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
     InitWin(hInstance);
 
-    Sleep(500);
+    Sleep(2000);
 
     return 0;
 }
