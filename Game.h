@@ -7,11 +7,11 @@ class Game
 {
     static b32 m_bRunning;
 public:
-    static void Init() {}
-    static void ShutDown() {}
+    static void Init();
+    static void ShutDown();
 
     static void Update();
-    static void Render() {}
+    static void Render();
 
     static b32 Running() { return m_bRunning; }
 private:
