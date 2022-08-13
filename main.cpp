@@ -1,14 +1,23 @@
-/* === Windows stuff === */
+/* === Includes === */
+// Windows
 #define WIN32_LEAN_AND_MEAN // No MFC
+#define INITGUID // For DirectX
 
 #include <windows.h>
 #include <windowsx.h>
 
-/* === Includes === */
+// DirectX
+#include <ddraw.h>
+
+// Game
 #include "Types.h"
 #include "Game.h"
 
 /* === Defines === */
+// Codes
+#define SUCCESS_CODE 0
+#define ERROR_CODE 1
+
 // Window
 #define WINDOW_CLASS_NAME "WINDOW_CLASS"
 #define WINDOW_WIDTH  800
@@ -19,9 +28,15 @@
 #define KEYUP(VK)   (GetAsyncKeyState(VK) & 0x8000 ? 0 : 1)
 
 /* === Globals === */
-static int g_nExitCode = 0;
+// App
+static int g_nExitCode = SUCCESS_CODE;
+
+// Windows
 static HINSTANCE g_hInstance = NULL;
 static HWND g_hWindow = NULL;
+
+// DirectX
+static LPDIRECTDRAW7 lpDD = NULL;
 
 /* === Functions === */
 static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -93,6 +108,11 @@ static b32 WinInit(HINSTANCE hInstance)
     if (!g_hWindow)
         return false;
 
+    // Initialize DirectDraw
+    if ( FAILED(DirectDrawCreateEx(NULL, (void**)&lpDD, IID_IDirectDraw7, NULL)) )
+        return false;
+    lpDD->SetCooperativeLevel(g_hWindow, DDSCL_NORMAL);
+
     // Success
     return true;
 }
@@ -116,10 +136,18 @@ static b32 WinEvents()
     return true;
 }
 
+static void WinShutDown()
+{
+    if (lpDD)
+        lpDD->Release();
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    WinInit(hInstance);
-    Game::Init();
+    if ( !WinInit(hInstance) )
+        return ERROR_CODE;
+    if ( !Game::Init() )
+        return ERROR_CODE;
 
     while (Game::Running())
     {
@@ -134,6 +162,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     Game::ShutDown();
+    WinShutDown();
 
     return g_nExitCode;
 }

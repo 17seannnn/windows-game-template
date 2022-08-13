@@ -2,8 +2,10 @@
 
 b32 Game::m_bRunning = true;
 
-void Game::Init()
-{}
+b32 Game::Init()
+{
+    return true;
+}
 
 void Game::ShutDown()
 {}
