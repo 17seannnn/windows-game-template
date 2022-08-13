@@ -1,7 +1,3 @@
-/* TODO
- * - Complete it
-*/
-
 // Windows stuff >>>>
 #define WIN32_LEAN_AND_MEAN // No MFC
 
@@ -23,6 +19,7 @@
 // <<<< Defines
 
 // Globals >>>>
+static int g_nExitCode = 0;
 static HINSTANCE g_hInstance = NULL;
 static HWND g_hWindow = NULL;
 // <<<< Globals
@@ -32,6 +29,9 @@ static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lP
     switch (msg)
     {
     
+    case WM_CREATE:
+    {} break;
+
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
@@ -52,7 +52,7 @@ static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lP
     return 0;
 }
 
-static bool InitWin(HINSTANCE hInstance)
+static bool WinInit(HINSTANCE hInstance)
 {
     // Define global hInstance
     g_hInstance = hInstance;
@@ -97,11 +97,39 @@ static bool InitWin(HINSTANCE hInstance)
     return true;
 }
 
+static bool WinEvents()
+{
+    MSG msg;
+
+    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+        if (msg.message == WM_QUIT)
+        {
+            g_nExitCode = msg.wParam;
+            return false;
+        }
+
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    return true;
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    InitWin(hInstance);
+    WinInit(hInstance);
 
-    Sleep(2000);
+    for (;;)
+    {
+        if (!WinEvents())
+            break;  // Break on quit event
 
-    return 0;
+        if (KEYDOWN(VK_ESCAPE))
+            SendMessage(g_hWindow, WM_CLOSE, 0, 0);
+    }
+
+    MessageBeep(MB_ICONEXCLAMATION);
+
+    return g_nExitCode;
 }
