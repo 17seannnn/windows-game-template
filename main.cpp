@@ -9,6 +9,9 @@
 // DirectX
 #include <ddraw.h>
 
+// C/C++
+#include <stdio.h>
+
 // Game
 #include "Types.h"
 #include "Game.h"
@@ -21,8 +24,8 @@
 // Screen
 #define WINDOW_CLASS_NAME "WINDOW_CLASS"
 
-#define SCREEN_WIDTH  800
-#define SCREEN_HEIGHT 640
+#define SCREEN_WIDTH  640
+#define SCREEN_HEIGHT 480
 #define SCREEN_BPP 8
 
 // Keyboard macroses
@@ -31,7 +34,7 @@
 
 /* === Globals === */
 // App
-static int g_nExitCode = SUCCESS_CODE;
+static s32 g_nExitCode = SUCCESS_CODE;
 
 // Windows
 static HINSTANCE g_hInstance = NULL;
@@ -103,8 +106,7 @@ static b32 WinInit(HINSTANCE hInstance)
                                WINDOW_CLASS_NAME,
                                "Game Template",
                                WS_POPUP|WS_VISIBLE,
-                               (GetSystemMetrics(SM_CXSCREEN) - SCREEN_WIDTH)/2,
-                               (GetSystemMetrics(SM_CYSCREEN) - SCREEN_HEIGHT)/2,
+                               0, 0,
                                SCREEN_WIDTH,
                                SCREEN_HEIGHT,
                                NULL, // Parent
@@ -118,9 +120,12 @@ static b32 WinInit(HINSTANCE hInstance)
     // Initialize DirectDraw
     if ( FAILED(DirectDrawCreateEx(NULL, (void**)&g_lpDD, IID_IDirectDraw7, NULL)) )
         return false;
-    g_lpDD->SetCooperativeLevel(g_hWindow, DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE|
-                                           DDSCL_ALLOWMODEX|DDSCL_ALLOWREBOOT);
-    g_lpDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0);
+    if ( FAILED(g_lpDD->SetCooperativeLevel(g_hWindow, DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE|
+                                                       DDSCL_ALLOWMODEX|DDSCL_ALLOWREBOOT)) )
+        return false;
+
+    if ( FAILED(g_lpDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0)) )
+        return false;
 
     // Create pallete
     PALETTEENTRY palette[256];
@@ -151,11 +156,15 @@ static b32 WinInit(HINSTANCE hInstance)
     // Primary surface
     DDSURFACEDESC2 DDSurfaceDesc;
     memset(&DDSurfaceDesc, 0, sizeof(DDSurfaceDesc));
-    
+
     DDSurfaceDesc.dwSize = sizeof(DDSurfaceDesc);
+    DDSurfaceDesc.dwFlags = DDSD_CAPS;
     DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
 
     if ( FAILED(g_lpDD->CreateSurface(&DDSurfaceDesc, &g_lpDDScreen, NULL)) )
+        return false;
+
+    if ( FAILED(g_lpDDScreen->SetPalette(g_lpDDPalette)) )
         return false;
 
     // Success
@@ -187,6 +196,27 @@ static void WinShutDown()
         g_lpDD->Release();
 }
 
+// DEBUG
+static void TrySurface()
+{
+    DDSURFACEDESC2 DDSurfaceDesc;
+    memset(&DDSurfaceDesc, 0, sizeof(DDSurfaceDesc));
+
+    g_lpDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL);
+
+    s32 memPitch = DDSurfaceDesc.lPitch;
+    u8* videoBuffer = (u8*)DDSurfaceDesc.lpSurface;
+    /*
+    for (s32 i = 0; i < 1000; ++i)
+    {
+        s32 x = rand() % SCREEN_WIDTH;
+        s32 y = rand() % SCREEN_HEIGHT;
+        videoBuffer[y*memPitch + x] = rand()%256;
+    }
+    */
+    g_lpDDScreen->Unlock(NULL);
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     if ( !WinInit(hInstance) )
@@ -199,6 +229,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         // DEBUG
         if (KEYDOWN(VK_ESCAPE))
             break;
+        TrySurface();
 
         if (!WinEvents())
             break;  // Break on quit event
