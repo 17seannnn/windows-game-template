@@ -1,12 +1,14 @@
-// Windows stuff >>>>
+/* === Windows stuff === */
 #define WIN32_LEAN_AND_MEAN // No MFC
 
 #include <windows.h>
 #include <windowsx.h>
-// <<<< Windows stuff
 
-// Defines >>>>
+/* === Includes === */
+#include "Types.h"
+#include "Game.h"
 
+/* === Defines === */
 // Window
 #define WINDOW_CLASS_NAME "WINDOW_CLASS"
 #define WINDOW_WIDTH  800
@@ -16,14 +18,12 @@
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
 #define KEYUP(VK)   (GetAsyncKeyState(VK) & 0x8000 ? 0 : 1)
 
-// <<<< Defines
-
-// Globals >>>>
+/* === Globals === */
 static int g_nExitCode = 0;
 static HINSTANCE g_hInstance = NULL;
 static HWND g_hWindow = NULL;
-// <<<< Globals
 
+/* === Functions === */
 static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
@@ -52,7 +52,7 @@ static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lP
     return 0;
 }
 
-static bool WinInit(HINSTANCE hInstance)
+static b32 WinInit(HINSTANCE hInstance)
 {
     // Define global hInstance
     g_hInstance = hInstance;
@@ -97,7 +97,7 @@ static bool WinInit(HINSTANCE hInstance)
     return true;
 }
 
-static bool WinEvents()
+static b32 WinEvents()
 {
     MSG msg;
 
@@ -119,17 +119,21 @@ static bool WinEvents()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     WinInit(hInstance);
+    Game::Init();
 
-    for (;;)
+    while (Game::Running())
     {
+        // DEBUG
+        if (KEYDOWN(VK_ESCAPE))
+            break;
+
         if (!WinEvents())
             break;  // Break on quit event
-
-        if (KEYDOWN(VK_ESCAPE))
-            SendMessage(g_hWindow, WM_CLOSE, 0, 0);
+        Game::Update();
+        Game::Render();
     }
 
-    MessageBeep(MB_ICONEXCLAMATION);
+    Game::ShutDown();
 
     return g_nExitCode;
 }
