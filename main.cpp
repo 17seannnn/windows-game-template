@@ -38,7 +38,9 @@ static HINSTANCE g_hInstance = NULL;
 static HWND g_hWindow = NULL;
 
 // DirectX
-static LPDIRECTDRAW7 lpDD = NULL;
+static LPDIRECTDRAW7 g_lpDD = NULL;
+static LPDIRECTDRAWPALETTE g_lpDDPalette = NULL;
+static LPDIRECTDRAWSURFACE7 g_lpDDScreen = NULL;
 
 /* === Functions === */
 static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -71,6 +73,9 @@ static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lP
 
 static b32 WinInit(HINSTANCE hInstance)
 {
+    // Init rand seed
+    srand(GetTickCount());
+
     // Define global hInstance
     g_hInstance = hInstance;
 
@@ -111,11 +116,47 @@ static b32 WinInit(HINSTANCE hInstance)
         return false;
 
     // Initialize DirectDraw
-    if ( FAILED(DirectDrawCreateEx(NULL, (void**)&lpDD, IID_IDirectDraw7, NULL)) )
+    if ( FAILED(DirectDrawCreateEx(NULL, (void**)&g_lpDD, IID_IDirectDraw7, NULL)) )
         return false;
-    lpDD->SetCooperativeLevel(g_hWindow, DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE|
-                                         DDSCL_ALLOWMODEX|DDSCL_ALLOWREBOOT);
-    lpDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0);
+    g_lpDD->SetCooperativeLevel(g_hWindow, DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE|
+                                           DDSCL_ALLOWMODEX|DDSCL_ALLOWREBOOT);
+    g_lpDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0);
+
+    // Create pallete
+    PALETTEENTRY palette[256];
+    for (s32 i = 1; i < 255; ++i)
+    {
+        palette[i].peRed = rand()%256;
+        palette[i].peGreen = rand()%256;
+        palette[i].peBlue = rand()%256;
+        palette[i].peFlags = PC_NOCOLLAPSE;
+    }
+    palette[0].peRed = 0;
+    palette[0].peGreen = 0;
+    palette[0].peBlue = 0;
+    palette[0].peFlags = PC_NOCOLLAPSE;
+
+    palette[255].peRed = 255;
+    palette[255].peGreen = 255;
+    palette[255].peBlue = 255;
+    palette[255].peFlags = PC_NOCOLLAPSE;
+
+    if ( FAILED(g_lpDD->CreatePalette(DDPCAPS_8BIT|DDPCAPS_ALLOW256|
+                                      DDPCAPS_INITIALIZE,
+                                      palette,
+                                      &g_lpDDPalette,
+                                      NULL)) )
+        return false;
+
+    // Primary surface
+    DDSURFACEDESC2 DDSurfaceDesc;
+    memset(&DDSurfaceDesc, 0, sizeof(DDSurfaceDesc));
+    
+    DDSurfaceDesc.dwSize = sizeof(DDSurfaceDesc);
+    DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+
+    if ( FAILED(g_lpDD->CreateSurface(&DDSurfaceDesc, &g_lpDDScreen, NULL)) )
+        return false;
 
     // Success
     return true;
@@ -142,8 +183,8 @@ static b32 WinEvents()
 
 static void WinShutDown()
 {
-    if (lpDD)
-        lpDD->Release();
+    if (g_lpDD)
+        g_lpDD->Release();
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
