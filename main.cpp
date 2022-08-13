@@ -18,10 +18,12 @@
 #define SUCCESS_CODE 0
 #define ERROR_CODE 1
 
-// Window
+// Screen
 #define WINDOW_CLASS_NAME "WINDOW_CLASS"
-#define WINDOW_WIDTH  800
-#define WINDOW_HEIGHT 640
+
+#define SCREEN_WIDTH  800
+#define SCREEN_HEIGHT 640
+#define SCREEN_BPP 8
 
 // Keyboard macroses
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
@@ -95,11 +97,11 @@ static b32 WinInit(HINSTANCE hInstance)
     g_hWindow = CreateWindowEx(NULL, // Useless
                                WINDOW_CLASS_NAME,
                                "Game Template",
-                               WS_OVERLAPPEDWINDOW|WS_VISIBLE,
-                               (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH)/2,
-                               (GetSystemMetrics(SM_CYSCREEN) - WINDOW_HEIGHT)/2,
-                               WINDOW_WIDTH,
-                               WINDOW_HEIGHT,
+                               WS_POPUP|WS_VISIBLE,
+                               (GetSystemMetrics(SM_CXSCREEN) - SCREEN_WIDTH)/2,
+                               (GetSystemMetrics(SM_CYSCREEN) - SCREEN_HEIGHT)/2,
+                               SCREEN_WIDTH,
+                               SCREEN_HEIGHT,
                                NULL, // Parent
                                NULL, // Menu
                                g_hInstance,
@@ -111,7 +113,9 @@ static b32 WinInit(HINSTANCE hInstance)
     // Initialize DirectDraw
     if ( FAILED(DirectDrawCreateEx(NULL, (void**)&lpDD, IID_IDirectDraw7, NULL)) )
         return false;
-    lpDD->SetCooperativeLevel(g_hWindow, DDSCL_NORMAL);
+    lpDD->SetCooperativeLevel(g_hWindow, DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE|
+                                         DDSCL_ALLOWMODEX|DDSCL_ALLOWREBOOT);
+    lpDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0);
 
     // Success
     return true;
