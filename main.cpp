@@ -107,8 +107,7 @@ static b32 WinInit(HINSTANCE hInstance)
                                "Game Template",
                                WS_POPUP|WS_VISIBLE,
                                0, 0,
-                               SCREEN_WIDTH,
-                               SCREEN_HEIGHT,
+                               1, 1,
                                NULL, // Parent
                                NULL, // Menu
                                g_hInstance,
@@ -201,20 +200,23 @@ static void TrySurface()
 {
     DDSURFACEDESC2 DDSurfaceDesc;
     memset(&DDSurfaceDesc, 0, sizeof(DDSurfaceDesc));
+    DDSurfaceDesc.dwSize = sizeof(DDSurfaceDesc);
 
-    g_lpDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL);
+    if ( FAILED(g_lpDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL)) )
+        exit(ERROR_CODE);
 
     s32 memPitch = DDSurfaceDesc.lPitch;
     u8* videoBuffer = (u8*)DDSurfaceDesc.lpSurface;
-    /*
+
     for (s32 i = 0; i < 1000; ++i)
     {
         s32 x = rand() % SCREEN_WIDTH;
         s32 y = rand() % SCREEN_HEIGHT;
         videoBuffer[y*memPitch + x] = rand()%256;
     }
-    */
-    g_lpDDScreen->Unlock(NULL);
+
+    if ( FAILED(g_lpDDScreen->Unlock(NULL)) )
+        exit(ERROR_CODE);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
