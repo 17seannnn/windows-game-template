@@ -1,3 +1,6 @@
+/* \\\ Later TODO /// */
+// - Maybe we can just set Game::m_bRunning to false instead of using windows close
+
 /* === Includes === */
 // Windows
 #define WIN32_LEAN_AND_MEAN // No MFC
@@ -48,6 +51,7 @@ static s32 g_nExitCode = SUCCESS_CODE;
 // Windows
 static HINSTANCE g_hInstance = NULL;
 static HWND g_hWindow = NULL;
+static bool g_bWindowClosed = false;
 
 // DirectX
 static LPDIRECTDRAW7 g_pDD = NULL;
@@ -238,7 +242,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         { // DEBUG
             // Leave on Escape
             if (KEYDOWN(VK_ESCAPE))
-                break;
+            {
+                g_bWindowClosed = true;
+                PostMessage(g_hWindow, WM_CLOSE, 0, 0);
+            }
 
             // Plot pixels in back buffer
             DDSURFACEDESC2 DDSurfaceDesc;
@@ -252,17 +259,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 PlotPixel32(videoBuffer,
                             pitch32,
                             rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
-                            rand()%256, rand()%256, rand()%256, rand()%256);
+                            255, 255, 0, 0);
 
             g_pDDScreenBack->Unlock(NULL);
 
-            // Flip back buffer
+            // Flip buffers
             g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
         }
 
         if (!WinEvents())
             break;  // Break on quit event
         Game::Update();
+        if (g_bWindowClosed)
+            break; // DirectX may want to get window but it can be closed
         Game::Render();
     }
 
