@@ -51,8 +51,8 @@ static HWND g_hWindow = NULL;
 
 // DirectX
 static LPDIRECTDRAW7 g_pDD = NULL;
-static LPDIRECTDRAWPALETTE g_pDDPalette = NULL;
 static LPDIRECTDRAWSURFACE7 g_pDDScreen = NULL;
+static LPDIRECTDRAWSURFACE7 g_pDDScreenBack = NULL;
 
 /* === Functions === */
 static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -135,49 +135,20 @@ static b32 WinInit(HINSTANCE hInstance)
     if ( FAILED(g_pDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0)) )
         return false;
 
-    /* BPP 8
-    // Create palette
-    PALETTEENTRY palette[256];
-    for (s32 i = 1; i < 255; ++i)
-    {
-        palette[i].peRed = rand()%256;
-        palette[i].peGreen = rand()%256;
-        palette[i].peBlue = rand()%256;
-        palette[i].peFlags = PC_NOCOLLAPSE;
-    }
-    palette[0].peRed = 0;
-    palette[0].peGreen = 0;
-    palette[0].peBlue = 0;
-    palette[0].peFlags = PC_NOCOLLAPSE;
-
-    palette[255].peRed = 255;
-    palette[255].peGreen = 255;
-    palette[255].peBlue = 255;
-    palette[255].peFlags = PC_NOCOLLAPSE;
-
-    if ( FAILED(g_pDD->CreatePalette(DDPCAPS_8BIT|DDPCAPS_ALLOW256|
-                                      DDPCAPS_INITIALIZE,
-                                      palette,
-                                      &g_pDDPalette,
-                                      NULL)) )
-        return false;
-    */
-
     // Primary surface
     DDSURFACEDESC2 DDSurfaceDesc;
-    memset(&DDSurfaceDesc, 0, sizeof(DDSurfaceDesc));
+    DDRAW_INIT_STRUCT(DDSurfaceDesc);
 
-    DDSurfaceDesc.dwSize = sizeof(DDSurfaceDesc);
-    DDSurfaceDesc.dwFlags = DDSD_CAPS;
-    DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+    DDSurfaceDesc.dwFlags = DDSD_CAPS|DDSD_BACKBUFFERCOUNT;
+    DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE|DDSCAPS_COMPLEX|DDSCAPS_FLIP;
+    DDSurfaceDesc.dwBackBufferCount = 1;
 
     if ( FAILED(g_pDD->CreateSurface(&DDSurfaceDesc, &g_pDDScreen, NULL)) )
         return false;
 
-    /* BPP 8
-    if ( FAILED(g_pDDScreen->SetPalette(g_pDDPalette)) )
+    DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
+    if ( FAILED(g_pDDScreen->GetAttachedSurface(&DDSurfaceDesc.ddsCaps, &g_pDDScreenBack)) )
         return false;
-    */
 
     // Success
     return true;
@@ -204,13 +175,11 @@ static b32 WinEvents()
 
 static void WinShutDown()
 {
-    /* BPP 8
-    if (g_pDDPalette)
+    if (g_pDDScreenBack)
     {
-        g_pDDPalette->Release();
-        g_pDDPalette = NULL;
+        g_pDDScreenBack->Release();
+        g_pDDScreenBack = NULL;
     }
-    */
 
     if (g_pDDScreen)
     {
@@ -225,31 +194,6 @@ static void WinShutDown()
     }
 }
 
-// DEBUG
-static void TrySurface()
-{
-    DDSURFACEDESC2 DDSurfaceDesc;
-    memset(&DDSurfaceDesc, 0, sizeof(DDSurfaceDesc));
-    DDSurfaceDesc.dwSize = sizeof(DDSurfaceDesc);
-
-    if ( FAILED(g_pDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL)) )
-        exit(ERROR_CODE);
-
-    s32 memPitch = DDSurfaceDesc.lPitch >> 1; // Divide by 2, because we going to use u16 instead of u8 bytes
-    u16* videoBuffer = (u16*)DDSurfaceDesc.lpSurface;
-
-    for (s32 i = 0; i < 1000; ++i)
-    {
-        s32 x = rand() % SCREEN_WIDTH;
-        s32 y = rand() % SCREEN_HEIGHT;
-        videoBuffer[y*memPitch + x] = ((15 & 31) << 11) + ((15 & 31));
-    }
-
-    if ( FAILED(g_pDDScreen->Unlock(NULL)) )
-        exit(ERROR_CODE);
-}
-
-// DEBUG
 static void PlotPixel16(LPDIRECTDRAWSURFACE7 pSurface, s32 x, s32 y, s32 r, s32 g, s32 b)
 {
     DDSURFACEDESC2 DDSurfaceDesc;
@@ -264,24 +208,11 @@ static void PlotPixel16(LPDIRECTDRAWSURFACE7 pSurface, s32 x, s32 y, s32 r, s32 
     pSurface->Unlock(NULL);
 }
 
-#if 1
-// DEBUG
 static inline void PlotPixelFast16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
 {
     videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b);
 }
-#endif
 
-#if 0
-// DEBUG ONLY FOR 640 PITCH16 AND LOWER THAN PENTIUM II: Y << 9 + Y << 7 = Y*512 + Y*128
-static inline void PlotPixelFast16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
-{
-    videoBuffer[(y<<9) + (y<<7) + x] = _RGB16BIT565(r, g, b);
-}
-#endif
-
-#if 0
-// DEBUG
 static inline void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b)
 {
     s32 addr = y*pitch + (x+x+x);
@@ -289,15 +220,11 @@ static inline void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, 
     videoBuffer[addr+1] = (u8)g;
     videoBuffer[addr+2] = (u8)b;
 }
-#endif
 
-#if 1
-// DEBUG
 static inline void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 a, s32 r, s32 g, s32 b)
 {
     videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b);
 }
-#endif
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -313,55 +240,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             { // Leave on Escape
                 if (KEYDOWN(VK_ESCAPE))
                     break;
-            }
 
-#if 0
-            { // Not fast PlotPixel16
-                for (s32 i = 0; i < 1000; ++i)
-                    PlotPixel16(g_pDDScreen, rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, rand()%256, rand()%256, rand()%256);
-            }
-#endif
-
-#if 0
-            { // Fast PlotPixel16
-                DDSURFACEDESC2 DDSurfaceDesc;
-                DDRAW_INIT_STRUCT(DDSurfaceDesc);
-
-                g_pDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
-                u16* videoBuffer = (u16*)DDSurfaceDesc.lpSurface;
-                s32 pitch16 = DDSurfaceDesc.lPitch >> 1;
-
-                for (s32 i = 0; i < 1000; ++i)
-                    PlotPixelFast16(videoBuffer,
-                                    pitch16,
-                                    rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
-                                    rand()%256, rand()%256, rand()%256);
-
-                g_pDDScreen->Unlock(NULL);
-            }
-#endif
-
-#if 0
-            { // PlotPixel24
-                DDSURFACEDESC2 DDSurfaceDesc;
-                DDRAW_INIT_STRUCT(DDSurfaceDesc);
-
-                g_pDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
-                u8* videoBuffer = (u8*)DDSurfaceDesc.lpSurface;
-                s32 pitch = DDSurfaceDesc.lPitch;
-
-                for (s32 i = 0; i < 1000; ++i)
-                    PlotPixel24(videoBuffer,
-                                pitch,
-                                rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
-                                rand()%256, rand()%256, rand()%256);
-
-                g_pDDScreen->Unlock(NULL);
-            }
-#endif
-
-#if 1
-            { // PlotPixel32
                 DDSURFACEDESC2 DDSurfaceDesc;
                 DDRAW_INIT_STRUCT(DDSurfaceDesc);
 
@@ -377,7 +256,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
                 g_pDDScreen->Unlock(NULL);
             }
-#endif
 
         }
 
