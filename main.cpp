@@ -32,6 +32,13 @@
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
 #define KEYUP(VK)   (GetAsyncKeyState(VK) & 0x8000 ? 0 : 1)
 
+// RGB macroses
+#define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )
+#define _RGB16BIT555(R, G, B) ( ((R & 31) << 10) + ((G & 31) << 5) + (B & 31) )
+
+// DirectDraw macroses
+#define DDRAW_INIT_STRUCT(STRUCT) { memset(&STRUCT, 0, sizeof(STRUCT)); STRUCT.dwSize = sizeof(STRUCT); }
+
 /* === Globals === */
 // App
 static s32 g_nExitCode = SUCCESS_CODE;
@@ -41,9 +48,9 @@ static HINSTANCE g_hInstance = NULL;
 static HWND g_hWindow = NULL;
 
 // DirectX
-static LPDIRECTDRAW7 g_lpDD = NULL;
-static LPDIRECTDRAWPALETTE g_lpDDPalette = NULL;
-static LPDIRECTDRAWSURFACE7 g_lpDDScreen = NULL;
+static LPDIRECTDRAW7 g_pDD = NULL;
+static LPDIRECTDRAWPALETTE g_pDDPalette = NULL;
+static LPDIRECTDRAWSURFACE7 g_pDDScreen = NULL;
 
 /* === Functions === */
 static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -117,13 +124,13 @@ static b32 WinInit(HINSTANCE hInstance)
         return false;
 
     // Initialize DirectDraw
-    if ( FAILED(DirectDrawCreateEx(NULL, (void**)&g_lpDD, IID_IDirectDraw7, NULL)) )
+    if ( FAILED(DirectDrawCreateEx(NULL, (void**)&g_pDD, IID_IDirectDraw7, NULL)) )
         return false;
-    if ( FAILED(g_lpDD->SetCooperativeLevel(g_hWindow, DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE|
+    if ( FAILED(g_pDD->SetCooperativeLevel(g_hWindow, DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE|
                                                        DDSCL_ALLOWMODEX|DDSCL_ALLOWREBOOT)) )
         return false;
 
-    if ( FAILED(g_lpDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0)) )
+    if ( FAILED(g_pDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0)) )
         return false;
 
     /* BPP 8
@@ -146,10 +153,10 @@ static b32 WinInit(HINSTANCE hInstance)
     palette[255].peBlue = 255;
     palette[255].peFlags = PC_NOCOLLAPSE;
 
-    if ( FAILED(g_lpDD->CreatePalette(DDPCAPS_8BIT|DDPCAPS_ALLOW256|
+    if ( FAILED(g_pDD->CreatePalette(DDPCAPS_8BIT|DDPCAPS_ALLOW256|
                                       DDPCAPS_INITIALIZE,
                                       palette,
-                                      &g_lpDDPalette,
+                                      &g_pDDPalette,
                                       NULL)) )
         return false;
     */
@@ -162,11 +169,11 @@ static b32 WinInit(HINSTANCE hInstance)
     DDSurfaceDesc.dwFlags = DDSD_CAPS;
     DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
 
-    if ( FAILED(g_lpDD->CreateSurface(&DDSurfaceDesc, &g_lpDDScreen, NULL)) )
+    if ( FAILED(g_pDD->CreateSurface(&DDSurfaceDesc, &g_pDDScreen, NULL)) )
         return false;
 
     /* BPP 8
-    if ( FAILED(g_lpDDScreen->SetPalette(g_lpDDPalette)) )
+    if ( FAILED(g_pDDScreen->SetPalette(g_pDDPalette)) )
         return false;
     */
 
@@ -195,22 +202,24 @@ static b32 WinEvents()
 
 static void WinShutDown()
 {
-    if (g_lpDDPalette)
+    /* BPP 8
+    if (g_pDDPalette)
     {
-        g_lpDDPalette->Release();
-        g_lpDDPalette = NULL;
+        g_pDDPalette->Release();
+        g_pDDPalette = NULL;
+    }
+    */
+
+    if (g_pDDScreen)
+    {
+        g_pDDScreen->Release();
+        g_pDDScreen = NULL;
     }
 
-    if (g_lpDDScreen)
+    if (g_pDD)
     {
-        g_lpDDScreen->Release();
-        g_lpDDPalette = NULL;
-    }
-
-    if (g_lpDD)
-    {
-        g_lpDD->Release();
-        g_lpDDPalette = NULL;
+        g_pDD->Release();
+        g_pDD= NULL;
     }
 }
 
@@ -221,7 +230,7 @@ static void TrySurface()
     memset(&DDSurfaceDesc, 0, sizeof(DDSurfaceDesc));
     DDSurfaceDesc.dwSize = sizeof(DDSurfaceDesc);
 
-    if ( FAILED(g_lpDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL)) )
+    if ( FAILED(g_pDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL)) )
         exit(ERROR_CODE);
 
     s32 memPitch = DDSurfaceDesc.lPitch >> 1; // Divide by 2, because we going to use u16 instead of u8 bytes
@@ -231,11 +240,26 @@ static void TrySurface()
     {
         s32 x = rand() % SCREEN_WIDTH;
         s32 y = rand() % SCREEN_HEIGHT;
-        videoBuffer[y*memPitch + x] = 31 << 11;
+        videoBuffer[y*memPitch + x] = ((15 & 31) << 11) + ((15 & 31));
     }
 
-    if ( FAILED(g_lpDDScreen->Unlock(NULL)) )
+    if ( FAILED(g_pDDScreen->Unlock(NULL)) )
         exit(ERROR_CODE);
+}
+
+// DEBUG
+static void PlotPixel16(LPDIRECTDRAWSURFACE7 pSurface, s32 x, s32 y, s32 r, s32 g, s32 b)
+{
+    DDSURFACEDESC2 DDSurfaceDesc;
+    DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+    if ( FAILED(pSurface->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL)) )
+        return;
+
+    u16* videoBuffer = (u16*)DDSurfaceDesc.lpSurface;
+    videoBuffer[y*(DDSurfaceDesc.lPitch >> 1) + x] = _RGB16BIT565(r, g, b);
+
+    pSurface->Unlock(NULL);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
@@ -250,7 +274,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         // DEBUG
         if (KEYDOWN(VK_ESCAPE))
             break;
-        TrySurface();
+
+        PlotPixel16(g_pDDScreen, rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 255, 0, 0);
 
         if (!WinEvents())
             break;  // Break on quit event
