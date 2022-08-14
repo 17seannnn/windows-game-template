@@ -235,28 +235,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     while (Game::Running())
     {
-        // DEBUG
-        {
-            { // Leave on Escape
-                if (KEYDOWN(VK_ESCAPE))
-                    break;
+        { // DEBUG
+            // Leave on Escape
+            if (KEYDOWN(VK_ESCAPE))
+                break;
 
-                DDSURFACEDESC2 DDSurfaceDesc;
-                DDRAW_INIT_STRUCT(DDSurfaceDesc);
+            // Plot pixels in back buffer
+            DDSURFACEDESC2 DDSurfaceDesc;
+            DDRAW_INIT_STRUCT(DDSurfaceDesc);
 
-                g_pDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
-                u32* videoBuffer = (u32*)DDSurfaceDesc.lpSurface;
-                s32 pitch32 = DDSurfaceDesc.lPitch >> 2;
+            g_pDDScreenBack->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
+            u32* videoBuffer = (u32*)DDSurfaceDesc.lpSurface;
+            s32 pitch32 = DDSurfaceDesc.lPitch >> 2;
 
-                for (s32 i = 0; i < 1000; ++i)
-                    PlotPixel32(videoBuffer,
-                                pitch32,
-                                rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
-                                rand()%256, rand()%256, rand()%256, rand()%256);
+            for (s32 i = 0; i < 1000; ++i)
+                PlotPixel32(videoBuffer,
+                            pitch32,
+                            rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
+                            rand()%256, rand()%256, rand()%256, rand()%256);
 
-                g_pDDScreen->Unlock(NULL);
-            }
+            g_pDDScreenBack->Unlock(NULL);
 
+            // Flip back buffer
+            g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
         }
 
         if (!WinEvents())
