@@ -1,6 +1,3 @@
-/* \\\ Later TODO /// */
-// - Maybe we can just set Game::m_bRunning to false instead of using windows close
-
 /* === Includes === */
 // Windows
 #define WIN32_LEAN_AND_MEAN // No MFC
@@ -29,7 +26,7 @@
 
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 480
-#define SCREEN_BPP 32
+#define SCREEN_BPP 16
 
 // Keyboard macroses
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
@@ -133,7 +130,7 @@ static b32 WinInit(HINSTANCE hInstance)
     if ( FAILED(DirectDrawCreateEx(NULL, (void**)&g_pDD, IID_IDirectDraw7, NULL)) )
         return false;
     if ( FAILED(g_pDD->SetCooperativeLevel(g_hWindow, DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE|
-                                                       DDSCL_ALLOWMODEX|DDSCL_ALLOWREBOOT)) )
+                                                      DDSCL_ALLOWMODEX|DDSCL_ALLOWREBOOT)) )
         return false;
 
     if ( FAILED(g_pDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0)) )
@@ -240,9 +237,38 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if ( !Game::Init() )
         return ERROR_CODE;
 
+    { // DEBUG INIT
+        DDSURFACEDESC2 DDSurfaceDesc;
+        DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+        g_pDDScreenBack->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL);
+        u16* videoBuffer = (u16*)DDSurfaceDesc.lpSurface;
+        s32 pitch16 = DDSurfaceDesc.lPitch >> 1;
+
+        for (s32 y = 0; y < SCREEN_HEIGHT; ++y)
+        {
+            u32 color = _RGB16BIT565(0, y >> 3, 0); // Green gradient
+            color |= color << 16; // Two WORDs in one DWORD
+
+            // Real game programmer stuff
+            _asm
+            {
+                CLD                                     ; clear direction
+                MOV     EAX, color                      ; color -> EAX
+                MOV     ECX, (SCREEN_WIDTH >> 1)        ; we fill videoBuffer with DWORD so we'll fill it SCREEN_WIDTH/2 times
+                MOV     EDI, videoBuffer                ; videoBuffer -> EDI
+                REP     STOSD                           ; move stuff
+            }
+
+            videoBuffer += pitch16;
+        }
+
+        g_pDDScreenBack->Unlock(NULL);
+    }
+
     while (Game::Running())
     {
-        { // DEBUG
+        { // DEBUG QUIT
             // Leave on Escape
             if (KEYDOWN(VK_ESCAPE))
             {
@@ -258,18 +284,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             break; // DirectX may want to get window but it can be closed
         Game::Render();
 
-        { // DEBUG
-            DDBLTFX DDBltFx;
-            DDRAW_INIT_STRUCT(DDBltFx);
-            DDBltFx.dwFillColor = _RGB32BIT(rand() % 256, rand() % 256, rand() % 256, rand() % 256);
-
-            RECT dstRect;
-            dstRect.left = rand() % SCREEN_WIDTH;
-            dstRect.right = dstRect.left + rand() % SCREEN_WIDTH;
-            dstRect.top = rand() % SCREEN_HEIGHT;
-            dstRect.bottom = dstRect.top + rand() % SCREEN_HEIGHT;
-
-            g_pDDScreenBack->Blt(&dstRect, NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &DDBltFx);
+        { // DEBUG MAIN
         }
 
         // Flip buffers
