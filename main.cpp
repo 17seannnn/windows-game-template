@@ -26,7 +26,7 @@
 
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 480
-#define SCREEN_BPP 24
+#define SCREEN_BPP 32
 
 // Keyboard macroses
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
@@ -36,6 +36,7 @@
 #define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )
 #define _RGB16BIT555(R, G, B) ( ((R & 31) << 10) + ((G & 31) << 5) + (B & 31) )
 #define _RGB24BIT(R, G, B) ( ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
+#define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
 // DirectDraw macroses
 #define DDRAW_INIT_STRUCT(STRUCT) { memset(&STRUCT, 0, sizeof(STRUCT)); STRUCT.dwSize = sizeof(STRUCT); }
@@ -279,6 +280,8 @@ static inline void PlotPixelFast16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, 
 }
 #endif
 
+#if 0
+// DEBUG
 static inline void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b)
 {
     s32 addr = y*pitch + (x+x+x);
@@ -286,6 +289,15 @@ static inline void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, 
     videoBuffer[addr+1] = (u8)g;
     videoBuffer[addr+2] = (u8)b;
 }
+#endif
+
+#if 1
+// DEBUG
+static inline void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 a, s32 r, s32 g, s32 b)
+{
+    videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b);
+}
+#endif
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -329,7 +341,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             }
 #endif
 
-#if 1
+#if 0
             { // PlotPixel24
                 DDSURFACEDESC2 DDSurfaceDesc;
                 DDRAW_INIT_STRUCT(DDSurfaceDesc);
@@ -343,6 +355,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                                 pitch,
                                 rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
                                 rand()%256, rand()%256, rand()%256);
+
+                g_pDDScreen->Unlock(NULL);
+            }
+#endif
+
+#if 1
+            { // PlotPixel32
+                DDSURFACEDESC2 DDSurfaceDesc;
+                DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+                g_pDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
+                u32* videoBuffer = (u32*)DDSurfaceDesc.lpSurface;
+                s32 pitch32 = DDSurfaceDesc.lPitch >> 2;
+
+                for (s32 i = 0; i < 1000; ++i)
+                    PlotPixel32(videoBuffer,
+                                pitch32,
+                                rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
+                                rand()%256, rand()%256, rand()%256, rand()%256);
 
                 g_pDDScreen->Unlock(NULL);
             }
