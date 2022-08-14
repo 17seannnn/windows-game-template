@@ -262,6 +262,13 @@ static void PlotPixel16(LPDIRECTDRAWSURFACE7 pSurface, s32 x, s32 y, s32 r, s32 
     pSurface->Unlock(NULL);
 }
 
+// DEBUG
+static inline void PlotPixelFast16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
+{
+    videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b);
+}
+
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     if ( !WinInit(hInstance) )
@@ -272,10 +279,38 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     while (Game::Running())
     {
         // DEBUG
-        if (KEYDOWN(VK_ESCAPE))
-            break;
+        {
+            { // Leave on Escape
+                if (KEYDOWN(VK_ESCAPE))
+                    break;
+            }
 
-        PlotPixel16(g_pDDScreen, rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 255, 0, 0);
+#if 0
+            { // Not fast PlotPixel
+                for (s32 i = 0; i < 1000; ++i)
+                    PlotPixel16(g_pDDScreen, rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 255, 0, 0);
+            }
+#endif
+
+#if 1
+            { // Fast PlotPixel
+                DDSURFACEDESC2 DDSurfaceDesc;
+                DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+                g_pDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
+                u16* videoBuffer = (u16*)DDSurfaceDesc.lpSurface;
+                s32 pitch16 = DDSurfaceDesc.lPitch >> 1;
+
+                for (s32 i = 0; i < 1000; ++i)
+                    PlotPixelFast16(videoBuffer,
+                                    pitch16,
+                                    rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
+                                    255, 0, 0);
+
+                g_pDDScreen->Unlock(NULL);
+            }
+#endif
+        }
 
         if (!WinEvents())
             break;  // Break on quit event
