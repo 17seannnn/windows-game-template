@@ -26,7 +26,7 @@
 
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 480
-#define SCREEN_BPP 8
+#define SCREEN_BPP 16
 
 // Keyboard macroses
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
@@ -126,7 +126,8 @@ static b32 WinInit(HINSTANCE hInstance)
     if ( FAILED(g_lpDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0)) )
         return false;
 
-    // Create pallete
+    /* BPP 8
+    // Create palette
     PALETTEENTRY palette[256];
     for (s32 i = 1; i < 255; ++i)
     {
@@ -151,6 +152,7 @@ static b32 WinInit(HINSTANCE hInstance)
                                       &g_lpDDPalette,
                                       NULL)) )
         return false;
+    */
 
     // Primary surface
     DDSURFACEDESC2 DDSurfaceDesc;
@@ -163,8 +165,10 @@ static b32 WinInit(HINSTANCE hInstance)
     if ( FAILED(g_lpDD->CreateSurface(&DDSurfaceDesc, &g_lpDDScreen, NULL)) )
         return false;
 
+    /* BPP 8
     if ( FAILED(g_lpDDScreen->SetPalette(g_lpDDPalette)) )
         return false;
+    */
 
     // Success
     return true;
@@ -220,14 +224,14 @@ static void TrySurface()
     if ( FAILED(g_lpDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL)) )
         exit(ERROR_CODE);
 
-    s32 memPitch = DDSurfaceDesc.lPitch;
-    u8* videoBuffer = (u8*)DDSurfaceDesc.lpSurface;
+    s32 memPitch = DDSurfaceDesc.lPitch >> 1; // Divide by 2, because we going to use u16 instead of u8 bytes
+    u16* videoBuffer = (u16*)DDSurfaceDesc.lpSurface;
 
     for (s32 i = 0; i < 1000; ++i)
     {
         s32 x = rand() % SCREEN_WIDTH;
         s32 y = rand() % SCREEN_HEIGHT;
-        videoBuffer[y*memPitch + x] = rand()%256;
+        videoBuffer[y*memPitch + x] = 31 << 11;
     }
 
     if ( FAILED(g_lpDDScreen->Unlock(NULL)) )
