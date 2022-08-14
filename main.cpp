@@ -1,3 +1,7 @@
+// Check
+// - what if we use left for example 100 and right 50
+// - What if dstRect smaller or bigger than src and vice versa?
+
 /* === Includes === */
 // Windows
 #define WIN32_LEAN_AND_MEAN // No MFC
@@ -285,10 +289,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         Game::Render();
 
         { // DEBUG MAIN
+            RECT dstRect, srcRect;
+
+            dstRect.left = rand() % SCREEN_WIDTH;
+            dstRect.right = rand() % SCREEN_WIDTH;
+            dstRect.top = rand() % SCREEN_HEIGHT;
+            dstRect.bottom = rand() % SCREEN_HEIGHT;
+
+            srcRect.left = rand() % SCREEN_WIDTH;
+            srcRect.right = rand() % SCREEN_WIDTH;
+            srcRect.top = rand() % SCREEN_HEIGHT;
+            srcRect.bottom = rand() % SCREEN_HEIGHT;
+
+            g_pDDScreen->Blt(&dstRect, g_pDDScreenBack, &srcRect, DDBLT_WAIT, NULL);
         }
 
         // Flip buffers
-        g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
+        // DEBUG uncomment
+        //g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
     }
 
     Game::ShutDown();
