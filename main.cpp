@@ -191,8 +191,23 @@ static b32 WinEvents()
 
 static void WinShutDown()
 {
+    if (g_lpDDPalette)
+    {
+        g_lpDDPalette->Release();
+        g_lpDDPalette = NULL;
+    }
+
+    if (g_lpDDScreen)
+    {
+        g_lpDDScreen->Release();
+        g_lpDDPalette = NULL;
+    }
+
     if (g_lpDD)
+    {
         g_lpDD->Release();
+        g_lpDDPalette = NULL;
+    }
 }
 
 // DEBUG
