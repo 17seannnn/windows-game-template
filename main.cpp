@@ -230,6 +230,23 @@ static inline void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 
     videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b);
 }
 
+static void BlitBitMap(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
+{
+    videoBuffer += posY*pitch32 + posX; // Start position for videoBuffer pointer
+
+    for (s32 y = 0; y < h; ++y)
+    {
+        for (s32 x = 0; x < w; ++x)
+        {
+            u32 pixel;
+            if ((pixel = bitMap[x])) // Plot opaque pixels only
+                videoBuffer[x] = pixel;
+        }
+        videoBuffer += pitch32;
+        bitMap += w;
+    }
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     if ( !WinInit(hInstance) )
@@ -262,9 +279,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                             255, 255, 0, 0);
 
             g_pDDScreenBack->Unlock(NULL);
-
-            // Flip buffers
-            g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
         }
 
         if (!WinEvents())
@@ -273,6 +287,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         if (g_bWindowClosed)
             break; // DirectX may want to get window but it can be closed
         Game::Render();
+        
+        // Flip buffers
+        g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
     }
 
     Game::ShutDown();
