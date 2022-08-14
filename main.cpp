@@ -198,21 +198,7 @@ static void WinShutDown()
     }
 }
 
-static void PlotPixel16(LPDIRECTDRAWSURFACE7 pSurface, s32 x, s32 y, s32 r, s32 g, s32 b)
-{
-    DDSURFACEDESC2 DDSurfaceDesc;
-    DDRAW_INIT_STRUCT(DDSurfaceDesc);
-
-    if ( FAILED(pSurface->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL)) )
-        return;
-
-    u16* videoBuffer = (u16*)DDSurfaceDesc.lpSurface;
-    videoBuffer[y*(DDSurfaceDesc.lPitch >> 1) + x] = _RGB16BIT565(r, g, b);
-
-    pSurface->Unlock(NULL);
-}
-
-static inline void PlotPixelFast16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
+static inline void PlotPixel16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
 {
     videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b);
 }
@@ -263,22 +249,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 g_bWindowClosed = true;
                 PostMessage(g_hWindow, WM_CLOSE, 0, 0);
             }
-
-            // Plot pixels in back buffer
-            DDSURFACEDESC2 DDSurfaceDesc;
-            DDRAW_INIT_STRUCT(DDSurfaceDesc);
-
-            g_pDDScreenBack->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
-            u32* videoBuffer = (u32*)DDSurfaceDesc.lpSurface;
-            s32 pitch32 = DDSurfaceDesc.lPitch >> 2;
-
-            for (s32 i = 0; i < 1000; ++i)
-                PlotPixel32(videoBuffer,
-                            pitch32,
-                            rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
-                            255, 255, 0, 0);
-
-            g_pDDScreenBack->Unlock(NULL);
         }
 
         if (!WinEvents())
@@ -287,7 +257,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         if (g_bWindowClosed)
             break; // DirectX may want to get window but it can be closed
         Game::Render();
-        
+
+        { // DEBUG
+            DDBLTFX DDBltFx;
+            DDRAW_INIT_STRUCT(DDBltFx);
+            DDBltFx.dwFillColor = _RGB32BIT(rand() % 256, rand() % 256, rand() % 256, rand() % 256);
+
+            RECT dstRect;
+            dstRect.left = rand() % SCREEN_WIDTH;
+            dstRect.right = dstRect.left + rand() % SCREEN_WIDTH;
+            dstRect.top = rand() % SCREEN_HEIGHT;
+            dstRect.bottom = dstRect.top + rand() % SCREEN_HEIGHT;
+
+            g_pDDScreenBack->Blt(&dstRect, NULL, NULL, DDBLT_COLORFILL|DDBLT_WAIT, &DDBltFx);
+        }
+
         // Flip buffers
         g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
     }
