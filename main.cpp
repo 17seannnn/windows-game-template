@@ -26,7 +26,7 @@
 
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 480
-#define SCREEN_BPP 16
+#define SCREEN_BPP 24
 
 // Keyboard macroses
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
@@ -35,6 +35,7 @@
 // RGB macroses
 #define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )
 #define _RGB16BIT555(R, G, B) ( ((R & 31) << 10) + ((G & 31) << 5) + (B & 31) )
+#define _RGB24BIT(R, G, B) ( ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
 // DirectDraw macroses
 #define DDRAW_INIT_STRUCT(STRUCT) { memset(&STRUCT, 0, sizeof(STRUCT)); STRUCT.dwSize = sizeof(STRUCT); }
@@ -262,12 +263,29 @@ static void PlotPixel16(LPDIRECTDRAWSURFACE7 pSurface, s32 x, s32 y, s32 r, s32 
     pSurface->Unlock(NULL);
 }
 
+#if 1
 // DEBUG
 static inline void PlotPixelFast16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
 {
     videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b);
 }
+#endif
 
+#if 0
+// DEBUG ONLY FOR 640 PITCH16 AND LOWER THAN PENTIUM II: Y << 9 + Y << 7 = Y*512 + Y*128
+static inline void PlotPixelFast16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
+{
+    videoBuffer[(y<<9) + (y<<7) + x] = _RGB16BIT565(r, g, b);
+}
+#endif
+
+static inline void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b)
+{
+    s32 addr = y*pitch + (x+x+x);
+    videoBuffer[addr] = (u8)r;
+    videoBuffer[addr+1] = (u8)g;
+    videoBuffer[addr+2] = (u8)b;
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -286,14 +304,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             }
 
 #if 0
-            { // Not fast PlotPixel
+            { // Not fast PlotPixel16
                 for (s32 i = 0; i < 1000; ++i)
-                    PlotPixel16(g_pDDScreen, rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, 255, 0, 0);
+                    PlotPixel16(g_pDDScreen, rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, rand()%256, rand()%256, rand()%256);
             }
 #endif
 
-#if 1
-            { // Fast PlotPixel
+#if 0
+            { // Fast PlotPixel16
                 DDSURFACEDESC2 DDSurfaceDesc;
                 DDRAW_INIT_STRUCT(DDSurfaceDesc);
 
@@ -305,11 +323,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                     PlotPixelFast16(videoBuffer,
                                     pitch16,
                                     rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
-                                    255, 0, 0);
+                                    rand()%256, rand()%256, rand()%256);
 
                 g_pDDScreen->Unlock(NULL);
             }
 #endif
+
+#if 1
+            { // PlotPixel24
+                DDSURFACEDESC2 DDSurfaceDesc;
+                DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+                g_pDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
+                u8* videoBuffer = (u8*)DDSurfaceDesc.lpSurface;
+                s32 pitch = DDSurfaceDesc.lPitch;
+
+                for (s32 i = 0; i < 1000; ++i)
+                    PlotPixel24(videoBuffer,
+                                pitch,
+                                rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT,
+                                rand()%256, rand()%256, rand()%256);
+
+                g_pDDScreen->Unlock(NULL);
+            }
+#endif
+
         }
 
         if (!WinEvents())
