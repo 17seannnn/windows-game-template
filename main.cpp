@@ -162,6 +162,7 @@ static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* 
     }
 }
 
+// TODO debug it
 LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count)
 {
     bool bResult = true;
@@ -381,9 +382,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     RECT clipList[1];
     clipList[0].left = 0;
     clipList[0].top = 0;
-    clipList[0].right = SCREEN_WIDTH-1;
-    clipList[0].bottom = SCREEN_HEIGHT-1;
-    if ( !(g_pDDClipper = DDrawAttachClipper(g_pDDScreenBack, clipList, 1)) )
+    clipList[0].right = SCREEN_WIDTH-8;
+    clipList[0].bottom = SCREEN_HEIGHT;
+    if ( !(g_pDDClipper = DDrawAttachClipper(g_pDDScreen, clipList, 1)) )
         return ERROR_CODE;
 
     while (Game::Running())
@@ -436,8 +437,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             g_pDDScreenBack->Unlock(NULL);
         }
 
+        g_pDDScreen->Blt(NULL, g_pDDScreenBack, NULL, DDBLT_WAIT, NULL);
+
         // Flip buffers
-        g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
+        // DEBUG
+        //g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
     }
 
     Game::ShutDown();
