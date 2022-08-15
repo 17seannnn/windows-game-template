@@ -347,7 +347,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
                 pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
                 pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelBlack, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelBlack, pixelRed,
                 pixelRed, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelRed,
                 pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
             };
@@ -356,7 +356,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             DDRAW_INIT_STRUCT(DDSurfaceDesc);
 
             g_pDDScreenBack->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
-            BlitClipped((u32*)DDSurfaceDesc.lpSurface, DDSurfaceDesc.lPitch >> 2, -3, -2, bitMap, 16, 16);
+            BlitClipped((u32*)DDSurfaceDesc.lpSurface, DDSurfaceDesc.lPitch >> 2, SCREEN_WIDTH-8, SCREEN_HEIGHT-16, bitMap, 16, 16);
             g_pDDScreenBack->Unlock(NULL);
         }
 
