@@ -54,8 +54,179 @@ static bool g_bWindowClosed = false;
 static LPDIRECTDRAW7 g_pDD = NULL;
 static LPDIRECTDRAWSURFACE7 g_pDDScreen = NULL;
 static LPDIRECTDRAWSURFACE7 g_pDDScreenBack = NULL;
+static LPDIRECTDRAWCLIPPER g_pDDClipper = NULL;
 
 /* === Functions === */
+static inline void PlotPixel16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
+{
+    videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b);
+}
+
+static inline void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b)
+{
+    s32 addr = y*pitch + (x+x+x);
+    videoBuffer[addr] = (u8)r;
+    videoBuffer[addr+1] = (u8)g;
+    videoBuffer[addr+2] = (u8)b;
+}
+
+static inline void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 a, s32 r, s32 g, s32 b)
+{
+    videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b);
+}
+
+static void Blit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
+{
+    videoBuffer += posY*pitch32 + posX; // Start position for videoBuffer pointer
+
+    for (s32 y = 0; y < h; ++y)
+    {
+        for (s32 x = 0; x < w; ++x)
+        {
+            u32 pixel;
+            if ((pixel = bitMap[x])) // Plot opaque pixels only
+                videoBuffer[x] = pixel;
+        }
+        videoBuffer += pitch32;
+        bitMap += w;
+    }
+}
+
+static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
+{
+    // Check if it's visible
+    if (posX >= SCREEN_WIDTH  || posX + w <= 0 ||
+        posY >= SCREEN_HEIGHT || posY + h <= 0)
+        return;
+
+    // Align rectangles
+    RECT dst;
+    s32 srcOffsetX, srcOffsetY;
+    s32 dX, dY;
+
+    // Left
+    if (posX < 0)
+    {
+        dst.left = 0;
+        srcOffsetX = dst.left - posX;
+    }
+    else
+    {
+        dst.left = posX;
+        srcOffsetX = 0;
+    }
+
+    // Right
+    if (posX + w > SCREEN_WIDTH)
+        dst.right = SCREEN_WIDTH - 1;
+    else
+        dst.right = (posX + w) - 1;
+
+    // Top
+    if (posY < 0)
+    {
+        dst.top = 0;
+        srcOffsetY = dst.top - posY;
+    }
+    else
+    {
+        dst.top = posY;
+        srcOffsetY = 0;
+    }
+
+    // Bottom
+    if (posY + h > SCREEN_HEIGHT)
+        dst.bottom = SCREEN_HEIGHT - 1;
+    else
+        dst.bottom = (posY + h) - 1;
+
+    // Difference
+    dX = dst.right - dst.left + 1;
+    dY = dst.bottom - dst.top + 1;
+
+    // Start position
+    videoBuffer += dst.top*pitch32 + dst.left;
+    bitMap += srcOffsetY*w + srcOffsetX;
+
+    // Blitting
+    for (s32 y = 0; y < dY; ++y)
+    {
+        for (s32 x = 0; x < dX; ++x)
+        {
+            u32 pixel;
+            if ((pixel = bitMap[x]) != _RGB32BIT(255, 0, 0, 0)) // Plot opaque pixels only
+                videoBuffer[x] = pixel;
+        }
+        videoBuffer += pitch32;
+        bitMap += w;
+    }
+}
+
+LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count)
+{
+    bool bResult = true;
+    LPDIRECTDRAWCLIPPER pDDClipper;
+    LPRGNDATA pRegionData;
+
+    // Create clipper
+    if ( FAILED(g_pDD->CreateClipper(0, &pDDClipper, NULL)) )
+        return NULL;
+
+    // Init region data
+    pRegionData = (LPRGNDATA)malloc(sizeof(RGNDATAHEADER) + sizeof(RECT)*count);
+    memcpy(pRegionData->Buffer, clipList, sizeof(RECT)*count);
+
+    // Set region data header
+    pRegionData->rdh.dwSize = sizeof(RGNDATAHEADER);
+    pRegionData->rdh.iType = RDH_RECTANGLES;
+    pRegionData->rdh.nCount = count;
+    pRegionData->rdh.nRgnSize = count*sizeof(RECT);
+
+    pRegionData->rdh.rcBound.left = 64000;
+    pRegionData->rdh.rcBound.right = -64000;
+    pRegionData->rdh.rcBound.top = 64000;
+    pRegionData->rdh.rcBound.bottom = -64000;
+
+    // Resize bound
+    for (s32 i = 0; i < count; ++i)
+    {
+        // Left
+        if (clipList[i].left < pRegionData->rdh.rcBound.left)
+            pRegionData->rdh.rcBound.left = clipList[i].left;
+        // Right
+        if (clipList[i].right > pRegionData->rdh.rcBound.right)
+            pRegionData->rdh.rcBound.right = clipList[i].right;
+        // Top
+        if (clipList[i].top < pRegionData->rdh.rcBound.top)
+            pRegionData->rdh.rcBound.top = clipList[i].top;
+        // Bottom
+        if (clipList[i].bottom > pRegionData->rdh.rcBound.bottom)
+            pRegionData->rdh.rcBound.bottom = clipList[i].bottom;
+    }
+
+    // Set clip list
+    if ( FAILED(pDDClipper->SetClipList(pRegionData, 0)) )
+        bResult = false;
+
+    // Set clipper for surface
+    if ( FAILED(pDDSurface->SetClipper(pDDClipper)) )
+        bResult = false;
+
+    // Free memory
+    free(pRegionData);
+
+    // Return clipper
+    if (bResult)
+    {
+        return pDDClipper;
+    }
+    else
+    {
+        pDDClipper->Release();
+        return NULL;
+    }
+}
+
 static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
@@ -176,6 +347,10 @@ static b32 WinEvents()
 
 static void WinShutDown()
 {
+    if (g_pDDClipper)
+        g_pDDClipper->Release();
+        g_pDDClipper = NULL;
+
     if (g_pDDScreenBack)
     {
         g_pDDScreenBack->Release();
@@ -195,111 +370,6 @@ static void WinShutDown()
     }
 }
 
-static inline void PlotPixel16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
-{
-    videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b);
-}
-
-static inline void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b)
-{
-    s32 addr = y*pitch + (x+x+x);
-    videoBuffer[addr] = (u8)r;
-    videoBuffer[addr+1] = (u8)g;
-    videoBuffer[addr+2] = (u8)b;
-}
-
-static inline void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 a, s32 r, s32 g, s32 b)
-{
-    videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b);
-}
-
-static void Blit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
-{
-    videoBuffer += posY*pitch32 + posX; // Start position for videoBuffer pointer
-
-    for (s32 y = 0; y < h; ++y)
-    {
-        for (s32 x = 0; x < w; ++x)
-        {
-            u32 pixel;
-            if ((pixel = bitMap[x])) // Plot opaque pixels only
-                videoBuffer[x] = pixel;
-        }
-        videoBuffer += pitch32;
-        bitMap += w;
-    }
-}
-
-static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
-{
-    // Check if it's visible
-    if (posX >= SCREEN_WIDTH  || posX + w <= 0 ||
-        posY >= SCREEN_HEIGHT || posY + h <= 0)
-        return;
-
-    // Align rectangles
-    RECT dst;
-    s32 srcOffsetX, srcOffsetY;
-    s32 dX, dY;
-
-    // Left
-    if (posX < 0)
-    {
-        dst.left = 0;
-        srcOffsetX = dst.left - posX;
-    }
-    else
-    {
-        dst.left = posX;
-        srcOffsetX = 0;
-    }
-
-    // Right
-    if (posX + w > SCREEN_WIDTH)
-        dst.right = SCREEN_WIDTH - 1;
-    else
-        dst.right = (posX + w) - 1;
-
-    // Top
-    if (posY < 0)
-    {
-        dst.top = 0;
-        srcOffsetY = dst.top - posY;
-    }
-    else
-    {
-        dst.top = posY;
-        srcOffsetY = 0;
-    }
-
-    // Bottom
-    if (posY + h > SCREEN_HEIGHT)
-        dst.bottom = SCREEN_HEIGHT - 1;
-    else
-        dst.bottom = (posY + h) - 1;
-
-    // Difference
-    dX = dst.right - dst.left + 1;
-    dY = dst.bottom - dst.top + 1;
-
-    // Start position
-    videoBuffer += dst.top*pitch32 + dst.left;
-    bitMap += srcOffsetY*w + srcOffsetX;
-
-    // Blitting
-    for (s32 y = 0; y < dY; ++y)
-    {
-        for (s32 x = 0; x < dX; ++x)
-        {
-            u32 pixel;
-            if ((pixel = bitMap[x]) != _RGB32BIT(255, 0, 0, 0)) // Plot opaque pixels only
-                videoBuffer[x] = pixel;
-        }
-        videoBuffer += pitch32;
-        bitMap += w;
-    }
-}
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     if ( !WinInit(hInstance) )
@@ -307,8 +377,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if ( !Game::Init() )
         return ERROR_CODE;
 
-    { // DEBUG INIT
-    }
+    // DEBUG INIT
+    RECT clipList[1];
+    clipList[0].left = 0;
+    clipList[0].top = 0;
+    clipList[0].right = SCREEN_WIDTH-1;
+    clipList[0].bottom = SCREEN_HEIGHT-1;
+    if ( !(g_pDDClipper = DDrawAttachClipper(g_pDDScreenBack, clipList, 1)) )
+        return ERROR_CODE;
 
     while (Game::Running())
     {
@@ -356,7 +432,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             DDRAW_INIT_STRUCT(DDSurfaceDesc);
 
             g_pDDScreenBack->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
-            BlitClipped((u32*)DDSurfaceDesc.lpSurface, DDSurfaceDesc.lPitch >> 2, SCREEN_WIDTH-8, SCREEN_HEIGHT-16, bitMap, 16, 16);
+            BlitClipped((u32*)DDSurfaceDesc.lpSurface, DDSurfaceDesc.lPitch >> 2, SCREEN_WIDTH-16, SCREEN_HEIGHT-16, bitMap, 16, 16);
             g_pDDScreenBack->Unlock(NULL);
         }
 
