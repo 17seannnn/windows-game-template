@@ -26,7 +26,7 @@
 
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 480
-#define SCREEN_BPP 16
+#define SCREEN_BPP 32
 
 // Keyboard macroses
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
@@ -159,7 +159,7 @@ static b32 WinEvents()
 {
     MSG msg;
 
-    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) // Peek message from any window
     {
         if (msg.message == WM_QUIT)
         {
@@ -167,8 +167,8 @@ static b32 WinEvents()
             return false;
         }
 
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        TranslateMessage(&msg); // Keyboard input
+        DispatchMessage(&msg);  // Send this to WinProc
     }
 
     return true;
@@ -213,7 +213,7 @@ static inline void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 
     videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b);
 }
 
-static void BlitBitMap(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
+static void Blit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
 {
     videoBuffer += posY*pitch32 + posX; // Start position for videoBuffer pointer
 
@@ -230,6 +230,76 @@ static void BlitBitMap(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* b
     }
 }
 
+static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
+{
+    // Check if it's visible
+    if (posX >= SCREEN_WIDTH  || posX + w <= 0 ||
+        posY >= SCREEN_HEIGHT || posY + h <= 0)
+        return;
+
+    // Align rectangles
+    RECT dst;
+    s32 srcOffsetX, srcOffsetY;
+    s32 dX, dY;
+
+    // Left
+    if (posX < 0)
+    {
+        dst.left = 0;
+        srcOffsetX = dst.left - posX;
+    }
+    else
+    {
+        dst.left = posX;
+        srcOffsetX = 0;
+    }
+
+    // Right
+    if (posX + w > SCREEN_WIDTH)
+        dst.right = SCREEN_WIDTH - 1;
+    else
+        dst.right = (posX + w) - 1;
+
+    // Top
+    if (posY < 0)
+    {
+        dst.top = 0;
+        srcOffsetY = dst.top - posY;
+    }
+    else
+    {
+        dst.top = posY;
+        srcOffsetY = 0;
+    }
+
+    // Bottom
+    if (posY + h > SCREEN_HEIGHT)
+        dst.bottom = SCREEN_HEIGHT - 1;
+    else
+        dst.bottom = (posY + h) - 1;
+
+    // Difference
+    dX = dst.right - dst.left + 1;
+    dY = dst.bottom - dst.top + 1;
+
+    // Start position
+    videoBuffer += dst.top*pitch32 + dst.left;
+    bitMap += srcOffsetY*w + srcOffsetX;
+
+    // Blitting
+    for (s32 y = 0; y < dY; ++y)
+    {
+        for (s32 x = 0; x < dX; ++x)
+        {
+            u32 pixel;
+            if ((pixel = bitMap[x]) != _RGB32BIT(255, 0, 0, 0)) // Plot opaque pixels only
+                videoBuffer[x] = pixel;
+        }
+        videoBuffer += pitch32;
+        bitMap += w;
+    }
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     if ( !WinInit(hInstance) )
@@ -238,32 +308,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return ERROR_CODE;
 
     { // DEBUG INIT
-        DDSURFACEDESC2 DDSurfaceDesc;
-        DDRAW_INIT_STRUCT(DDSurfaceDesc);
-
-        g_pDDScreenBack->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL);
-        u16* videoBuffer = (u16*)DDSurfaceDesc.lpSurface;
-        s32 pitch16 = DDSurfaceDesc.lPitch >> 1;
-
-        for (s32 y = 0; y < SCREEN_HEIGHT; ++y)
-        {
-            u32 color = _RGB16BIT565(0, y >> 3, 0); // Green gradient
-            color |= color << 16; // Two WORDs in one DWORD
-
-            // Real game programmer stuff
-            _asm
-            {
-                CLD                                     ; clear direction
-                MOV     EAX, color                      ; color -> EAX
-                MOV     ECX, (SCREEN_WIDTH >> 1)        ; we fill videoBuffer with DWORD so we'll fill it SCREEN_WIDTH/2 times
-                MOV     EDI, videoBuffer                ; videoBuffer -> EDI
-                REP     STOSD                           ; move stuff
-            }
-
-            videoBuffer += pitch16;
-        }
-
-        g_pDDScreenBack->Unlock(NULL);
     }
 
     while (Game::Running())
@@ -285,24 +329,39 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         Game::Render();
 
         { // DEBUG MAIN
-            RECT dstRect, srcRect;
+            u32 pixelRed = _RGB32BIT(255, 255, 0, 0);
+            u32 pixelBlack = _RGB32BIT(255, 0, 0, 0);
 
-            dstRect.left = 0;
-            dstRect.right = 10;
-            dstRect.top = 0;
-            dstRect.bottom = 10;
+            u32 bitMap[16*16] =
+            {
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelBlack, pixelBlack, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelBlack, pixelBlack, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelBlack, pixelBlack, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelBlack, pixelBlack, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+                pixelRed, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelRed,
+                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
+            };
 
-            srcRect.left = 0;
-            srcRect.right = SCREEN_WIDTH;
-            srcRect.top = 0;
-            srcRect.bottom = SCREEN_HEIGHT;
+            DDSURFACEDESC2 DDSurfaceDesc;
+            DDRAW_INIT_STRUCT(DDSurfaceDesc);
 
-            g_pDDScreen->Blt(&dstRect, g_pDDScreenBack, &srcRect, DDBLT_WAIT, NULL);
+            g_pDDScreenBack->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
+            BlitClipped((u32*)DDSurfaceDesc.lpSurface, DDSurfaceDesc.lPitch >> 2, -3, -2, bitMap, 16, 16);
+            g_pDDScreenBack->Unlock(NULL);
         }
 
         // Flip buffers
-        // DEBUG uncomment
-        //g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
+        g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
     }
 
     Game::ShutDown();
