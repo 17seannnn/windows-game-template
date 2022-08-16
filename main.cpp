@@ -1,3 +1,8 @@
+/* TODO LIST */
+// - DDrawClearSurface()
+// - DisplayRect()
+// - BMP converters
+
 /* ====== Includes ====== */
 // Windows
 #define WIN32_LEAN_AND_MEAN // No MFC
@@ -461,9 +466,39 @@ static b32 WinInit(HINSTANCE hInstance)
     if ( FAILED(g_pDD->CreateSurface(&DDSurfaceDesc, &g_pDDScreen, NULL)) )
         return false;
 
+    // Back surface
     DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
     if ( FAILED(g_pDDScreen->GetAttachedSurface(&DDSurfaceDesc.ddsCaps, &g_pDDScreenBack)) )
         return false;
+
+    // Palette
+    if (SCREEN_BPP == 8)
+    {
+        PALETTEENTRY palette[PALETTE_COLORS];
+
+        for (s32 i = 1; i < PALETTE_COLORS-1; ++i)
+        {
+            palette[i].peRed = rand() % 256;
+            palette[i].peGreen = rand() % 256;
+            palette[i].peBlue = rand() % 256;
+            palette[i].peFlags = PC_NOCOLLAPSE;
+        }
+
+        palette[0].peRed = 0;
+        palette[0].peGreen = 0;
+        palette[0].peBlue = 0;
+        palette[0].peFlags = PC_NOCOLLAPSE;
+
+        palette[255].peRed = 255;
+        palette[255].peGreen = 255;
+        palette[255].peBlue = 255;
+        palette[255].peFlags = PC_NOCOLLAPSE;
+
+        if ( FAILED(g_pDD->CreatePalette(DDPCAPS_8BIT|DDPCAPS_ALLOW256|DDPCAPS_INITIALIZE, palette, &g_pDDPalette, NULL)) )
+            return false;
+        if ( FAILED(g_pDDScreen->SetPalette(g_pDDPalette)) )
+            return false;
+    }
 
     // Success
     return true;
@@ -494,6 +529,12 @@ static void WinShutDown()
     {
         g_pDDClipper->Release();
         g_pDDClipper = NULL;
+    }
+
+    if (g_pDDPalette)
+    {
+        g_pDDPalette->Release();
+        g_pDDPalette = NULL;
     }
 
     if (g_pDDScreenBack)
@@ -532,28 +573,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (!LoadBMP("assets\\bitmap8.bmp", &bmp))
         return ERROR_CODE;
 
-    PALETTEENTRY palette[PALETTE_COLORS];
-    for (s32 i = 1; i < PALETTE_COLORS-1; ++i)
-    {
-        palette[i].peRed = rand() % 256;
-        palette[i].peGreen = rand() % 256;
-        palette[i].peBlue = rand() % 256;
-        palette[i].peFlags = PC_NOCOLLAPSE;
-    }
-    palette[0].peRed = 0;
-    palette[0].peGreen = 0;
-    palette[0].peBlue = 0;
-    palette[0].peFlags = PC_NOCOLLAPSE;
-    palette[255].peRed = 255;
-    palette[255].peGreen = 255;
-    palette[255].peBlue = 255;
-    palette[255].peFlags = PC_NOCOLLAPSE;
-    if ( FAILED(g_pDD->CreatePalette(DDPCAPS_8BIT|DDPCAPS_ALLOW256|DDPCAPS_INITIALIZE, palette, &g_pDDPalette, NULL)) )
-        return ERROR_CODE;
-    g_pDDScreen->SetPalette(g_pDDPalette);
     if ( FAILED(g_pDDPalette->SetEntries(0, 0, PALETTE_COLORS, bmp.palette)) )
         return ERROR_CODE;
-
     // \DEBUG
 
     while (Game::Running())
