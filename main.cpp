@@ -310,6 +310,10 @@ void DDrawError(HRESULT error)
 
     default : sprintf(dderr, "Unknown Error"); break;
     }
+
+#ifdef _DEBUG
+    ConsoleOut("%s\n", dderr);
+#endif
 }
 
 
@@ -568,7 +572,8 @@ static void ConsoleOut(const char* fmt, ...)
     _vsnprintf(g_consoleBuffer, CONSOLE_BUFSIZE, fmt, vl);
     va_end(vl);
 
-    WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), g_consoleBuffer, strlen(g_consoleBuffer), NULL, NULL);
+    // NOTE console turned off for easier debugging
+    //WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), g_consoleBuffer, strlen(g_consoleBuffer), NULL, NULL);
 }
 #endif
 
