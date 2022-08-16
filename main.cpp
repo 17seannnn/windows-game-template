@@ -39,6 +39,7 @@
 
 // DirectX
 #define PALETTE_COLORS 256
+#define COLOR_KEY 0
 
 #define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )
 #define _RGB16BIT555(R, G, B) ( ((R & 31) << 10) + ((G & 31) << 5) + (B & 31) )
@@ -248,7 +249,7 @@ LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT c
     }
 }
 
-static LPDIRECTDRAWSURFACE7 DDrawCreateSurface(s32 w, s32 h, b32 bVideoMemory)
+static LPDIRECTDRAWSURFACE7 DDrawCreateSurface(s32 w, s32 h, b32 bVideoMemory, b32 bColorKey)
 {
     // Create surface
     DDSURFACEDESC2 DDSurfaceDesc;
@@ -256,21 +257,29 @@ static LPDIRECTDRAWSURFACE7 DDrawCreateSurface(s32 w, s32 h, b32 bVideoMemory)
 
     DDRAW_INIT_STRUCT(DDSurfaceDesc);
 
-    DDSurfaceDesc.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_CKSRCBLT;
+    DDSurfaceDesc.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
 
     DDSurfaceDesc.dwWidth = w;
     DDSurfaceDesc.dwHeight = h;
 
+    // Place to which memory
     if (bVideoMemory)
         DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
     else
         DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
 
-    DDSurfaceDesc.ddckCKSrcBlt.dwColorSpaceLowValue = 0;
-    DDSurfaceDesc.ddckCKSrcBlt.dwColorSpaceHighValue = 0;
-
     if ( FAILED(g_pDD->CreateSurface(&DDSurfaceDesc, &DDSurface, NULL)) )
         return NULL;
+
+    // Set color key
+    if (bColorKey)
+    {
+        DDCOLORKEY DDColorKey;
+        DDColorKey.dwColorSpaceLowValue = COLOR_KEY;
+        DDColorKey.dwColorSpaceHighValue = COLOR_KEY;
+
+        DDSurface->SetColorKey(DDCKEY_SRCBLT, &DDColorKey);
+    }
 
     return DDSurface;
 }
