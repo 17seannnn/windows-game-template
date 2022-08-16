@@ -256,23 +256,21 @@ static LPDIRECTDRAWSURFACE7 DDrawCreateSurface(s32 w, s32 h, b32 bVideoMemory)
 
     DDRAW_INIT_STRUCT(DDSurfaceDesc);
 
-    DDSurfaceDesc.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
+    DDSurfaceDesc.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_CKSRCBLT;
+
     DDSurfaceDesc.dwWidth = w;
     DDSurfaceDesc.dwHeight = h;
+
     if (bVideoMemory)
         DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
     else
         DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
 
+    DDSurfaceDesc.ddckCKSrcBlt.dwColorSpaceLowValue = 0;
+    DDSurfaceDesc.ddckCKSrcBlt.dwColorSpaceHighValue = 0;
+
     if ( FAILED(g_pDD->CreateSurface(&DDSurfaceDesc, &DDSurface, NULL)) )
         return NULL;
-
-    // Set color key
-    DDCOLORKEY DDColorKey;
-    DDColorKey.dwColorSpaceLowValue = 0;
-    DDColorKey.dwColorSpaceHighValue = 0;
-
-    DDSurface->SetColorKey(DDCKEY_SRCBLT, &DDColorKey);
 
     return DDSurface;
 }
