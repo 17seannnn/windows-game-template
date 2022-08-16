@@ -60,6 +60,7 @@ static b32 g_bWindowClosed = false;
 static LPDIRECTDRAW7 g_pDD = NULL;
 static LPDIRECTDRAWSURFACE7 g_pDDScreen = NULL;
 static LPDIRECTDRAWSURFACE7 g_pDDScreenBack = NULL;
+static LPDIRECTDRAWPALETTE g_pDDPalette = NULL;
 static LPDIRECTDRAWCLIPPER g_pDDClipper = NULL;
 
 /* ====== Structures ====== */
@@ -72,6 +73,11 @@ struct BMPFile
 };
 
 /* ====== Functions ====== */
+
+#ifdef _DEBUG
+/* === DEBUG PROTOTYPES */
+static void ConsoleOut(const char* fmt, ...);
+#endif
 
 /* === BitMap === */
 static void FlipBMP(u8* image, s32 bytesPerLine, s32 height)
@@ -89,7 +95,7 @@ static void FlipBMP(u8* image, s32 bytesPerLine, s32 height)
     for (s32 i = 0; i < height; ++i)
         memcpy(&image[(height-1 - i)*bytesPerLine], 
                &buffer[i*bytesPerLine],
-               size);
+               bytesPerLine);
 
     // Free memory
     free(buffer);
@@ -113,7 +119,7 @@ static b32 LoadBMP(const char* fileName, BMPFile* bmp)
 
     // Read info header
     _lread(fileHandle, &bmp->info, sizeof(bmp->info));
-    
+
     // Read palette if we have
     if (bmp->info.biBitCount == 8)
     {
@@ -428,8 +434,9 @@ static b32 WinInit(HINSTANCE hInstance)
         return false;
 
 #ifdef _DEBUG
-    if (!AllocConsole())
-        return false;
+    // NOTE HERE CONSOLE
+    //if (!AllocConsole())
+    //    return false;
     g_consoleBuffer = (char*)malloc(CONSOLE_BUFSIZE);
 #endif
 
@@ -520,6 +527,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (!Game::Init())
         return ERROR_CODE;
 
+    // DEBUG
+    BMPFile bmp;
+    if (!LoadBMP("bitmap8.bmp", &bmp))
+        return ERROR_CODE;
+
+    PALETTEENTRY palette[PALETTE_COLORS];
+    for (s32 i = 0; i < PALETTE_COLORS; ++i)
+    {
+        palette[i].peRed = rand() % 256;
+        palette[i].peGreen = rand() % 256;
+        palette[i].peBlue = rand() % 256;
+        palette[i].peFlags = PC_NOCOLLAPSE;
+    }
+    if ( FAILED(g_pDD->CreatePalette(DDPCAPS_8BIT|DDPCAPS_ALLOW256|DDPCAPS_INITIALIZE, palette, &g_pDDPalette, NULL)) )
+        return ERROR_CODE;
+    g_pDDPalette->SetEntries(0, 0, PALETTE_COLORS, bmp.palette);
+
+    // \DEBUG
+
     while (Game::Running())
     {
         // Debug
@@ -536,9 +562,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             break; // DirectX may want to get window but it can be closed
         Game::Render();
 
+        // DEBUG
+        DDSURFACEDESC2 DDSurfaceDesc;
+        DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+        g_pDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL);
+        memcpy((void*)DDSurfaceDesc.lpSurface, bmp.buffer, SCREEN_WIDTH*SCREEN_HEIGHT);
+        g_pDDScreen->Unlock(NULL);
+        // \DEBUG
+
         // Flip buffers
-        g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
+        // DEBUG
+        //g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
     }
+
+    // DEBUG
+    UnloadBMP(&bmp);
 
     Game::ShutDown();
     WinShutDown();
