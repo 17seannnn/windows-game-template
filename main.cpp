@@ -183,6 +183,100 @@ static void UnloadBMP(BMPFile* bmp)
 }
 
 /* === DirectX === */
+LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count)
+{
+    b32 bResult = true;
+    LPDIRECTDRAWCLIPPER pDDClipper;
+    LPRGNDATA pRegionData;
+
+    // Create clipper
+    if ( FAILED(g_pDD->CreateClipper(0, &pDDClipper, NULL)) )
+        return NULL;
+
+    // Init region data
+    pRegionData = (LPRGNDATA)malloc(sizeof(RGNDATAHEADER) + sizeof(RECT)*count);
+    memcpy(pRegionData->Buffer, clipList, sizeof(RECT)*count);
+
+    // Set region data header
+    pRegionData->rdh.dwSize = sizeof(RGNDATAHEADER);
+    pRegionData->rdh.iType = RDH_RECTANGLES;
+    pRegionData->rdh.nCount = count;
+    pRegionData->rdh.nRgnSize = count*sizeof(RECT);
+
+    pRegionData->rdh.rcBound.left = 64000;
+    pRegionData->rdh.rcBound.right = -64000;
+    pRegionData->rdh.rcBound.top = 64000;
+    pRegionData->rdh.rcBound.bottom = -64000;
+
+    // Resize bound
+    for (s32 i = 0; i < count; ++i)
+    {
+        // Left
+        if (clipList[i].left < pRegionData->rdh.rcBound.left)
+            pRegionData->rdh.rcBound.left = clipList[i].left;
+        // Right
+        if (clipList[i].right > pRegionData->rdh.rcBound.right)
+            pRegionData->rdh.rcBound.right = clipList[i].right;
+        // Top
+        if (clipList[i].top < pRegionData->rdh.rcBound.top)
+            pRegionData->rdh.rcBound.top = clipList[i].top;
+        // Bottom
+        if (clipList[i].bottom > pRegionData->rdh.rcBound.bottom)
+            pRegionData->rdh.rcBound.bottom = clipList[i].bottom;
+    }
+
+    // Set clip list
+    if ( FAILED(pDDClipper->SetClipList(pRegionData, 0)) )
+        bResult = false;
+
+    // Set clipper for surface
+    if ( FAILED(pDDSurface->SetClipper(pDDClipper)) )
+        bResult = false;
+
+    // Free memory
+    free(pRegionData);
+
+    // Return clipper
+    if (bResult)
+    {
+        return pDDClipper;
+    }
+    else
+    {
+        pDDClipper->Release();
+        return NULL;
+    }
+}
+
+static LPDIRECTDRAWSURFACE7 DDrawCreateSurface(s32 w, s32 h, b32 bVideoMemory)
+{
+    // Create surface
+    DDSURFACEDESC2 DDSurfaceDesc;
+    LPDIRECTDRAWSURFACE7 DDSurface;
+
+    DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+    DDSurfaceDesc.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
+    DDSurfaceDesc.dwWidth = w;
+    DDSurfaceDesc.dwHeight = h;
+    if (bVideoMemory)
+        DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
+    else
+        DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+
+    if ( FAILED(g_pDD->CreateSurface(&DDSurfaceDesc, &DDSurface, NULL)) )
+        return NULL;
+
+    // Set color key
+    DDCOLORKEY DDColorKey;
+    DDColorKey.dwColorSpaceLowValue = 0;
+    DDColorKey.dwColorSpaceHighValue = 0;
+
+    DDSurface->SetColorKey(DDCKEY_SRCBLT, &DDColorKey);
+
+    return DDSurface;
+}
+
 static inline void PlotPixel16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
 {
     videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b);
@@ -285,71 +379,6 @@ static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* 
         }
         videoBuffer += pitch32;
         bitMap += w;
-    }
-}
-
-LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count)
-{
-    b32 bResult = true;
-    LPDIRECTDRAWCLIPPER pDDClipper;
-    LPRGNDATA pRegionData;
-
-    // Create clipper
-    if ( FAILED(g_pDD->CreateClipper(0, &pDDClipper, NULL)) )
-        return NULL;
-
-    // Init region data
-    pRegionData = (LPRGNDATA)malloc(sizeof(RGNDATAHEADER) + sizeof(RECT)*count);
-    memcpy(pRegionData->Buffer, clipList, sizeof(RECT)*count);
-
-    // Set region data header
-    pRegionData->rdh.dwSize = sizeof(RGNDATAHEADER);
-    pRegionData->rdh.iType = RDH_RECTANGLES;
-    pRegionData->rdh.nCount = count;
-    pRegionData->rdh.nRgnSize = count*sizeof(RECT);
-
-    pRegionData->rdh.rcBound.left = 64000;
-    pRegionData->rdh.rcBound.right = -64000;
-    pRegionData->rdh.rcBound.top = 64000;
-    pRegionData->rdh.rcBound.bottom = -64000;
-
-    // Resize bound
-    for (s32 i = 0; i < count; ++i)
-    {
-        // Left
-        if (clipList[i].left < pRegionData->rdh.rcBound.left)
-            pRegionData->rdh.rcBound.left = clipList[i].left;
-        // Right
-        if (clipList[i].right > pRegionData->rdh.rcBound.right)
-            pRegionData->rdh.rcBound.right = clipList[i].right;
-        // Top
-        if (clipList[i].top < pRegionData->rdh.rcBound.top)
-            pRegionData->rdh.rcBound.top = clipList[i].top;
-        // Bottom
-        if (clipList[i].bottom > pRegionData->rdh.rcBound.bottom)
-            pRegionData->rdh.rcBound.bottom = clipList[i].bottom;
-    }
-
-    // Set clip list
-    if ( FAILED(pDDClipper->SetClipList(pRegionData, 0)) )
-        bResult = false;
-
-    // Set clipper for surface
-    if ( FAILED(pDDSurface->SetClipper(pDDClipper)) )
-        bResult = false;
-
-    // Free memory
-    free(pRegionData);
-
-    // Return clipper
-    if (bResult)
-    {
-        return pDDClipper;
-    }
-    else
-    {
-        pDDClipper->Release();
-        return NULL;
     }
 }
 
