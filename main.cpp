@@ -1,4 +1,4 @@
-/* === Includes === */
+/* ====== Includes ====== */
 // Windows
 #define WIN32_LEAN_AND_MEAN // No MFC
 #define INITGUID // For DirectX
@@ -16,42 +16,45 @@
 #include "Types.h"
 #include "Game.h"
 
-/* === Defines === */
+/* ====== Defines ====== */
 // App
 #define SUCCESS_CODE 0
 #define ERROR_CODE 1
 
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 480
-#define SCREEN_BPP 32
+#define SCREEN_BPP 8
 
 // Windows
 #define WINDOW_CLASS_NAME "WINDOW_CLASS"
 #define CONSOLE_BUFSIZE 1024
 
-// Keyboard macroses
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
 #define KEYUP(VK)   (GetAsyncKeyState(VK) & 0x8000 ? 0 : 1)
 
-// RGB macroses
+// DirectX
+#define PALETTE_COLORS 256
+
 #define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )
 #define _RGB16BIT555(R, G, B) ( ((R & 31) << 10) + ((G & 31) << 5) + (B & 31) )
 #define _RGB24BIT(R, G, B) ( ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 #define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
-// DirectDraw macroses
 #define DDRAW_INIT_STRUCT(STRUCT) { memset(&STRUCT, 0, sizeof(STRUCT)); STRUCT.dwSize = sizeof(STRUCT); }
 
-/* === Globals === */
+// BMP
+#define BMP_ID 0x4d42
+
+/* ====== Globals ====== */
 // App
 static s32 g_nExitCode = SUCCESS_CODE;
 
 // Windows
 static HINSTANCE g_hInstance = NULL;
 static HWND g_hWindow = NULL;
-static char* g_pConsoleBuffer = NULL;
+static char* g_consoleBuffer = NULL;
 
-static bool g_bWindowClosed = false;
+static b32 g_bWindowClosed = false;
 
 // DirectX
 static LPDIRECTDRAW7 g_pDD = NULL;
@@ -59,7 +62,116 @@ static LPDIRECTDRAWSURFACE7 g_pDDScreen = NULL;
 static LPDIRECTDRAWSURFACE7 g_pDDScreenBack = NULL;
 static LPDIRECTDRAWCLIPPER g_pDDClipper = NULL;
 
-/* === Functions === */
+/* ====== Structures ====== */
+struct BMPFile
+{
+    BITMAPFILEHEADER file;
+    BITMAPINFOHEADER info;
+    PALETTEENTRY palette[PALETTE_COLORS];
+    u8* buffer;
+};
+
+/* ====== Functions ====== */
+
+/* === BitMap === */
+static void FlipBMP(u8* image, s32 bytesPerLine, s32 height)
+{
+    // Allocate memory
+    s32 size = bytesPerLine * height;
+    u8* buffer = (u8*)malloc(size);
+    if (!buffer)
+        return;
+
+    // Copy image in buffer
+    memcpy(buffer, image, size);
+
+    // Flip
+    for (s32 i = 0; i < height; ++i)
+        memcpy(&image[(height-1 - i)*bytesPerLine], 
+               &buffer[i*bytesPerLine],
+               size);
+
+    // Free memory
+    free(buffer);
+}
+
+static b32 LoadBMP(const char* fileName, BMPFile* bmp)
+{
+    // Open file
+    OFSTRUCT fileInfo;
+    s32 fileHandle = OpenFile(fileName, &fileInfo, OF_READ);
+    if (fileHandle == -1)
+        return false;
+
+    // Read file header
+    _lread(fileHandle, &bmp->file, sizeof(bmp->file));
+    if (bmp->file.bfType != BMP_ID)
+    {
+        _lclose(fileHandle);
+        return false;
+    }
+
+    // Read info header
+    _lread(fileHandle, &bmp->info, sizeof(bmp->info));
+    
+    // Read palette if we have
+    if (bmp->info.biBitCount == 8)
+    {
+        _lread(fileHandle, bmp->palette, sizeof(bmp->palette[0]) * PALETTE_COLORS);
+        
+        // RGB -> BGR
+        for (s32 i = 0; i < PALETTE_COLORS; ++i)
+        {
+            s32 temp = bmp->palette[i].peBlue;
+            bmp->palette[i].peBlue = bmp->palette[i].peRed;
+            bmp->palette[i].peRed = (u8)temp;
+
+            // Flag
+            bmp->palette[i].peFlags = PC_NOCOLLAPSE;
+        }
+    }
+
+    // Check for errors
+    s32 bitCount = bmp->info.biBitCount;
+    if (bitCount != 8 && bitCount != 16 && bitCount != 24 && bitCount != 32)
+    {
+        _lclose(fileHandle);
+        return false;
+    }
+
+    // Get right position for image reading
+    _llseek(fileHandle, bmp->info.biSizeImage, SEEK_END);
+
+    // Try to allocate memory
+    bmp->buffer = (u8*)malloc(bmp->info.biSizeImage);
+    if (!bmp->buffer)
+    {
+        _lclose(fileHandle);
+        return false;
+    }
+
+    // Read image data
+    _lread(fileHandle, bmp->buffer, bmp->info.biSizeImage);
+
+    // Close file
+    _lclose(fileHandle);
+
+    // Flip image
+    FlipBMP(bmp->buffer, bmp->info.biWidth * bmp->info.biBitCount/8, bmp->info.biHeight);
+
+    return true;
+}
+
+static void UnloadBMP(BMPFile* bmp)
+{
+    if (bmp->buffer)
+    {
+        free(bmp->buffer);
+        bmp->buffer = NULL;
+    }
+}
+
+/* === DirectX === */
 static inline void PlotPixel16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
 {
     videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b);
@@ -167,7 +279,7 @@ static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* 
 
 LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count)
 {
-    bool bResult = true;
+    b32 bResult = true;
     LPDIRECTDRAWCLIPPER pDDClipper;
     LPRGNDATA pRegionData;
 
@@ -230,16 +342,18 @@ LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT c
     }
 }
 
+/* === Windows === */
+
 #ifdef _DEBUG
 static void ConsoleOut(const char* fmt, ...)
 {
     va_list vl;
 
     va_start(vl, fmt);
-    _vsnprintf(g_pConsoleBuffer, CONSOLE_BUFSIZE, fmt, vl);
+    _vsnprintf(g_consoleBuffer, CONSOLE_BUFSIZE, fmt, vl);
     va_end(vl);
 
-    WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), g_pConsoleBuffer, strlen(g_pConsoleBuffer), NULL, NULL);
+    WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), g_consoleBuffer, strlen(g_consoleBuffer), NULL, NULL);
 }
 #endif
 
@@ -316,7 +430,7 @@ static b32 WinInit(HINSTANCE hInstance)
 #ifdef _DEBUG
     if (!AllocConsole())
         return false;
-    g_pConsoleBuffer = (char*)malloc(CONSOLE_BUFSIZE);
+    g_consoleBuffer = (char*)malloc(CONSOLE_BUFSIZE);
 #endif
 
     // Initialize DirectDraw
@@ -394,7 +508,7 @@ static void WinShutDown()
     }
 
 #ifdef _DEBUG
-    free(g_pConsoleBuffer);
+    free(g_consoleBuffer);
     FreeConsole();
 #endif
 }
@@ -408,13 +522,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     while (Game::Running())
     {
-        { // DEBUG QUIT
-            // Leave on Escape
-            if (KEYDOWN(VK_ESCAPE))
-            {
-                g_bWindowClosed = true;
-                PostMessage(g_hWindow, WM_CLOSE, 0, 0);
-            }
+        // Debug
+        if (KEYDOWN(VK_ESCAPE))
+        {
+            g_bWindowClosed = true;
+            PostMessage(g_hWindow, WM_CLOSE, 0, 0);
         }
 
         if (!WinEvents())
@@ -423,10 +535,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         if (g_bWindowClosed)
             break; // DirectX may want to get window but it can be closed
         Game::Render();
-
-        { // DEBUG MAIN
-            ConsoleOut("%ld\n", sizeof(BITMAPFILEHEADER));
-        }
 
         // Flip buffers
         g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
