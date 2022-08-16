@@ -349,8 +349,10 @@ static b32 WinEvents()
 static void WinShutDown()
 {
     if (g_pDDClipper)
+    {
         g_pDDClipper->Release();
         g_pDDClipper = NULL;
+    }
 
     if (g_pDDScreenBack)
     {
