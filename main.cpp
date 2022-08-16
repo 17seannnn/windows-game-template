@@ -408,6 +408,9 @@ static LPDIRECTDRAWSURFACE7 DDrawCreateSurface(s32 w, s32 h, b32 bVideoMemory, b
         DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
         if ( FAILED(g_pDD->CreateSurface(&DDSurfaceDesc, &pDDSurface, NULL)) )
             return NULL;
+#ifdef _DEBUG
+        ConsoleOut("Couldn't allocate surface in video memory\n");
+#endif
     }
 
     // Set color key
@@ -562,7 +565,6 @@ static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* 
 }
 
 /* === Windows === */
-
 #ifdef _DEBUG
 static void ConsoleOut(const char* fmt, ...)
 {
@@ -825,6 +827,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     // DEBUG
     pBMPSurface->Release();
+    // \DEBUG
 
     Game::ShutDown();
     WinShutDown();
