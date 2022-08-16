@@ -17,16 +17,17 @@
 #include "Game.h"
 
 /* === Defines === */
-// Codes
+// App
 #define SUCCESS_CODE 0
 #define ERROR_CODE 1
-
-// Screen
-#define WINDOW_CLASS_NAME "WINDOW_CLASS"
 
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 480
 #define SCREEN_BPP 32
+
+// Windows
+#define WINDOW_CLASS_NAME "WINDOW_CLASS"
+#define CONSOLE_BUFSIZE 1024
 
 // Keyboard macroses
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
@@ -48,6 +49,8 @@ static s32 g_nExitCode = SUCCESS_CODE;
 // Windows
 static HINSTANCE g_hInstance = NULL;
 static HWND g_hWindow = NULL;
+static char* g_pConsoleBuffer = NULL;
+
 static bool g_bWindowClosed = false;
 
 // DirectX
@@ -162,7 +165,6 @@ static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* 
     }
 }
 
-// TODO debug it
 LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count)
 {
     bool bResult = true;
@@ -227,6 +229,19 @@ LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT c
         return NULL;
     }
 }
+
+#ifdef _DEBUG
+static void ConsoleOut(const char* fmt, ...)
+{
+    va_list vl;
+
+    va_start(vl, fmt);
+    _vsnprintf(g_pConsoleBuffer, CONSOLE_BUFSIZE, fmt, vl);
+    va_end(vl);
+
+    WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), g_pConsoleBuffer, strlen(g_pConsoleBuffer), NULL, NULL);
+}
+#endif
 
 static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -297,6 +312,12 @@ static b32 WinInit(HINSTANCE hInstance)
     );
     if (!g_hWindow)
         return false;
+
+#ifdef _DEBUG
+    if (!AllocConsole())
+        return false;
+    g_pConsoleBuffer = (char*)malloc(CONSOLE_BUFSIZE);
+#endif
 
     // Initialize DirectDraw
     if ( FAILED(DirectDrawCreateEx(NULL, (void**)&g_pDD, IID_IDirectDraw7, NULL)) )
@@ -371,22 +392,18 @@ static void WinShutDown()
         g_pDD->Release();
         g_pDD= NULL;
     }
+
+#ifdef _DEBUG
+    free(g_pConsoleBuffer);
+    FreeConsole();
+#endif
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    if ( !WinInit(hInstance) )
+    if (!WinInit(hInstance))
         return ERROR_CODE;
-    if ( !Game::Init() )
-        return ERROR_CODE;
-
-    // DEBUG INIT
-    RECT clipList[1];
-    clipList[0].left = 0;
-    clipList[0].top = 0;
-    clipList[0].right = SCREEN_WIDTH-8;
-    clipList[0].bottom = SCREEN_HEIGHT;
-    if ( !(g_pDDClipper = DDrawAttachClipper(g_pDDScreen, clipList, 1)) )
+    if (!Game::Init())
         return ERROR_CODE;
 
     while (Game::Running())
@@ -408,42 +425,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         Game::Render();
 
         { // DEBUG MAIN
-            u32 pixelRed = _RGB32BIT(255, 255, 0, 0);
-            u32 pixelBlack = _RGB32BIT(255, 0, 0, 0);
-
-            u32 bitMap[16*16] =
-            {
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelBlack, pixelBlack, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelBlack, pixelBlack, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelBlack, pixelBlack, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelBlack, pixelBlack, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-                pixelRed, pixelBlack, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelBlack, pixelRed,
-                pixelRed, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelBlack, pixelRed,
-                pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed, pixelRed,
-            };
-
-            DDSURFACEDESC2 DDSurfaceDesc;
-            DDRAW_INIT_STRUCT(DDSurfaceDesc);
-
-            g_pDDScreenBack->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL);
-            BlitClipped((u32*)DDSurfaceDesc.lpSurface, DDSurfaceDesc.lPitch >> 2, SCREEN_WIDTH-16, SCREEN_HEIGHT-16, bitMap, 16, 16);
-            g_pDDScreenBack->Unlock(NULL);
+            ConsoleOut("%ld\n", sizeof(BITMAPFILEHEADER));
         }
 
-        g_pDDScreen->Blt(NULL, g_pDDScreenBack, NULL, DDBLT_WAIT, NULL);
-
         // Flip buffers
-        // DEBUG
-        //g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
+        g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
     }
 
     Game::ShutDown();
