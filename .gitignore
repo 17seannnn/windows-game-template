@@ -11,3 +11,6 @@ RELEASE
 *.dsw
 *.ncb
 *.opt
+*.bmp
+*.png
+*.wav
