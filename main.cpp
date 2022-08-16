@@ -146,7 +146,7 @@ static b32 LoadBMP(const char* fileName, BMPFile* bmp)
     }
 
     // Get right position for image reading
-    _llseek(fileHandle, bmp->info.biSizeImage, SEEK_END);
+    _llseek(fileHandle, -(s32)bmp->info.biSizeImage, SEEK_END);
 
     // Try to allocate memory
     bmp->buffer = (u8*)malloc(bmp->info.biSizeImage);
@@ -529,20 +529,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     // DEBUG
     BMPFile bmp;
-    if (!LoadBMP("bitmap8.bmp", &bmp))
+    if (!LoadBMP("assets\\bitmap8.bmp", &bmp))
         return ERROR_CODE;
 
     PALETTEENTRY palette[PALETTE_COLORS];
-    for (s32 i = 0; i < PALETTE_COLORS; ++i)
+    for (s32 i = 1; i < PALETTE_COLORS-1; ++i)
     {
         palette[i].peRed = rand() % 256;
         palette[i].peGreen = rand() % 256;
         palette[i].peBlue = rand() % 256;
         palette[i].peFlags = PC_NOCOLLAPSE;
     }
+    palette[0].peRed = 0;
+    palette[0].peGreen = 0;
+    palette[0].peBlue = 0;
+    palette[0].peFlags = PC_NOCOLLAPSE;
+    palette[255].peRed = 255;
+    palette[255].peGreen = 255;
+    palette[255].peBlue = 255;
+    palette[255].peFlags = PC_NOCOLLAPSE;
     if ( FAILED(g_pDD->CreatePalette(DDPCAPS_8BIT|DDPCAPS_ALLOW256|DDPCAPS_INITIALIZE, palette, &g_pDDPalette, NULL)) )
         return ERROR_CODE;
-    g_pDDPalette->SetEntries(0, 0, PALETTE_COLORS, bmp.palette);
+    g_pDDScreen->SetPalette(g_pDDPalette);
+    if ( FAILED(g_pDDPalette->SetEntries(0, 0, PALETTE_COLORS, bmp.palette)) )
+        return ERROR_CODE;
 
     // \DEBUG
 
