@@ -768,6 +768,7 @@ static void WinShutDown()
 
     if (g_pDDScreen)
     {
+        g_pDDScreen->SetPalette(NULL);
         g_pDDScreen->SetClipper(NULL);
         g_pDDScreen->Release();
         g_pDDScreen = NULL;
