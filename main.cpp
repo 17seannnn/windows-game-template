@@ -1,5 +1,12 @@
-/* TODO LIST */
-// - DDrawClearSurface()
+/* OPTIONAL TODO LIST */
+// - Windowed mode
+// - put GetCaps() result in global variable
+// - GDIDisplayText()
+// - DisplayText()
+// - ShiftPalette()
+// - HandleLight()
+// - ScaleSurface()
+// - ClearSurface()
 // - DisplayRect()
 // - BMP converters
 
@@ -448,7 +455,7 @@ static LPDIRECTDRAWSURFACE7 CreateSurfaceFromBMP(BMPFile* bmp, b32 bVideoMemory,
 
     for (s32 i = 0; i < bmp->info.biHeight; ++i)
     {
-        memcpy(dst, src, bmpPitch); // NOTE bitmap buffer contains pixels in BGR format
+        memcpy(dst, src, bmpPitch); // TODO/NOTE bitmap buffer contains pixels in BGR format
 
         dst += surfacePitch;
         src += bmpPitch;
@@ -574,8 +581,7 @@ static void ConsoleOut(const char* fmt, ...)
     _vsnprintf(g_consoleBuffer, CONSOLE_BUFSIZE, fmt, vl);
     va_end(vl);
 
-    // NOTE console turned off for easier debugging
-    //WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), g_consoleBuffer, strlen(g_consoleBuffer), NULL, NULL);
+    WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), g_consoleBuffer, strlen(g_consoleBuffer), NULL, NULL);
 }
 #endif
 
@@ -650,9 +656,8 @@ static b32 WinInit(HINSTANCE hInstance)
         return false;
 
 #ifdef _DEBUG
-    // NOTE HERE CONSOLE
-    //if (!AllocConsole())
-    //    return false;
+    if (!AllocConsole())
+        return false;
     g_consoleBuffer = (char*)malloc(CONSOLE_BUFSIZE);
 #endif
 
@@ -763,6 +768,7 @@ static void WinShutDown()
 
     if (g_pDDScreen)
     {
+        g_pDDScreen->SetClipper(NULL);
         g_pDDScreen->Release();
         g_pDDScreen = NULL;
     }
@@ -785,6 +791,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return ERROR_CODE;
     if (!Game::Init())
         return ERROR_CODE;
+
+    // DEBUG
+    DDCAPS hal, hel;
+    g_pDD->GetCaps(&hal, &hel);
+    ConsoleOut("%d\n%d\n", hel.dwVidMemTotal, hel.dwVidMemFree);
+    // \DEBUG
 
     // DEBUG
     BMPFile bmp;
