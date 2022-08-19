@@ -1,80 +1,54 @@
 /* OPTIONAL TODO LIST */
-// - Windowed mode
-// - put GetCaps() result in global variable
+// - Log in file and console, descriptors
+
+// - DrawLine()
+// - ClipLine()
+// - DrawPolygon2D()
+// - TranslatePolygon2D()
+// - RotatePolygon2D()
+// - Sin/Cos table
+// - ScalePolygon2D()
+// - ShowMouse()
+// - HideMouse()
+
 // - GDIDisplayText()
 // - DisplayText()
-// - ShiftPalette()
-// - HandleLight()
 // - ScaleSurface()
 // - ClearSurface()
 // - DisplayRect()
+
+// - put GetCaps() result in global variable
 // - BMP converters
+// - ShiftPalette()
+// - HandleLight()
+// - Windowed mode
 
 /* ====== Includes ====== */
-// Windows
-#define WIN32_LEAN_AND_MEAN // No MFC
-#define INITGUID // For DirectX
-
+// Temp
 #include <windows.h>
+#include <Windows.h>
 #include <windowsx.h>
-
-// DirectX
 #include <ddraw.h>
 
 // C/C++
 #include <stdio.h>
 
 // Game
+#include "Windows.h"
 #include "Types.h"
 #include "Game.h"
 
 /* ====== Defines ====== */
-// App
-#define SUCCESS_CODE 0
-#define ERROR_CODE 1
-
-#define SCREEN_WIDTH  640
-#define SCREEN_HEIGHT 480
-#define SCREEN_BPP 8
-
-// Windows
-#define WINDOW_CLASS_NAME "WINDOW_CLASS"
+#if 0 // NOTE
+// Log
 #define CONSOLE_BUFSIZE 1024
-
-#define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
-#define KEYUP(VK)   (GetAsyncKeyState(VK) & 0x8000 ? 0 : 1)
-
-// DirectX
-#define PALETTE_COLORS 256
-#define COLOR_KEY 0
-
-#define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )
-#define _RGB16BIT555(R, G, B) ( ((R & 31) << 10) + ((G & 31) << 5) + (B & 31) )
-#define _RGB24BIT(R, G, B) ( ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
-#define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
-
-#define DDRAW_INIT_STRUCT(STRUCT) { memset(&STRUCT, 0, sizeof(STRUCT)); STRUCT.dwSize = sizeof(STRUCT); }
 
 // BMP
 #define BMP_ID 0x4d42
 
 /* ====== Globals ====== */
-// App
-static s32 g_nExitCode = SUCCESS_CODE;
-
-// Windows
-static HINSTANCE g_hInstance = NULL;
-static HWND g_hWindow = NULL;
+// Log
 static char* g_consoleBuffer = NULL;
-
-static b32 g_bWindowClosed = false;
-
-// DirectX
-static LPDIRECTDRAW7 g_pDD = NULL;
-static LPDIRECTDRAWSURFACE7 g_pDDScreen = NULL;
-static LPDIRECTDRAWSURFACE7 g_pDDScreenBack = NULL;
-static LPDIRECTDRAWPALETTE g_pDDPalette = NULL;
-static LPDIRECTDRAWCLIPPER g_pDDClipper = NULL;
 
 /* ====== Structures ====== */
 struct BMPFile
@@ -190,7 +164,7 @@ static void UnloadBMP(BMPFile* bmp)
     }
 }
 
-/* === DirectX === */
+/* === Graphics === */
 void DDrawError(HRESULT error)
 {
     char dderr[256];
@@ -321,72 +295,6 @@ void DDrawError(HRESULT error)
 #ifdef _DEBUG
     ConsoleOut("%s\n", dderr);
 #endif
-}
-
-
-LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count)
-{
-    b32 bResult = true;
-    LPDIRECTDRAWCLIPPER pDDClipper;
-    LPRGNDATA pRegionData;
-
-    // Create clipper
-    if ( FAILED(g_pDD->CreateClipper(0, &pDDClipper, NULL)) )
-        return NULL;
-
-    // Init region data
-    pRegionData = (LPRGNDATA)malloc(sizeof(RGNDATAHEADER) + sizeof(RECT)*count);
-    memcpy(pRegionData->Buffer, clipList, sizeof(RECT)*count);
-
-    // Set region data header
-    pRegionData->rdh.dwSize = sizeof(RGNDATAHEADER);
-    pRegionData->rdh.iType = RDH_RECTANGLES;
-    pRegionData->rdh.nCount = count;
-    pRegionData->rdh.nRgnSize = count*sizeof(RECT);
-
-    pRegionData->rdh.rcBound.left = 64000;
-    pRegionData->rdh.rcBound.right = -64000;
-    pRegionData->rdh.rcBound.top = 64000;
-    pRegionData->rdh.rcBound.bottom = -64000;
-
-    // Resize bound
-    for (s32 i = 0; i < count; ++i)
-    {
-        // Left
-        if (clipList[i].left < pRegionData->rdh.rcBound.left)
-            pRegionData->rdh.rcBound.left = clipList[i].left;
-        // Right
-        if (clipList[i].right > pRegionData->rdh.rcBound.right)
-            pRegionData->rdh.rcBound.right = clipList[i].right;
-        // Top
-        if (clipList[i].top < pRegionData->rdh.rcBound.top)
-            pRegionData->rdh.rcBound.top = clipList[i].top;
-        // Bottom
-        if (clipList[i].bottom > pRegionData->rdh.rcBound.bottom)
-            pRegionData->rdh.rcBound.bottom = clipList[i].bottom;
-    }
-
-    // Set clip list
-    if ( FAILED(pDDClipper->SetClipList(pRegionData, 0)) )
-        bResult = false;
-
-    // Set clipper for surface
-    if ( FAILED(pDDSurface->SetClipper(pDDClipper)) )
-        bResult = false;
-
-    // Free memory
-    free(pRegionData);
-
-    // Return clipper
-    if (bResult)
-    {
-        return pDDClipper;
-    }
-    else
-    {
-        pDDClipper->Release();
-        return NULL;
-    }
 }
 
 static LPDIRECTDRAWSURFACE7 DDrawCreateSurface(s32 w, s32 h, b32 bVideoMemory, b32 bColorKey)
@@ -571,7 +479,7 @@ static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* 
     }
 }
 
-/* === Windows === */
+/* === Log === */
 #ifdef _DEBUG
 static void ConsoleOut(const char* fmt, ...)
 {
@@ -585,265 +493,34 @@ static void ConsoleOut(const char* fmt, ...)
 }
 #endif
 
-static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
-    
-    case WM_CREATE:
-    {} break;
+#endif // #ifdef 0
 
-    case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        HDC hDC = BeginPaint(hWindow, &ps);
-        EndPaint(hWindow, &ps);
-    } break;
-
-    case WM_DESTROY:
-    {
-        PostQuitMessage(0);
-    } break;
-
-    default:
-        return DefWindowProc(hWindow, msg, wParam, lParam);
-
-    }
-
-    return 0;
-}
-
-static b32 WinInit(HINSTANCE hInstance)
-{
-    // Init rand seed
-    srand(GetTickCount());
-
-    // Define global hInstance
-    g_hInstance = hInstance;
-
-    // Register class
-    WNDCLASSEX WinClass;
-
-    WinClass.cbSize = sizeof(WinClass);
-    WinClass.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-    WinClass.lpfnWndProc = WinProc;
-    WinClass.cbClsExtra = 0;
-    WinClass.cbWndExtra = 0;
-    WinClass.hInstance = g_hInstance;
-    WinClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    WinClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    WinClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-    WinClass.lpszMenuName = NULL;
-    WinClass.lpszClassName = WINDOW_CLASS_NAME;
-    WinClass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
-
-    if (!RegisterClassEx(&WinClass))
-        return false;
-
-	// Create window
-    g_hWindow = CreateWindowEx(NULL, // Useless
-                               WINDOW_CLASS_NAME,
-                               "Game Template",
-                               WS_POPUP|WS_VISIBLE,
-                               0, 0,
-                               1, 1,
-                               NULL, // Parent
-                               NULL, // Menu
-                               g_hInstance,
-                               NULL  // Useless
-    );
-    if (!g_hWindow)
-        return false;
-
-#ifdef _DEBUG
-    if (!AllocConsole())
-        return false;
-    g_consoleBuffer = (char*)malloc(CONSOLE_BUFSIZE);
-#endif
-
-    // Initialize DirectDraw
-    if ( FAILED(DirectDrawCreateEx(NULL, (void**)&g_pDD, IID_IDirectDraw7, NULL)) )
-        return false;
-    if ( FAILED(g_pDD->SetCooperativeLevel(g_hWindow, DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE|
-                                                      DDSCL_ALLOWMODEX|DDSCL_ALLOWREBOOT)) )
-        return false;
-
-    if ( FAILED(g_pDD->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, 0, 0)) )
-        return false;
-
-    // Primary surface
-    DDSURFACEDESC2 DDSurfaceDesc;
-    DDRAW_INIT_STRUCT(DDSurfaceDesc);
-
-    DDSurfaceDesc.dwFlags = DDSD_CAPS|DDSD_BACKBUFFERCOUNT;
-    DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE|DDSCAPS_COMPLEX|DDSCAPS_FLIP;
-    DDSurfaceDesc.dwBackBufferCount = 1;
-
-    if ( FAILED(g_pDD->CreateSurface(&DDSurfaceDesc, &g_pDDScreen, NULL)) )
-        return false;
-
-    // Back surface
-    DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER;
-    if ( FAILED(g_pDDScreen->GetAttachedSurface(&DDSurfaceDesc.ddsCaps, &g_pDDScreenBack)) )
-        return false;
-
-    // Palette
-    if (SCREEN_BPP == 8)
-    {
-        PALETTEENTRY palette[PALETTE_COLORS];
-
-        for (s32 i = 1; i < PALETTE_COLORS-1; ++i)
-        {
-            palette[i].peRed = rand() % 256;
-            palette[i].peGreen = rand() % 256;
-            palette[i].peBlue = rand() % 256;
-            palette[i].peFlags = PC_NOCOLLAPSE;
-        }
-
-        palette[0].peRed = 0;
-        palette[0].peGreen = 0;
-        palette[0].peBlue = 0;
-        palette[0].peFlags = PC_NOCOLLAPSE;
-
-        palette[255].peRed = 255;
-        palette[255].peGreen = 255;
-        palette[255].peBlue = 255;
-        palette[255].peFlags = PC_NOCOLLAPSE;
-
-        if ( FAILED(g_pDD->CreatePalette(DDPCAPS_8BIT|DDPCAPS_ALLOW256|DDPCAPS_INITIALIZE, palette, &g_pDDPalette, NULL)) )
-            return false;
-        if ( FAILED(g_pDDScreen->SetPalette(g_pDDPalette)) )
-            return false;
-    }
-
-    // Clipper
-    RECT clipList[1] = { { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT } };
-
-    g_pDDClipper = DDrawAttachClipper(g_pDDScreenBack, clipList, 1);
-    if (!g_pDDClipper)
-        return false;
-
-    // Success
-    return true;
-}
-
-static b32 WinEvents()
-{
-    MSG msg;
-
-    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) // Peek message from any window
-    {
-        if (msg.message == WM_QUIT)
-        {
-            g_nExitCode = msg.wParam;
-            return false;
-        }
-
-        TranslateMessage(&msg); // Keyboard input
-        DispatchMessage(&msg);  // Send this to WinProc
-    }
-
-    return true;
-}
-
-static void WinShutDown()
-{
-    if (g_pDDClipper)
-    {
-        g_pDDClipper->Release();
-        g_pDDClipper = NULL;
-    }
-
-    if (g_pDDPalette)
-    {
-        g_pDDPalette->Release();
-        g_pDDPalette = NULL;
-    }
-
-    if (g_pDDScreenBack)
-    {
-        g_pDDScreenBack->Release();
-        g_pDDScreenBack = NULL;
-    }
-
-    if (g_pDDScreen)
-    {
-        g_pDDScreen->SetPalette(NULL);
-        g_pDDScreen->SetClipper(NULL);
-        g_pDDScreen->Release();
-        g_pDDScreen = NULL;
-    }
-
-    if (g_pDD)
-    {
-        g_pDD->Release();
-        g_pDD= NULL;
-    }
-
-#ifdef _DEBUG
-    free(g_consoleBuffer);
-    FreeConsole();
-#endif
-}
+/* === Windows === */
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    if (!WinInit(hInstance))
-        return ERROR_CODE;
-    if (!Game::Init())
-        return ERROR_CODE;
-
-    // DEBUG
-    DDCAPS hal, hel;
-    g_pDD->GetCaps(&hal, &hel);
-    ConsoleOut("%d\n%d\n", hel.dwVidMemTotal, hel.dwVidMemFree);
-    // \DEBUG
-
-    // DEBUG
-    BMPFile bmp;
-    if (!LoadBMP("assets\\bitmap8.bmp", &bmp))
-        return ERROR_CODE;
-
-    if ( FAILED(g_pDDPalette->SetEntries(0, 0, PALETTE_COLORS, bmp.palette)) )
-        return ERROR_CODE;
-
-    LPDIRECTDRAWSURFACE7 pBMPSurface = CreateSurfaceFromBMP(&bmp, true, true); // bVideoMemory, bColorKey
-    if (!pBMPSurface)
-        return ERROR_CODE;
-
-    UnloadBMP(&bmp);
-    // \DEBUG
+    if (!Windows::StartUp(hInstance))
+        return Windows::EC_ERROR;
+    if (!Game::StartUp())
+        return Windows::EC_ERROR;
 
     while (Game::Running())
     {
-        // Debug
-        if (KEYDOWN(VK_ESCAPE))
-        {
-            g_bWindowClosed = true;
-            PostMessage(g_hWindow, WM_CLOSE, 0, 0);
-        }
-
-        if (!WinEvents())
+        if (!Windows::HandleEvents())
             break;  // Break on quit event
         Game::Update();
-        if (g_bWindowClosed)
+        if (Windows::IsWindowClosed())
             break; // DirectX may want to get window but it can be closed
         Game::Render();
 
-        // DEBUG
-        g_pDDScreenBack->Blt(NULL, pBMPSurface, NULL, DDBLT_WAIT|DDBLT_KEYSRC, NULL);
-        // \DEBUG
-
         // Flip buffers
-        g_pDDScreen->Flip(NULL, DDFLIP_WAIT);
+        //g_pDDScreen->Flip(NULL, DDFLIP_WAIT); // NOTE Should be in Graphics::Flip()
     }
 
-    // DEBUG
-    pBMPSurface->Release();
-    // \DEBUG
-
+    // Shut down all stuff here
     Game::ShutDown();
-    WinShutDown();
+    Windows::ShutDown();
+    // Log::ShutDown();
 
-    return g_nExitCode;
+    return Windows::GetExitCode();
 }

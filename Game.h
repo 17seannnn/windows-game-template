@@ -8,7 +8,7 @@ class Game
 {
     static b32 m_bRunning;
 public:
-    static b32 Init();
+    static b32 StartUp();
     static void ShutDown();
 
     static void Update();
