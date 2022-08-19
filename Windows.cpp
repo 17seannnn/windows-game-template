@@ -4,7 +4,7 @@
 
 #define WINDOW_CLASS_NAME "WINDOWCLASS1"
 
-s32 Windows::m_nExitCode = Windows::eExitCode::EC_SUCCESS;
+s32 Windows::m_nExitCode = Windows::EC_SUCCESS;
 b32 Windows::m_bWindowClosed = false;
 
 HINSTANCE Windows::m_hInstance = NULL;
@@ -52,23 +52,12 @@ b32 Windows::StartUp(HINSTANCE hInstance, const char* title)
     if (!m_hWindow)
         return false;
 
-#ifdef _DEBUG // TODO should be in Log
-    //if (!AllocConsole())
-    //    return false;
-    //g_consoleBuffer = (char*)malloc(CONSOLE_BUFSIZE);
-#endif
-
     // Success
     return true;
 }
 
 void Windows::ShutDown()
-{
-#ifdef _DEBUG // TODO Should be in Log
-    //free(g_consoleBuffer);
-    //FreeConsole();
-#endif
-}
+{}
 
 b32 Windows::HandleEvents()
 {

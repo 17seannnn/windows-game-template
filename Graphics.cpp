@@ -2,6 +2,7 @@
 
 #define INITGUID // For DirectX in "Graphics.h"
 #include "Graphics.h"
+#undef INITGUID
 
 #define PALETTE_COLORS 256
 #define COLOR_KEY 0

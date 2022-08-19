@@ -1,6 +1,18 @@
 /* OPTIONAL TODO LIST */
-// - Log in file and console, descriptors
 
+/* LOG */
+// - Log in file and console, descriptors
+// - Place ifdef _DEBUG inside Log:: funcs
+
+// - Different streams with different colors? So we can output in console everything but with different colors???
+// - Filters
+// - Flush everything
+
+/* WINDOWS */
+// - ShowMouse()
+// - HideMouse()
+
+/* GRAPHICS */
 // - DrawLine()
 // - ClipLine()
 // - DrawPolygon2D()
@@ -8,8 +20,6 @@
 // - RotatePolygon2D()
 // - Sin/Cos table
 // - ScalePolygon2D()
-// - ShowMouse()
-// - HideMouse()
 
 // - GDIDisplayText()
 // - DisplayText()
@@ -17,16 +27,16 @@
 // - ClearSurface()
 // - DisplayRect()
 
+/* OTHER STUFF */
 // - put GetCaps() result in global variable
 // - BMP converters
 // - ShiftPalette()
 // - HandleLight()
 // - Windowed mode
 
-// C/C++
 #include <stdio.h>
 
-// Game
+#include "Log.h"
 #include "Windows.h"
 #include "Graphics.h"
 #include "Game.h"
@@ -64,7 +74,7 @@ static void FlipBMP(u8* image, s32 bytesPerLine, s32 height)
 {
     // Allocate memory
     s32 size = bytesPerLine * height;
-    u8* buffer = (u8*)malloc(size);
+    u8* buffer = new u8[size];
     if (!buffer)
         return;
 
@@ -78,7 +88,7 @@ static void FlipBMP(u8* image, s32 bytesPerLine, s32 height)
                bytesPerLine);
 
     // Free memory
-    free(buffer);
+    delete[] buffer;
 }
 
 static b32 LoadBMP(const char* fileName, BMPFile* bmp)
@@ -129,7 +139,7 @@ static b32 LoadBMP(const char* fileName, BMPFile* bmp)
     _llseek(fileHandle, -(s32)bmp->info.biSizeImage, SEEK_END);
 
     // Try to allocate memory
-    bmp->buffer = (u8*)malloc(bmp->info.biSizeImage);
+    bmp->buffer = new u8[bmp->info.biSizeImage];
     if (!bmp->buffer)
     {
         _lclose(fileHandle);
@@ -152,7 +162,7 @@ static void UnloadBMP(BMPFile* bmp)
 {
     if (bmp->buffer)
     {
-        free(bmp->buffer);
+        delete[] bmp->buffer;
         bmp->buffer = NULL;
     }
 }
@@ -490,10 +500,11 @@ static void ConsoleOut(const char* fmt, ...)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    // Start up the log system
+    if (!Log::StartUp())
+        return Windows::EC_ERROR;
     if (!Windows::StartUp(hInstance))
         return Windows::EC_ERROR;
-    if ( !Graphics::StartUp() )
+    if (!Graphics::StartUp())
         return Windows::EC_ERROR;
     if (!Game::StartUp())
         return Windows::EC_ERROR;
@@ -518,7 +529,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     Game::ShutDown();
     Graphics::ShutDown();
     Windows::ShutDown();
-    // Shut down the log system
+    Log::ShutDown();
 
     return Windows::GetExitCode();
 }
