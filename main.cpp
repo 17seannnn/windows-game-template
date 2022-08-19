@@ -23,19 +23,12 @@
 // - HandleLight()
 // - Windowed mode
 
-/* ====== Includes ====== */
-// Temp
-#include <windows.h>
-#include <Windows.h>
-#include <windowsx.h>
-#include <ddraw.h>
-
 // C/C++
 #include <stdio.h>
 
 // Game
 #include "Windows.h"
-#include "Types.h"
+#include "Graphics.h"
 #include "Game.h"
 
 /* ====== Defines ====== */
@@ -495,19 +488,24 @@ static void ConsoleOut(const char* fmt, ...)
 
 #endif // #ifdef 0
 
-/* === Windows === */
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
+    // Start up the log system
     if (!Windows::StartUp(hInstance))
+        return Windows::EC_ERROR;
+    if ( !Graphics::StartUp() )
         return Windows::EC_ERROR;
     if (!Game::StartUp())
         return Windows::EC_ERROR;
 
     while (Game::Running())
     {
+        // DEBUG
+        if (KEYDOWN(VK_ESCAPE))
+            break;
+
         if (!Windows::HandleEvents())
-            break;  // Break on quit event
+            break; // Break on quit event
         Game::Update();
         if (Windows::IsWindowClosed())
             break; // DirectX may want to get window but it can be closed
@@ -517,10 +515,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         //g_pDDScreen->Flip(NULL, DDFLIP_WAIT); // NOTE Should be in Graphics::Flip()
     }
 
-    // Shut down all stuff here
     Game::ShutDown();
+    Graphics::ShutDown();
     Windows::ShutDown();
-    // Log::ShutDown();
+    // Shut down the log system
 
     return Windows::GetExitCode();
 }
