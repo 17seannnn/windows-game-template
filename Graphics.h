@@ -2,13 +2,13 @@
 #define GRAPHICS_H_
 
 #include "Types.h"
-#include "BMP.h"
 
 #include <ddraw.h>
 
 // Static class
 class Graphics
 {
+    // DirectX
     static LPDIRECTDRAW7 m_pDDraw;
     static LPDIRECTDRAWSURFACE7 m_pDDScreen;
     static LPDIRECTDRAWSURFACE7 m_pDDScreenBack;
@@ -23,13 +23,13 @@ public:
     // Doesn't work with surfaces w/o src color key
     static void Blit(LPRECT dstRect, LPDIRECTDRAWSURFACE7 srcSurface, LPRECT srcRect)
         { m_pDDScreenBack->Blt(dstRect, srcSurface, srcRect, DDBLT_WAIT|DDBLT_KEYSRC, NULL); }
+
+    static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 private:
     static void DDrawError(HRESULT error);
     static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count);
 
-public: // TODO remove public, make better interface for BMP
     static LPDIRECTDRAWSURFACE7 CreateSurface(s32 w, s32 h, b32 bVideoMemory = true, b32 bColorKey = true);
-    static LPDIRECTDRAWSURFACE7 CreateSurfaceFromBMP(BMPFile* bmp, b32 bVideoMemory = true, b32 bColorKey = true);
 };
 
 #endif GRAPHICS_H_

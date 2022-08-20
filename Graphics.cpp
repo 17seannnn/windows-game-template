@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "Windows.h"
+#include "BMP.h"
 
 #define INITGUID // For DirectX in "Graphics.h"
 #include "Graphics.h"
@@ -368,10 +369,14 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 w, s32 h, b32 bVideoMemory, b32
     return pDDSurface;
 }
 
-LPDIRECTDRAWSURFACE7 Graphics::CreateSurfaceFromBMP(BMPFile* bmp, b32 bVideoMemory, b32 bColorKey)
+LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
 {
+    // DEBUG
+    BMPFile bmp;
+    ::LoadBMP(fileName, &bmp);
+
     // Create surface
-    LPDIRECTDRAWSURFACE7 pDDSurface = CreateSurface(bmp->info.biWidth, bmp->info.biHeight, bVideoMemory, bColorKey);
+    LPDIRECTDRAWSURFACE7 pDDSurface = CreateSurface(bmp.info.biWidth, bmp.info.biHeight);
     if (!pDDSurface)
         return NULL;
 
@@ -383,12 +388,12 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurfaceFromBMP(BMPFile* bmp, b32 bVideoMemo
     pDDSurface->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL);
 
     u8* dst = (u8*)DDSurfaceDesc.lpSurface;
-    u8* src = (u8*)bmp->buffer;
+    u8* src = (u8*)bmp.buffer;
 
     s32 surfacePitch = DDSurfaceDesc.lPitch;
-    s32 bmpPitch = bmp->info.biWidth * (bmp->info.biBitCount/8);
+    s32 bmpPitch = bmp.info.biWidth * (bmp.info.biBitCount/8);
 
-    for (s32 i = 0; i < bmp->info.biHeight; ++i)
+    for (s32 i = 0; i < bmp.info.biHeight; ++i)
     {
         memcpy(dst, src, bmpPitch); // TODO/NOTE bitmap buffer contains pixels in BGR format
 
@@ -397,6 +402,8 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurfaceFromBMP(BMPFile* bmp, b32 bVideoMemo
     }
 
     pDDSurface->Unlock(NULL);
+
+    UnloadBMP(&bmp);
 
     return pDDSurface;
 }

@@ -15,7 +15,8 @@
 // - HideMouse()
 
 /* GRAPHICS */
-// - Save w, h, bpp in vars
+// - Save w, h, bpp in Graphics vars
+// - Use my surface of texture structure
 
 // - DrawLine()
 // - ClipLine()
@@ -163,10 +164,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return Windows::EC_ERROR;
 
     // DEBUG
-    BMPFile bmp;
-    LoadBMP("assets\\bitmap8.bmp", &bmp);
-    LPDIRECTDRAWSURFACE7 pSurface = Graphics::CreateSurfaceFromBMP(&bmp);
-    UnloadBMP(&bmp);
+    LPDIRECTDRAWSURFACE7 pSurface = Graphics::LoadBMP("assets\\bitmap8.bmp");
 
     while (Game::Running())
     {
