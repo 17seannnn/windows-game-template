@@ -7,10 +7,6 @@
 // - Verbosity for console
 // - Flush everything
 
-/* WINDOWS */
-// - ShowMouse()
-// - HideMouse()
-
 /* GRAPHICS */
 // - Use my surface or texture structure
 

@@ -52,12 +52,16 @@ b32 Windows::StartUp(HINSTANCE hInstance, const char* title)
     if (!m_hWindow)
         return false;
 
+    HideMouse();
+
     // Success
     return true;
 }
 
 void Windows::ShutDown()
-{}
+{
+    ShowMouse();
+}
 
 b32 Windows::HandleEvents()
 {

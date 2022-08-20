@@ -15,7 +15,7 @@
 class Windows
 {
     static s32 m_nExitCode;
-    static b32 m_bWindowClosed; // NOTE think about this bool... maybe we don't need this
+    static b32 m_bWindowClosed; // NOTE think about this bool... maybe we don't need this.. or maybe need?
 
     static HINSTANCE m_hInstance;
     static HWND m_hWindow;
@@ -30,6 +30,8 @@ public:
     static void ShutDown();
 
     static b32 HandleEvents();
+    static void ShowMouse() { ShowCursor(true); }
+    static void HideMouse() { ShowCursor(false); }
 
     static s32 GetExitCode() { return m_nExitCode; }
     static b32 IsWindowClosed() { return m_bWindowClosed; }
