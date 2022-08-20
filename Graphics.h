@@ -22,6 +22,9 @@ public:
 private:
     static void DDrawError(HRESULT error);
     static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count);
+
+    static LPDIRECTDRAWSURFACE7 CreateSurface(s32 w, s32 h, b32 bVideoMemory = true, b32 bColorKey = true);
+    static LPDIRECTDRAWSURFACE7 CreateSurfaceFromBMP(BMPFile* bmp, b32 bVideoMemory = true, b32 bColorKey = true);
 };
 
 #endif GRAPHICS_H_

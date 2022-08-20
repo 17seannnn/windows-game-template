@@ -325,3 +325,78 @@ LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPR
         return NULL;
     }
 }
+
+LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 w, s32 h, b32 bVideoMemory, b32 bColorKey)
+{
+    // Init structures
+    DDSURFACEDESC2 DDSurfaceDesc;
+    LPDIRECTDRAWSURFACE7 pDDSurface;
+
+    DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+    DDSurfaceDesc.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
+
+    DDSurfaceDesc.dwWidth = w;
+    DDSurfaceDesc.dwHeight = h;
+
+    // Place to which memory
+    if (bVideoMemory)
+        DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
+    else
+        DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+
+    // Create surface
+    if ( FAILED(m_pDDraw->CreateSurface(&DDSurfaceDesc, &pDDSurface, NULL)) && bVideoMemory )
+    {
+        // Try to place stuff in system memory
+        DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+        if ( FAILED(m_pDDraw->CreateSurface(&DDSurfaceDesc, &pDDSurface, NULL)) )
+            return NULL;
+        // TODO console log
+    }
+
+    // Set color key
+    if (bColorKey)
+    {
+        DDCOLORKEY DDColorKey;
+        DDColorKey.dwColorSpaceLowValue = COLOR_KEY;
+        DDColorKey.dwColorSpaceHighValue = COLOR_KEY;
+
+        pDDSurface->SetColorKey(DDCKEY_SRCBLT, &DDColorKey);
+    }
+
+    return pDDSurface;
+}
+
+LPDIRECTDRAWSURFACE7 Graphics::CreateSurfaceFromBMP(BMPFile* bmp, b32 bVideoMemory, b32 bColorKey)
+{
+    // Create surface
+    LPDIRECTDRAWSURFACE7 pDDSurface = DDrawCreateSurface(bmp->info.biWidth, bmp->info.biHeight, bVideoMemory, bColorKey);
+    if (!pDDSurface)
+        return NULL;
+
+    // Init description
+    DDSURFACEDESC2 DDSurfaceDesc;
+    DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+    // Copy
+    pDDSurface->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL);
+
+    u8* dst = (u8*)DDSurfaceDesc.lpSurface;
+    u8* src = (u8*)bmp->buffer;
+
+    s32 surfacePitch = DDSurfaceDesc.lPitch;
+    s32 bmpPitch = bmp->info.biWidth * (bmp->info.biBitCount/8);
+
+    for (s32 i = 0; i < bmp->info.biHeight; ++i)
+    {
+        memcpy(dst, src, bmpPitch); // TODO/NOTE bitmap buffer contains pixels in BGR format
+
+        dst += surfacePitch;
+        src += bmpPitch;
+    }
+
+    pDDSurface->Unlock(NULL);
+
+    return pDDSurface;
+}
