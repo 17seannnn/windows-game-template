@@ -10,6 +10,17 @@
 #define NOTE_MESSAGE_BUFSIZE 512
 #define NOTE_FINAL_BUFSIZE 1024
 
+#define CHANNEL_PREFIX_UNDEFINED "Undefined"
+#define CHANNEL_PREFIX_LOG       "Log"
+#define CHANNEL_PREFIX_WINDOWS   "Windows"
+#define CHANNEL_PREFIX_GRAPHICS  "Graphics"
+#define CHANNEL_PREFIX_GAME      "Game"
+
+#define PRIORITY_PREFIX_UNDEFINED "Undefined"
+#define PRIORITY_PREFIX_ERROR     "Error"
+#define PRIORITY_PREFIX_WARNING   "Warning"
+#define PRIORITY_PREFIX_NOTE      "Note"
+
 b32 Log::StartUp()
 {
 #ifdef _DEBUG
@@ -40,22 +51,27 @@ void Log::Note(s32 channel, s32 priority, const char* fmt, ...)
 
     case CHANNEL_LOG:
     {
+        channelPrefix = CHANNEL_PREFIX_LOG;
     } break;
 
     case CHANNEL_WINDOWS:
     {
+        channelPrefix = CHANNEL_PREFIX_WINDOWS;
     } break;
 
     case CHANNEL_GRAPHICS:
     {
+        channelPrefix = CHANNEL_PREFIX_GRAPHICS;
     } break;
 
     case CHANNEL_GAME:
     {
+        channelPrefix = CHANNEL_PREFIX_GAME;
     } break;
 
     default:
     {
+        channelPrefix = CHANNEL_PREFIX_UNDEFINED;
     } break;
 
     }
@@ -64,18 +80,22 @@ void Log::Note(s32 channel, s32 priority, const char* fmt, ...)
     {
     case PRIORITY_ERROR:
     {
+        priorityPrefix = PRIORITY_PREFIX_ERROR;
     } break;
 
     case PRIORITY_WARNING:
     {
+        priorityPrefix = PRIORITY_PREFIX_WARNING;
     } break;
 
     case PRIORITY_NOTE:
     {
+        priorityPrefix = PRIORITY_PREFIX_NOTE;
     } break;
 
     default:
     {
+        priorityPrefix = PRIORITY_PREFIX_UNDEFINED;
     } break;
 
     }
