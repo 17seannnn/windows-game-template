@@ -2,7 +2,7 @@
 
 /* LOG */
 // - Log in file and console with channels
-// - Output every channel in console but with differenct colors
+// - Output every channel in console but with different colors
 // - Filters for console
 // - Verbosity for console
 // - Flush everything
@@ -154,6 +154,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return Windows::EC_ERROR;
     if (!Game::StartUp())
         return Windows::EC_ERROR;
+
+    Log::Note(Log::CHANNEL_LOG, Log::PRIORITY_NOTE, "Hello world!");
 
     // DEBUG
     LPDIRECTDRAWSURFACE7 pSurface = Graphics::LoadBMP("assets\\bitmap8.bmp");

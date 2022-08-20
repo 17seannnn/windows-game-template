@@ -6,8 +6,8 @@
 // Static class
 class Log
 {
-    static s8* m_consoleBuffer;
 public:
+    // Each channel represent engine's module
     enum eChannel
     {
         CHANNEL_LOG      = 1 << 0,
@@ -16,10 +16,17 @@ public:
         CHANNEL_GAME     = 1 << 3
     };
 
+    enum ePriority
+    {
+        PRIORITY_ERROR   = 1 << 0,
+        PRIORITY_WARNING = 1 << 1,
+        PRIORITY_NOTE    = 1 << 2
+    };
+
     static b32 StartUp();
     static void ShutDown();
 
-    static void Note(s32 stream, const char* fmt, ...);
+    static void Note(s32 channel, s32 priority, const char* fmt, ...);
 };
 
 #endif // LOG_H_
