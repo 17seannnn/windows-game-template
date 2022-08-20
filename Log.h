@@ -8,18 +8,12 @@ class Log
 {
     static s8* m_consoleBuffer;
 public:
-    enum eStreamDescriptor
+    enum eChannel
     {
-        // Default
-        STREAM_CONSOLE      = 1 << 0,
-        STREAM_DEFAULT_FILE = 1 << 1,
-        STREAM_DEFAULT      = STREAM_CONSOLE | STREAM_DEFAULT_FILE,
-
-        // Engine modules
-        STREAM_LOG      = 1 << 2,
-        STREAM_WINDOWS  = 1 << 3,
-        STREAM_GRAPHICS = 1 << 4,
-        STREAM_GAME     = 1 << 5
+        CHANNEL_LOG      = 1 << 0,
+        CHANNEL_WINDOWS  = 1 << 1,
+        CHANNEL_GRAPHICS = 1 << 2,
+        CHANNEL_GAME     = 1 << 3
     };
 
     static b32 StartUp();

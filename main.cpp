@@ -1,11 +1,14 @@
 /* OPTIONAL TODO LIST */
 
+/* MAIN */
+// - Use postincrement for types like s32 because preincrement can produce cpu stall
+
 /* LOG */
 // - Log in file and console, descriptors
-// - Place ifdef _DEBUG inside Log:: funcs
 
-// - Different streams with different colors? So we can output in console everything but with different colors???
-// - Filters
+// - Output every channel in console but with differenct colors
+// - Filters for console
+// - Verbosity for console
 // - Flush everything
 
 /* WINDOWS */
@@ -34,26 +37,15 @@
 // - HandleLight()
 // - Windowed mode
 
-#include <stdio.h>
-
 #include "Log.h"
 #include "Windows.h"
 #include "Graphics.h"
 #include "Game.h"
 
-/* ====== Defines ====== */
-#if 0 // NOTE
-// Log
-#define CONSOLE_BUFSIZE 1024
-
-// BMP
+#if 0
+/* === BMP === */
 #define BMP_ID 0x4d42
 
-/* ====== Globals ====== */
-// Log
-static char* g_consoleBuffer = NULL;
-
-/* ====== Structures ====== */
 struct BMPFile
 {
     BITMAPFILEHEADER file;
@@ -62,14 +54,6 @@ struct BMPFile
     u8* buffer;
 };
 
-/* ====== Functions ====== */
-
-#ifdef _DEBUG
-/* === DEBUG PROTOTYPES */
-static void ConsoleOut(const char* fmt, ...);
-#endif
-
-/* === BitMap === */
 static void FlipBMP(u8* image, s32 bytesPerLine, s32 height)
 {
     // Allocate memory
@@ -294,10 +278,8 @@ void DDrawError(HRESULT error)
 
     default : sprintf(dderr, "Unknown Error"); break;
     }
-
-#ifdef _DEBUG
-    ConsoleOut("%s\n", dderr);
-#endif
+    
+    // TODO output in console
 }
 
 static LPDIRECTDRAWSURFACE7 DDrawCreateSurface(s32 w, s32 h, b32 bVideoMemory, b32 bColorKey)
@@ -326,9 +308,7 @@ static LPDIRECTDRAWSURFACE7 DDrawCreateSurface(s32 w, s32 h, b32 bVideoMemory, b
         DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
         if ( FAILED(g_pDD->CreateSurface(&DDSurfaceDesc, &pDDSurface, NULL)) )
             return NULL;
-#ifdef _DEBUG
-        ConsoleOut("Couldn't allocate surface in video memory\n");
-#endif
+        // TODO console log
     }
 
     // Set color key
@@ -481,21 +461,6 @@ static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* 
         bitMap += w;
     }
 }
-
-/* === Log === */
-#ifdef _DEBUG
-static void ConsoleOut(const char* fmt, ...)
-{
-    va_list vl;
-
-    va_start(vl, fmt);
-    _vsnprintf(g_consoleBuffer, CONSOLE_BUFSIZE, fmt, vl);
-    va_end(vl);
-
-    WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), g_consoleBuffer, strlen(g_consoleBuffer), NULL, NULL);
-}
-#endif
-
 #endif // #ifdef 0
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)

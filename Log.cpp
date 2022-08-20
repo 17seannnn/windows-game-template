@@ -9,6 +9,7 @@ s8* Log::m_consoleBuffer = NULL;
 
 b32 Log::StartUp()
 {
+#ifdef _DEBUG
     // Allocate console
     if (!AllocConsole())
         return false;
@@ -17,17 +18,23 @@ b32 Log::StartUp()
     m_consoleBuffer = new s8[CONSOLE_BUFSIZE];
 
     return true;
+#endif
 }
 
 void Log::ShutDown()
 {
+#ifdef _DEBUG
     // Free buffer memory
     delete[] m_consoleBuffer;
 
     // Detach console
     FreeConsole();
+#endif
 }
 
-void Log::Note(s32 stream, const char* fmt, ...)
+void Log::Note(s32 channel, const char* fmt, ...)
 {
+#ifdef _DEBUG
+    // NOTE start here
+#endif
 }
