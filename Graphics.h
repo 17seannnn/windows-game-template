@@ -17,6 +17,8 @@ class Graphics
 public:
     static b32 StartUp(s32 width = 640, s32 height = 480, s32 bpp = 8);
     static void ShutDown();
+
+    static void Flip() { m_pDDScreen->Flip(NULL, DDFLIP_WAIT); }
 private:
     static LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count);
 };

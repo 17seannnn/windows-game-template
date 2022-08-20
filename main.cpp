@@ -4,8 +4,7 @@
 // - Use postincrement for types like s32 because preincrement can produce cpu stall
 
 /* LOG */
-// - Log in file and console, descriptors
-
+// - Log in file and console with channels
 // - Output every channel in console but with differenct colors
 // - Filters for console
 // - Verbosity for console
@@ -486,9 +485,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         if (Windows::IsWindowClosed())
             break; // DirectX may want to get window but it can be closed
         Game::Render();
-
-        // Flip buffers
-        //g_pDDScreen->Flip(NULL, DDFLIP_WAIT); // NOTE Should be in Graphics::Flip()
     }
 
     Game::ShutDown();
