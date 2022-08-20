@@ -2,6 +2,7 @@
 #define GRAPHICS_H_
 
 #include "Types.h"
+#include "BMP.h"
 
 #include <ddraw.h>
 

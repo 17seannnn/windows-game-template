@@ -371,7 +371,7 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 w, s32 h, b32 bVideoMemory, b32
 LPDIRECTDRAWSURFACE7 Graphics::CreateSurfaceFromBMP(BMPFile* bmp, b32 bVideoMemory, b32 bColorKey)
 {
     // Create surface
-    LPDIRECTDRAWSURFACE7 pDDSurface = DDrawCreateSurface(bmp->info.biWidth, bmp->info.biHeight, bVideoMemory, bColorKey);
+    LPDIRECTDRAWSURFACE7 pDDSurface = CreateSurface(bmp->info.biWidth, bmp->info.biHeight, bVideoMemory, bColorKey);
     if (!pDDSurface)
         return NULL;
 
