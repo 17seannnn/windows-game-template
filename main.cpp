@@ -1,8 +1,5 @@
 /* OPTIONAL TODO LIST */
 
-/* MAIN */
-// - Use postincrement for types like s32 because preincrement can produce cpu stall
-
 /* LOG */
 // - Log in file and console with channels
 // - Output every channel in console but with differenct colors
@@ -15,7 +12,6 @@
 // - HideMouse()
 
 /* GRAPHICS */
-// - Save w, h, bpp in Graphics vars
 // - Use my surface or texture structure
 
 // - DrawLine()
@@ -68,9 +64,9 @@ static void Blit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap,
 {
     videoBuffer += posY*pitch32 + posX; // Start position for videoBuffer pointer
 
-    for (s32 y = 0; y < h; ++y)
+    for (s32 y = 0; y < h; y++)
     {
-        for (s32 x = 0; x < w; ++x)
+        for (s32 x = 0; x < w; x++)
         {
             u32 pixel;
             if ((pixel = bitMap[x])) // Plot opaque pixels only
@@ -138,9 +134,9 @@ static void BlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* 
     bitMap += srcOffsetY*w + srcOffsetX;
 
     // Blitting
-    for (s32 y = 0; y < dY; ++y)
+    for (s32 y = 0; y < dY; y++)
     {
-        for (s32 x = 0; x < dX; ++x)
+        for (s32 x = 0; x < dX; x++)
         {
             u32 pixel;
             if ((pixel = bitMap[x]) != _RGB32BIT(255, 0, 0, 0)) // Plot opaque pixels only

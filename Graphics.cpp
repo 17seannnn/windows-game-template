@@ -71,7 +71,7 @@ b32 Graphics::StartUp(s32 width, s32 height, s32 bpp)
     {
         PALETTEENTRY palette[PALETTE_COLORS];
 
-        for (s32 i = 1; i < PALETTE_COLORS-1; ++i)
+        for (s32 i = 1; i < PALETTE_COLORS-1; i++)
         {
             palette[i].peRed = rand() % 256;
             palette[i].peGreen = rand() % 256;
@@ -297,7 +297,7 @@ LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPR
     pRegionData->rdh.rcBound.bottom = -64000;
 
     // Resize bound
-    for (s32 i = 0; i < count; ++i)
+    for (s32 i = 0; i < count; i++)
     {
         // Left
         if (clipList[i].left < pRegionData->rdh.rcBound.left)
@@ -402,7 +402,7 @@ LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
     s32 surfacePitch = DDSurfaceDesc.lPitch;
     s32 bmpPitch = bmp.info.biWidth * (bmp.info.biBitCount/8);
 
-    for (s32 i = 0; i < bmp.info.biHeight; ++i)
+    for (s32 i = 0; i < bmp.info.biHeight; i++)
     {
         memcpy(dst, src, bmpPitch); // TODO/NOTE bitmap buffer contains pixels in BGR format
 

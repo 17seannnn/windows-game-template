@@ -30,7 +30,7 @@ BMPFile::BMPFile(const char* fileName)
         _lread(fileHandle, palette, sizeof(palette[0]) * PALETTE_COLORS);
 
         // RGB -> BGR
-        for (s32 i = 0; i < PALETTE_COLORS; ++i)
+        for (s32 i = 0; i < PALETTE_COLORS; i++)
         {
             s32 temp = palette[i].peBlue;
             palette[i].peBlue = palette[i].peRed;
@@ -91,7 +91,7 @@ void BMPFile::Flip(s32 bytesPerLine, s32 height)
     memcpy(flip, buffer, size);
 
     // Flip
-    for (s32 i = 0; i < height; ++i)
+    for (s32 i = 0; i < height; i++)
         memcpy(&buffer[(height-1 - i)*bytesPerLine],
                &flip[i*bytesPerLine],
                bytesPerLine);
