@@ -10,7 +10,7 @@ BMPFile::BMPFile(const char* fileName)
     // Open file
     OFSTRUCT fileInfo;
     s32 fileHandle = OpenFile(fileName, &fileInfo, OF_READ);
-    if (fileHandle == -1)
+    if (fileHandle == HFILE_ERROR)
         return;
 
     // Read file header

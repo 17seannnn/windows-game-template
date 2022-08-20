@@ -1,5 +1,7 @@
 DEBUG
 RELEASE
+logs
+assets
 *.cur
 *.wav
 *.ico

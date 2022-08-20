@@ -1,3 +1,10 @@
+/* ====== TODO ======
+ * - Use Win32 funcs for files handling
+ * - Filters: channels, priorities
+ * - Verbosity
+ */
+
+/* ====== INCLUDES ====== */
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,6 +13,7 @@
 
 #include "Log.h"
 
+/* ====== DEFINES ====== */
 #define NOTE_PREFIX_BUFSIZE  64
 #define NOTE_MESSAGE_BUFSIZE 512
 #define NOTE_FINAL_BUFSIZE   1024
@@ -20,6 +28,8 @@
 #define PRIORITY_PREFIX_ERROR     "Error"
 #define PRIORITY_PREFIX_WARNING   "Warning"
 #define PRIORITY_PREFIX_NOTE      "Note"
+
+#define DIR_LOGS "logs\\"
 
 enum eFgColor
 {
@@ -77,11 +87,37 @@ enum ePriorityColor
     PRIORITY_COLOR_NOTE      = BG_GRAY,
 };
 
+/* ====== VARIABLES ====== */
+HANDLE Log::hConsole;
+HFILE Log::hFullLog;
+
+HFILE Log::hLog;
+HFILE Log::hWindows;
+HFILE Log::hGraphics;
+HFILE Log::hGame;
+
+/* ====== METHODS ====== */
 b32 Log::StartUp()
 {
 #ifdef _DEBUG
     // Allocate console
     if (!AllocConsole())
+        return false;
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    // Open all log files
+    CreateDirectory(DIR_LOGS, NULL);
+
+    OFSTRUCT fileInfo;
+    if (-1 == (hFullLog = OpenFile(DIR_LOGS"FullLog.txt", &fileInfo, OF_CREATE)) )
+        return false;
+    if (-1 == (hLog = OpenFile(DIR_LOGS"ModuleLog.txt", &fileInfo, OF_CREATE)) )
+        return false;
+    if (-1 == (hWindows = OpenFile(DIR_LOGS"ModuleWindows.txt", &fileInfo, OF_CREATE)) )
+        return false;
+    if (-1 == (hGraphics = OpenFile(DIR_LOGS"ModuleGraphics.txt", &fileInfo, OF_CREATE)) )
+        return false;
+    if (-1 == (hGame = OpenFile(DIR_LOGS"ModuleGame.txt", &fileInfo, OF_CREATE)) )
         return false;
 
     return true;
@@ -91,6 +127,13 @@ b32 Log::StartUp()
 void Log::ShutDown()
 {
 #ifdef _DEBUG
+    // Close log files
+    _lclose(hFullLog);
+    _lclose(hLog);
+    _lclose(hWindows);
+    _lclose(hGraphics);
+    _lclose(hGame);
+
     // Detach console
     FreeConsole();
 #endif
@@ -99,6 +142,7 @@ void Log::ShutDown()
 void Log::Note(s32 channel, s32 priority, const char* fmt, ...)
 {
 #ifdef _DEBUG
+    HFILE hFile;
     const char* channelPrefix = "";
     const char* priorityPrefix = "";
     WORD noteColor = 0;
@@ -109,30 +153,35 @@ void Log::Note(s32 channel, s32 priority, const char* fmt, ...)
 
     case CHANNEL_LOG:
     {
+        hFile = hLog;
         channelPrefix = CHANNEL_PREFIX_LOG;
         noteColor |= CHANNEL_COLOR_LOG;
     } break;
 
     case CHANNEL_WINDOWS:
     {
+        hFile = hWindows;
         channelPrefix = CHANNEL_PREFIX_WINDOWS;
         noteColor |= CHANNEL_COLOR_WINDOWS;
     } break;
 
     case CHANNEL_GRAPHICS:
     {
+        hFile = hGraphics;
         channelPrefix = CHANNEL_PREFIX_GRAPHICS;
         noteColor |= CHANNEL_COLOR_GRAPHICS;
     } break;
 
     case CHANNEL_GAME:
     {
+        hFile = hGame;
         channelPrefix = CHANNEL_PREFIX_GAME;
         noteColor |= CHANNEL_COLOR_GAME;
     } break;
 
     default:
     {
+        hFile = -1;
         channelPrefix = CHANNEL_PREFIX_UNDEFINED;
         noteColor |= CHANNEL_COLOR_UNDEFINED;
     } break;
@@ -181,10 +230,18 @@ void Log::Note(s32 channel, s32 priority, const char* fmt, ...)
 
     // Get final note
     char noteFinal[NOTE_FINAL_BUFSIZE];
-    _snprintf(noteFinal, NOTE_FINAL_BUFSIZE, "%s: %s\n", notePrefix, noteMessage);
+    _snprintf(noteFinal, NOTE_FINAL_BUFSIZE, "%s: %s\r\n", notePrefix, noteMessage);
+    s32 noteLength = strlen(noteFinal);
 
     // Output
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), noteColor);
-    WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), noteFinal, strlen(noteFinal), NULL, NULL);
+    SetConsoleTextAttribute(hConsole, noteColor);
+    WriteConsole(hConsole, noteFinal, noteLength, NULL, NULL);
+
+    _lwrite(hFullLog, noteFinal, noteLength);
+    if (hFile != -1)
+        _lwrite(hFile, noteFinal, noteLength);
+
+    FlushFileBuffers((HANDLE)hFullLog);
+    FlushFileBuffers((HANDLE)hFile);
 #endif
 }

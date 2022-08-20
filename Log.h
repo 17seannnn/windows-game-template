@@ -1,11 +1,22 @@
 #ifndef LOG_H_
 #define LOG_H_
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include "Types.h"
 
 // Static class
 class Log
 {
+    static HANDLE hConsole;
+    static HFILE hFullLog;
+
+    static HFILE hLog;
+    static HFILE hWindows;
+    static HFILE hGraphics;
+    static HFILE hGame;
+
 public:
     // Each channel represent engine's module
     enum eChannel

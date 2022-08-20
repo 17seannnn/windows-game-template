@@ -1,3 +1,21 @@
+/* ====== TODO ======
+ * - Use my surface or texture structure
+
+ * - DrawLine()
+ * - ClipLine()
+ * - DrawPolygon2D()
+ * - TranslatePolygon2D()
+ * - RotatePolygon2D()
+ * - Sin/Cos table
+ * - ScalePolygon2D()
+
+ * - GDIDisplayText()
+ * - DisplayText()
+ * - ScaleSurface()
+ * - ClearSurface()
+ * - DisplayRect()
+ */
+
 /* ====== INCLUDES ====== */
 #include <stdio.h>
 

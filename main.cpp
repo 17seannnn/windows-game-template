@@ -1,35 +1,10 @@
-/* OPTIONAL TODO LIST */
-
-/* LOG */
-// - Log in file and console with channels
-// - Output every channel in console but with different colors
-// - Filters for console
-// - Verbosity for console
-// - Flush everything
-
-/* GRAPHICS */
-// - Use my surface or texture structure
-
-// - DrawLine()
-// - ClipLine()
-// - DrawPolygon2D()
-// - TranslatePolygon2D()
-// - RotatePolygon2D()
-// - Sin/Cos table
-// - ScalePolygon2D()
-
-// - GDIDisplayText()
-// - DisplayText()
-// - ScaleSurface()
-// - ClearSurface()
-// - DisplayRect()
-
-/* OTHER STUFF */
-// - put GetCaps() result in global variable
-// - BMP converters
-// - ShiftPalette()
-// - HandleLight()
-// - Windowed mode
+/* ====== TODO ======
+ * - put GetCaps() result in global variable
+ * - BMP converters
+ * - ShiftPalette()
+ * - HandleLight()
+ * - Windowed mode
+ */
 
 #include "Log.h"
 #include "Windows.h"
