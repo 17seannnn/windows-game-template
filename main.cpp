@@ -37,7 +37,6 @@
 #include "Game.h"
 
 #if 0
-/* === Graphics === */
 static inline void PlotPixel16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
 {
     videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b);
