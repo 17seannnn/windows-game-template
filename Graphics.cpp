@@ -20,6 +20,10 @@
 #define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
 /* ====== VARIABLES ====== */
+s32 Graphics::m_screenWidth = 0;
+s32 Graphics::m_screenHeight = 0;
+s32 Graphics::m_screenBPP = 0;
+
 LPDIRECTDRAW7 Graphics::m_pDDraw = NULL;
 LPDIRECTDRAWSURFACE7 Graphics::m_pDDScreen = NULL;
 LPDIRECTDRAWSURFACE7 Graphics::m_pDDScreenBack = NULL;
@@ -29,6 +33,11 @@ LPDIRECTDRAWCLIPPER Graphics::m_pDDClipper = NULL;
 /* ====== METHODS ====== */
 b32 Graphics::StartUp(s32 width, s32 height, s32 bpp)
 {
+    // Set screen variables
+    m_screenWidth = width;
+    m_screenHeight = height;
+    m_screenBPP = bpp;
+
     // Initialize DirectDraw
     if ( FAILED(DirectDrawCreateEx(NULL, (void**)&m_pDDraw, IID_IDirectDraw7, NULL)) )
         return false;
@@ -327,7 +336,7 @@ LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPR
     }
 }
 
-LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 w, s32 h, b32 bVideoMemory, b32 bColorKey)
+LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 width, s32 height, b32 bVideoMemory, b32 bColorKey)
 {
     // Init structures
     DDSURFACEDESC2 DDSurfaceDesc;
@@ -337,8 +346,8 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 w, s32 h, b32 bVideoMemory, b32
 
     DDSurfaceDesc.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
 
-    DDSurfaceDesc.dwWidth = w;
-    DDSurfaceDesc.dwHeight = h;
+    DDSurfaceDesc.dwWidth = width;
+    DDSurfaceDesc.dwHeight = height;
 
     // Place to which memory
     if (bVideoMemory)

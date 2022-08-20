@@ -8,7 +8,10 @@
 // Static class
 class Graphics
 {
-    // DirectX
+    static s32 m_screenWidth;
+    static s32 m_screenHeight;
+    static s32 m_screenBPP;
+
     static LPDIRECTDRAW7 m_pDDraw;
     static LPDIRECTDRAWSURFACE7 m_pDDScreen;
     static LPDIRECTDRAWSURFACE7 m_pDDScreenBack;
@@ -29,7 +32,7 @@ private:
     static void DDrawError(HRESULT error);
     static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count);
 
-    static LPDIRECTDRAWSURFACE7 CreateSurface(s32 w, s32 h, b32 bVideoMemory = true, b32 bColorKey = true);
+    static LPDIRECTDRAWSURFACE7 CreateSurface(s32 width, s32 height, b32 bVideoMemory = true, b32 bColorKey = true);
 };
 
 #endif GRAPHICS_H_

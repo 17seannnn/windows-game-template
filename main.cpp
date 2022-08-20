@@ -16,7 +16,7 @@
 
 /* GRAPHICS */
 // - Save w, h, bpp in Graphics vars
-// - Use my surface of texture structure
+// - Use my surface or texture structure
 
 // - DrawLine()
 // - ClipLine()
