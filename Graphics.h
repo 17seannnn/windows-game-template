@@ -20,10 +20,14 @@ public:
     static void ShutDown();
 
     static void Flip() { m_pDDScreen->Flip(NULL, DDFLIP_WAIT); }
+    // Doesn't work with surfaces w/o src color key
+    static void Blit(LPRECT dstRect, LPDIRECTDRAWSURFACE7 srcSurface, LPRECT srcRect)
+        { m_pDDScreenBack->Blt(dstRect, srcSurface, srcRect, DDBLT_WAIT|DDBLT_KEYSRC, NULL); }
 private:
     static void DDrawError(HRESULT error);
     static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count);
 
+public: // TODO remove public, make better interface for BMP
     static LPDIRECTDRAWSURFACE7 CreateSurface(s32 w, s32 h, b32 bVideoMemory = true, b32 bColorKey = true);
     static LPDIRECTDRAWSURFACE7 CreateSurfaceFromBMP(BMPFile* bmp, b32 bVideoMemory = true, b32 bColorKey = true);
 };
