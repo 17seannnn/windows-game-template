@@ -20,7 +20,8 @@ public:
 
     static void Flip() { m_pDDScreen->Flip(NULL, DDFLIP_WAIT); }
 private:
-    static LPDIRECTDRAWCLIPPER DDrawAttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count);
+    static void DDrawError(HRESULT error);
+    static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count);
 };
 
 #endif GRAPHICS_H_
