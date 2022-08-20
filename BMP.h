@@ -6,8 +6,6 @@
 
 #include "Types.h"
 
-#define BMP_ID 0x4d42
-
 #ifndef PALETTE_COLORS
 #define PALETTE_COLORS 256
 #endif
@@ -18,10 +16,11 @@ struct BMPFile
     BITMAPINFOHEADER info;
     PALETTEENTRY palette[PALETTE_COLORS];
     u8* buffer;
-};
 
-void FlipBMP(u8* image, s32 bytesPerLine, s32 height);
-b32 LoadBMP(const char* fileName, BMPFile* bmp);
-void UnloadBMP(BMPFile* bmp);
+    BMPFile(const char* fileName);
+    ~BMPFile();
+private:
+    void Flip(s32 bytesPerLine, s32 height);
+};
 
 #endif // BMP_H_

@@ -2,99 +2,100 @@
 
 #include "BMP.h"
 
-void FlipBMP(u8* image, s32 bytesPerLine, s32 height)
-{
-    // Allocate memory
-    s32 size = bytesPerLine * height;
-    u8* buffer = new u8[size];
-    if (!buffer)
-        return;
+#define BMP_ID 0x4d42
 
-    // Copy image in buffer
-    memcpy(buffer, image, size);
-
-    // Flip
-    for (s32 i = 0; i < height; ++i)
-        memcpy(&image[(height-1 - i)*bytesPerLine], 
-               &buffer[i*bytesPerLine],
-               bytesPerLine);
-
-    // Free memory
-    delete[] buffer;
-}
-
-b32 LoadBMP(const char* fileName, BMPFile* bmp)
+BMPFile::BMPFile(const char* fileName)
+    : buffer(NULL)
 {
     // Open file
     OFSTRUCT fileInfo;
     s32 fileHandle = OpenFile(fileName, &fileInfo, OF_READ);
     if (fileHandle == -1)
-        return false;
+        return;
 
     // Read file header
-    _lread(fileHandle, &bmp->file, sizeof(bmp->file));
-    if (bmp->file.bfType != BMP_ID)
+    _lread(fileHandle, &file, sizeof(file));
+    if (file.bfType != BMP_ID)
     {
         _lclose(fileHandle);
-        return false;
+        return;
     }
 
     // Read info header
-    _lread(fileHandle, &bmp->info, sizeof(bmp->info));
+    _lread(fileHandle, &info, sizeof(info));
 
     // Read palette if we have
-    if (bmp->info.biBitCount == 8)
+    if (info.biBitCount == 8)
     {
-        _lread(fileHandle, bmp->palette, sizeof(bmp->palette[0]) * PALETTE_COLORS);
-        
+        _lread(fileHandle, palette, sizeof(palette[0]) * PALETTE_COLORS);
+
         // RGB -> BGR
         for (s32 i = 0; i < PALETTE_COLORS; ++i)
         {
-            s32 temp = bmp->palette[i].peBlue;
-            bmp->palette[i].peBlue = bmp->palette[i].peRed;
-            bmp->palette[i].peRed = (u8)temp;
+            s32 temp = palette[i].peBlue;
+            palette[i].peBlue = palette[i].peRed;
+            palette[i].peRed = (u8)temp;
 
             // Flag
-            bmp->palette[i].peFlags = PC_NOCOLLAPSE;
+            palette[i].peFlags = PC_NOCOLLAPSE;
         }
     }
 
     // Check for errors
-    s32 bitCount = bmp->info.biBitCount;
-    if (bitCount != 8 && bitCount != 16 && bitCount != 24 && bitCount != 32)
+    if (info.biBitCount != 8  && info.biBitCount != 16 &&
+        info.biBitCount != 24 && info.biBitCount != 32)
     {
         _lclose(fileHandle);
-        return false;
+        return;
     }
 
     // Get right position for image reading
-    _llseek(fileHandle, -(s32)bmp->info.biSizeImage, SEEK_END);
+    _llseek(fileHandle, -(s32)info.biSizeImage, SEEK_END);
 
     // Try to allocate memory
-    bmp->buffer = new u8[bmp->info.biSizeImage];
-    if (!bmp->buffer)
+    buffer = new u8[info.biSizeImage];
+    if (!buffer)
     {
         _lclose(fileHandle);
-        return false;
+        return;
     }
 
     // Read image data
-    _lread(fileHandle, bmp->buffer, bmp->info.biSizeImage);
+    _lread(fileHandle, buffer, info.biSizeImage);
 
     // Close file
     _lclose(fileHandle);
 
     // Flip image
-    FlipBMP(bmp->buffer, bmp->info.biWidth * bmp->info.biBitCount/8, bmp->info.biHeight);
-
-    return true;
+    Flip(info.biWidth * info.biBitCount/8, info.biHeight);
 }
 
-void UnloadBMP(BMPFile* bmp)
+BMPFile::~BMPFile()
 {
-    if (bmp->buffer)
+    if (buffer)
     {
-        delete[] bmp->buffer;
-        bmp->buffer = NULL;
+        delete[] buffer;
+        buffer = NULL;
     }
+}
+
+void BMPFile::Flip(s32 bytesPerLine, s32 height)
+{
+    // Allocate memory
+    s32 size = bytesPerLine * height;
+    u8* flip = new u8[size];
+    if (!flip)
+        return;
+
+    // Copy image in buffer
+    memcpy(flip, buffer, size);
+
+    // Flip
+    for (s32 i = 0; i < height; ++i)
+        memcpy(&buffer[(height-1 - i)*bytesPerLine],
+               &flip[i*bytesPerLine],
+               bytesPerLine);
+
+    // Free memory
+    delete[] flip;
 }

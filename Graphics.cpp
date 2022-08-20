@@ -371,9 +371,9 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 w, s32 h, b32 bVideoMemory, b32
 
 LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
 {
-    // DEBUG
-    BMPFile bmp;
-    ::LoadBMP(fileName, &bmp);
+    BMPFile bmp(fileName);
+    if (!bmp.buffer)
+        return NULL;
 
     // Create surface
     LPDIRECTDRAWSURFACE7 pDDSurface = CreateSurface(bmp.info.biWidth, bmp.info.biHeight);
@@ -402,8 +402,6 @@ LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
     }
 
     pDDSurface->Unlock(NULL);
-
-    UnloadBMP(&bmp);
 
     return pDDSurface;
 }
