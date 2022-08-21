@@ -2,30 +2,19 @@
 
 #include "Game.h"
 
+#ifndef PI
+#define PI 3.14159f
+#endif
+
+Polygon2 Game::poly;
 b32 Game::m_bRunning = true;
 
 b32 Game::StartUp()
-{
-    return true;
-}
-
-void Game::ShutDown()
-{}
-
-void Game::Update()
-{}
-
-void Game::Render()
-{
-    u8* screen;
-    s32 pitch;
-
-    static s32 x = 0, y = 0;
-    Polygon2 poly;
+{   
     poly.state = 1;
     poly.vertexCount = 3;
-    poly.x = x;
-    poly.y = y;
+    poly.x = 250;
+    poly.y = 250;
     poly.vx = 1;
     poly.vy = 1;
     poly.color = 50;
@@ -38,20 +27,33 @@ void Game::Render()
     poly.aVertex[1].y = -150;
     poly.aVertex[2].y = 100;
 
+    return true;
+}
+
+void Game::ShutDown()
+{
+    delete[] poly.aVertex;
+}
+
+void Game::Update()
+{}
+
+void Game::Render()
+{
+    u8* screen;
+    s32 pitch;
+
     Graphics::ClearScreen();
     if (!Graphics::LockBack(screen, pitch))
         return;
 
-    Graphics::DrawPolygon2(screen, pitch, &poly);
+    Graphics::DrawPolygon2(&poly, screen, pitch);
 
     Graphics::UnlockBack();
 
-    delete[] poly.aVertex;
+    Graphics::RotatePolygon2(&poly, PI/2);
 
-    x += poly.vx;
-    y += poly.vy;
-
-    Sleep(33);
+    Sleep(1000);
 
     Graphics::Flip();
 }

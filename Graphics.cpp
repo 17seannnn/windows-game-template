@@ -1,5 +1,6 @@
 /* ====== TODO ======
  * - Use my surface or texture structure
+ * - Maybe return true or false on geometric operations?
 
  * - DrawLine()
  * - ClipLine()
@@ -18,6 +19,7 @@
 
 /* ====== INCLUDES ====== */
 #include <stdio.h>
+#include <math.h>
 
 #include "Windows.h"
 #include "BMP.h"
@@ -161,7 +163,6 @@ void Graphics::ShutDown()
 
 void Graphics::ClearScreen()
 {
-
     DDBLTFX DDBltFx;
     DDRAW_INIT_STRUCT(DDBltFx);
     DDBltFx.dwFillColor = 0;
@@ -292,9 +293,9 @@ void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 f
     }
 }
 
-void Graphics::DrawPolygon2(u8* videoBuffer, s32 pitch, const Polygon2* poly)
+void Graphics::DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch)
 {
-    if (!poly->state)
+    if (!poly || !poly->state)
         return;
 
     for (s32 i = 0; i < poly->vertexCount-1; i++)
@@ -302,8 +303,34 @@ void Graphics::DrawPolygon2(u8* videoBuffer, s32 pitch, const Polygon2* poly)
                                                    poly->x + poly->aVertex[i+1].x, poly->y + poly->aVertex[i+1].y);
 
     // Closure
-        DrawLine8(videoBuffer, pitch, poly->color, poly->x + poly->aVertex[poly->vertexCount-1].x, poly->y + poly->aVertex[poly->vertexCount-1].y,
-                                                   poly->x + poly->aVertex[0].x, poly->y + poly->aVertex[0].y);
+    DrawLine8(videoBuffer, pitch, poly->color, poly->x + poly->aVertex[poly->vertexCount-1].x,
+                                               poly->y + poly->aVertex[poly->vertexCount-1].y,
+                                               poly->x + poly->aVertex[0].x,
+                                               poly->y + poly->aVertex[0].y);
+}
+
+void Graphics::TranslatePolygon2(Polygon2* poly, s32 dx, s32 dy)
+{
+    if (!poly)
+        return;
+
+    poly->x += dx;
+    poly->y += dy;
+}
+
+void Graphics::RotatePolygon2(Polygon2* poly, f32 fAngle)
+{
+    if (!poly)
+        return;
+
+    for (s32 i = 0; i < poly->vertexCount; i++)
+    {
+        f32 x = poly->aVertex[i].x*cosf(fAngle) - poly->aVertex[i].y*sinf(fAngle);
+        f32 y = poly->aVertex[i].x*sinf(fAngle) - poly->aVertex[i].y*cosf(fAngle);
+
+        poly->aVertex[i].x = (s32)x;
+        poly->aVertex[i].y = (s32)y;
+    }
 }
 
 LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
@@ -473,7 +500,7 @@ void Graphics::DDrawError(HRESULT error)
     Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, dderr);
 }
 
-LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count)
+LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, const LPRECT clipList, s32 count)
 {
     b32 bResult = true;
     LPDIRECTDRAWCLIPPER pDDClipper;

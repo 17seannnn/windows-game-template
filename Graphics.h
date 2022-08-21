@@ -48,7 +48,7 @@ public:
     static void ClearScreen();
     static void Flip() { m_pDDScreen->Flip(NULL, DDFLIP_WAIT); }
     // Doesn't work with surfaces w/o src color key
-    static void Blit(LPRECT dstRect, LPDIRECTDRAWSURFACE7 srcSurface, LPRECT srcRect)
+    static void Blit(const LPRECT dstRect, const LPDIRECTDRAWSURFACE7 srcSurface, const LPRECT srcRect)
         { m_pDDScreenBack->Blt(dstRect, srcSurface, srcRect, DDBLT_WAIT|DDBLT_KEYSRC, NULL); }
 
     static b32 LockScreen(u8*& buffer, s32& pitch);
@@ -63,7 +63,9 @@ public:
         { videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b); }
 
     static void DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY);
-    static void DrawPolygon2(u8* videoBuffer, s32 pitch, const Polygon2* poly);
+    static void DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch);
+    static void TranslatePolygon2(Polygon2* poly, s32 dx, s32 dy);
+    static void RotatePolygon2(Polygon2* poly, f32 fAngle);
 
     static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 
@@ -71,7 +73,7 @@ public:
     static s32 GetScreenHeight() { return m_screenHeight; }
 private:
     static void DDrawError(HRESULT error);
-    static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count);
+    static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, const LPRECT clipList, s32 count);
     static LPDIRECTDRAWSURFACE7 CreateSurface(s32 width, s32 height, b32 bVideoMemory = true, b32 bColorKey = true);
 
     static b32 ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY);
