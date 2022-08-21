@@ -344,13 +344,16 @@ void Graphics::RotatePolygon2(Polygon2* poly, s32 angle)
     }
 }
 
-void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
+void Graphics::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
 {
     if (!poly)
         return;
 
-    poly->x *= scaleX;
-    poly->y *= scaleY;
+    for (s32 i = 0; i < poly->vertexCount; i++)
+    {
+        poly->aVertex[i].x *= scaleX;
+        poly->aVertex[i].y *= scaleY;
+    }
 }
 
 LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)

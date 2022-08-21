@@ -48,6 +48,7 @@ void Game::Render()
     Graphics::UnlockBack();
 
     Graphics::RotatePolygon2(&poly, 90);
+    Graphics::ScalePolygon2(&poly, rand() % 2 ? 2.0f : 0.5f, rand() % 2 ? 2.0f : 0.5f);
 
     Sleep(1000);
 
