@@ -310,17 +310,17 @@ void Graphics::DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch)
         return;
 
     for (s32 i = 0; i < poly->vertexCount-1; i++)
-        DrawLine8(videoBuffer, pitch, poly->color, poly->x + (s32)poly->aVertex[i].x, poly->y + (s32)poly->aVertex[i].y,
-                                                   poly->x + (s32)poly->aVertex[i+1].x, poly->y + (s32)poly->aVertex[i+1].y);
+        DrawLine8(videoBuffer, pitch, poly->color, (s32)(poly->x + poly->aVertex[i].x), (s32)(poly->y + (s32)poly->aVertex[i].y),
+                                                   (s32)(poly->x + poly->aVertex[i+1].x), (s32)(poly->y + poly->aVertex[i+1].y));
 
     // Closure
-    DrawLine8(videoBuffer, pitch, poly->color, poly->x + (s32)poly->aVertex[poly->vertexCount-1].x,
-                                               poly->y + (s32)poly->aVertex[poly->vertexCount-1].y,
-                                               poly->x + (s32)poly->aVertex[0].x,
-                                               poly->y + (s32)poly->aVertex[0].y);
+    DrawLine8(videoBuffer, pitch, poly->color, (s32)(poly->x + poly->aVertex[poly->vertexCount-1].x),
+                                               (s32)(poly->y + poly->aVertex[poly->vertexCount-1].y),
+                                               (s32)(poly->x + poly->aVertex[0].x),
+                                               (s32)(poly->y + poly->aVertex[0].y));
 }
 
-void Graphics::TranslatePolygon2(Polygon2* poly, s32 dx, s32 dy)
+void Graphics::TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy)
 {
     if (!poly)
         return;
@@ -342,6 +342,15 @@ void Graphics::RotatePolygon2(Polygon2* poly, s32 angle)
         poly->aVertex[i].x = x;
         poly->aVertex[i].y = y;
     }
+}
+
+void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
+{
+    if (!poly)
+        return;
+
+    poly->x *= scaleX;
+    poly->y *= scaleY;
 }
 
 LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)

@@ -28,8 +28,8 @@ struct Polygon2
 {
     s32 state;
     s32 vertexCount;
-    s32 x, y;
-    s32 vx, vy;
+    f32 x, y;
+    f32 vx, vy;
     s32 color;
     FVertex2* aVertex;
 
@@ -76,8 +76,9 @@ public:
 
     static void DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY);
     static void DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch);
-    static void TranslatePolygon2(Polygon2* poly, s32 dx, s32 dy);
+    static void TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy);
     static void RotatePolygon2(Polygon2* poly, s32 angle);
+    static void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY);
 
     static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 
