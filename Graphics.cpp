@@ -195,6 +195,81 @@ void Graphics::PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 
     videoBuffer[addr+2] = (u8)b;
 }
 
+void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY)
+{
+    s32 dx = toX - fromX, dy = toY - fromY;
+    s32 incX, incY;
+    s32 error;
+
+    // Init start position
+    videoBuffer += fromY*pitch + fromX;
+
+    // Set direction
+    if (dx >= 0)
+    {
+        incX = 1;
+    }
+    else
+    {
+        incX = -1;
+        dx = -dx;
+    }
+
+    if (dy >= 0)
+    {
+        incY = pitch;
+    }
+    else
+    {
+        incY = -pitch;
+        dy = -dy;
+    }
+
+    s32 dx2 = dx << 1, dy2 = dy << 1;
+
+    // Draw the line
+    if (dx > dy)
+    {
+        error = dy2 - dx;
+
+        for (s32 i = 0; i < dx; i++)
+        {
+            *videoBuffer = (u8)color;
+
+            // Handle error
+            if (error >= 0)
+            {
+                error -= dx2;
+                videoBuffer += incY;
+            }
+
+            // Correct error
+            error += dy2;
+            videoBuffer += incX;
+        }
+    }
+    else
+    {
+        error = dx2 - dy;
+
+        for (s32 i = 0; i < dy; i++)
+        {
+            *videoBuffer = (u8)color;
+
+            // Handle error
+            if (error >= 0)
+            {
+                error -= dy2;
+                videoBuffer += incX;
+            }
+
+            // Correct error
+            error += dx2;
+            videoBuffer += incY;
+        }
+    }
+}
+
 void Graphics::DDrawError(HRESULT error)
 {
     char dderr[256];

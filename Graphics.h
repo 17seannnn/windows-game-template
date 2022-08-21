@@ -43,6 +43,8 @@ public:
     static void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 a, s32 r, s32 g, s32 b)
         { videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b); }
 
+    static void DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY);
+
     static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 
     static s32 GetScreenWidth() { return m_screenWidth; }
