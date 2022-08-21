@@ -5,6 +5,11 @@
 
 #include <ddraw.h>
 
+#define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )
+#define _RGB16BIT555(R, G, B) ( ((R & 31) << 10) + ((G & 31) << 5) + (B & 31) )
+#define _RGB24BIT(R, G, B) ( ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
+#define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
+
 // Static class
 class Graphics
 {
@@ -26,13 +31,22 @@ public:
     // Doesn't work with surfaces w/o src color key
     static void Blit(LPRECT dstRect, LPDIRECTDRAWSURFACE7 srcSurface, LPRECT srcRect)
         { m_pDDScreenBack->Blt(dstRect, srcSurface, srcRect, DDBLT_WAIT|DDBLT_KEYSRC, NULL); }
-
+    
+    static void PlotPixel16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
+        { videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b); }
+    static void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b);
+    static void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 a, s32 r, s32 g, s32 b)
+        { videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b); }
+    
     static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 private:
     static void DDrawError(HRESULT error);
     static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count);
-
     static LPDIRECTDRAWSURFACE7 CreateSurface(s32 width, s32 height, b32 bVideoMemory = true, b32 bColorKey = true);
+
+    // Emulation
+    static void EmulationBlit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h);
+    static void EmulationBlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h);
 };
 
 #endif GRAPHICS_H_

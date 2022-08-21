@@ -32,11 +32,6 @@
 
 #define DDRAW_INIT_STRUCT(STRUCT) { memset(&STRUCT, 0, sizeof(STRUCT)); STRUCT.dwSize = sizeof(STRUCT); }
 
-#define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )
-#define _RGB16BIT555(R, G, B) ( ((R & 31) << 10) + ((G & 31) << 5) + (B & 31) )
-#define _RGB24BIT(R, G, B) ( ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
-#define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
-
 /* ====== VARIABLES ====== */
 s32 Graphics::m_screenWidth = 0;
 s32 Graphics::m_screenHeight = 0;
@@ -157,6 +152,14 @@ void Graphics::ShutDown()
         m_pDDraw= NULL;
     }
 
+}
+
+void Graphics::PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b)
+{
+    s32 addr = y*pitch + (x+x+x);
+    videoBuffer[addr] = (u8)r;
+    videoBuffer[addr+1] = (u8)g;
+    videoBuffer[addr+2] = (u8)b;
 }
 
 void Graphics::DDrawError(HRESULT error)
@@ -431,4 +434,91 @@ LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
     pDDSurface->Unlock(NULL);
 
     return pDDSurface;
+}
+
+void Graphics::EmulationBlit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
+{
+    videoBuffer += posY*pitch32 + posX; // Start position for videoBuffer pointer
+
+    for (s32 y = 0; y < h; y++)
+    {
+        for (s32 x = 0; x < w; x++)
+        {
+            u32 pixel;
+            if ((pixel = bitMap[x])) // Plot opaque pixels only
+                videoBuffer[x] = pixel;
+        }
+        videoBuffer += pitch32;
+        bitMap += w;
+    }
+}
+
+void Graphics::EmulationBlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
+{
+    // Check if it's visible
+    if (posX >= m_screenWidth  || posX + w <= 0 ||
+        posY >= m_screenHeight || posY + h <= 0)
+        return;
+
+    // Align rectangles
+    RECT dst;
+    s32 srcOffsetX, srcOffsetY;
+    s32 dX, dY;
+
+    // Left
+    if (posX < 0)
+    {
+        dst.left = 0;
+        srcOffsetX = dst.left - posX;
+    }
+    else
+    {
+        dst.left = posX;
+        srcOffsetX = 0;
+    }
+
+    // Right
+    if (posX + w > m_screenWidth)
+        dst.right = m_screenWidth - 1;
+    else
+        dst.right = (posX + w) - 1;
+
+    // Top
+    if (posY < 0)
+    {
+        dst.top = 0;
+        srcOffsetY = dst.top - posY;
+    }
+    else
+    {
+        dst.top = posY;
+        srcOffsetY = 0;
+    }
+
+    // Bottom
+    if (posY + h > m_screenHeight)
+        dst.bottom = m_screenHeight - 1;
+    else
+        dst.bottom = (posY + h) - 1;
+
+    // Difference
+    dX = dst.right - dst.left + 1;
+    dY = dst.bottom - dst.top + 1;
+
+    // Start position
+    videoBuffer += dst.top*pitch32 + dst.left;
+    bitMap += srcOffsetY*w + srcOffsetX;
+
+    // Blitting
+    for (s32 y = 0; y < dY; y++)
+    {
+        for (s32 x = 0; x < dX; x++)
+        {
+            u32 pixel;
+            if ((pixel = bitMap[x]) != _RGB32BIT(255, 0, 0, 0)) // Plot opaque pixels only
+                videoBuffer[x] = pixel;
+        }
+        videoBuffer += pitch32;
+        bitMap += w;
+    }
 }

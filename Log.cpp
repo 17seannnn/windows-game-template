@@ -2,6 +2,7 @@
  * - Use Win32 funcs for files handling
  * - Filters: channels, priorities
  * - Verbosity
+ * - Enable, disable console
  */
 
 /* ====== INCLUDES ====== */
