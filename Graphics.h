@@ -19,6 +19,11 @@ struct SVertex2
     s32 x, y;
 };
 
+struct FVertex2
+{
+    f32 x, y;
+};
+
 struct Polygon2
 {
     s32 state;
@@ -26,7 +31,7 @@ struct Polygon2
     s32 x, y;
     s32 vx, vy;
     s32 color;
-    SVertex2* aVertex;
+    FVertex2* aVertex;
 
     Polygon2() : aVertex(NULL) {}
 };

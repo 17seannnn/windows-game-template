@@ -14,14 +14,14 @@ b32 Game::StartUp()
     poly.vx = 1;
     poly.vy = 1;
     poly.color = 50;
-    poly.aVertex = new SVertex2[poly.vertexCount];
+    poly.aVertex = new FVertex2[poly.vertexCount];
 
-    poly.aVertex[0].x = 0;
-    poly.aVertex[1].x = 100;
-    poly.aVertex[2].x = 200;
-    poly.aVertex[0].y = 0;
-    poly.aVertex[1].y = -150;
-    poly.aVertex[2].y = 100;
+    poly.aVertex[0].x = 0.0f;
+    poly.aVertex[1].x = 100.0f;
+    poly.aVertex[2].x = 200.0f;
+    poly.aVertex[0].y = 0.0f;
+    poly.aVertex[1].y = -150.0f;
+    poly.aVertex[2].y = 100.0f;
 
     return true;
 }

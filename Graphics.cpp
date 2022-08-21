@@ -310,14 +310,14 @@ void Graphics::DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch)
         return;
 
     for (s32 i = 0; i < poly->vertexCount-1; i++)
-        DrawLine8(videoBuffer, pitch, poly->color, poly->x + poly->aVertex[i].x, poly->y + poly->aVertex[i].y,
-                                                   poly->x + poly->aVertex[i+1].x, poly->y + poly->aVertex[i+1].y);
+        DrawLine8(videoBuffer, pitch, poly->color, poly->x + (s32)poly->aVertex[i].x, poly->y + (s32)poly->aVertex[i].y,
+                                                   poly->x + (s32)poly->aVertex[i+1].x, poly->y + (s32)poly->aVertex[i+1].y);
 
     // Closure
-    DrawLine8(videoBuffer, pitch, poly->color, poly->x + poly->aVertex[poly->vertexCount-1].x,
-                                               poly->y + poly->aVertex[poly->vertexCount-1].y,
-                                               poly->x + poly->aVertex[0].x,
-                                               poly->y + poly->aVertex[0].y);
+    DrawLine8(videoBuffer, pitch, poly->color, poly->x + (s32)poly->aVertex[poly->vertexCount-1].x,
+                                               poly->y + (s32)poly->aVertex[poly->vertexCount-1].y,
+                                               poly->x + (s32)poly->aVertex[0].x,
+                                               poly->y + (s32)poly->aVertex[0].y);
 }
 
 void Graphics::TranslatePolygon2(Polygon2* poly, s32 dx, s32 dy)
@@ -339,8 +339,8 @@ void Graphics::RotatePolygon2(Polygon2* poly, s32 angle)
         f32 x = poly->aVertex[i].x*cosLook[angle] - poly->aVertex[i].y*sinLook[angle];
         f32 y = poly->aVertex[i].x*sinLook[angle] - poly->aVertex[i].y*cosLook[angle];
 
-        poly->aVertex[i].x = (s32)x;
-        poly->aVertex[i].y = (s32)y;
+        poly->aVertex[i].x = x;
+        poly->aVertex[i].y = y;
     }
 }
 
