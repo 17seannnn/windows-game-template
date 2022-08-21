@@ -625,38 +625,38 @@ b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
     case CC_N:
     {
         y1 = 0;
-        x1 = (s32)fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+        x1 = (s32)(fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY));
     } break;
 
     case CC_S:
     {
         y1 = m_screenHeight-1;
-        x1 = fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+        x1 = (s32)(fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY));
     } break;
 
     case CC_W:
     {
         x1 = 0;
-        y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+        y1 = (s32)(fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX));
     } break;
 
     case CC_E:
     {
         x1 = m_screenWidth-1;
-        y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+        y1 = (s32)(fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX));
     } break;
 
     case CC_NW:
     {
         // Try to find when y = 0
         y1 = 0;
-        x1 = fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+        x1 = (s32)(fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY));
 
         // If never, try to find when x = 0
         if (x1 < 0 || x1 >= m_screenWidth)
         {
             x1 = 0;
-            y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+            y1 = (s32)(fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX));
         }
     } break;
 
@@ -664,13 +664,13 @@ b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
     {
         // Try to find when y = 0
         y1 = 0;
-        x1 = fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+        x1 = (s32)(fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY));
 
         // If never, try to find when x = 0
         if (x1 < 0 || x1 >= m_screenWidth)
         {
             x1 = m_screenWidth-1;
-            y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+            y1 = (s32)(fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX));
         }
     } break;
 
@@ -678,13 +678,13 @@ b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
     {
         // Try to find when y = 0
         y1 = m_screenHeight-1;
-        x1 = fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+        x1 = (s32)(fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY));
 
         // If never, try to find when x = 0
         if (x1 < 0 || x1 >= m_screenWidth)
         {
             x1 = 0;
-            y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+            y1 = (s32)(fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX));
         }
     } break;
 
@@ -692,13 +692,13 @@ b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
     {
         // Try to find when y = 0
         y1 = m_screenHeight-1;
-        x1 = fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+        x1 = (s32)(fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY));
 
         // If never, try to find when x = 0
         if (x1 < 0 || x1 >= m_screenWidth)
         {
             x1 = m_screenWidth-1;
-            y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+            y1 = (s32)(fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX));
         }
     } break;
 
@@ -715,38 +715,38 @@ b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
     case CC_N:
     {
         y2 = 0;
-        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+        x2 = (s32)(fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY));
     } break;
 
     case CC_S:
     {
         y2 = m_screenHeight-1;
-        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+        x2 = (s32)(fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY));
     } break;
 
     case CC_W:
     {
         x2 = 0;
-        y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+        y2 = (s32)(fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX));
     } break;
 
     case CC_E:
     {
         x2 = m_screenWidth-1;
-        y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+        y2 = (s32)(fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX));
     } break;
 
     case CC_NW:
     {
         // Try to find when y = 0
         y2 = 0;
-        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+        x2 = (s32)(fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY));
 
         // If never, try to find when x = 0
         if (x2 < 0 || x2 >= m_screenWidth)
         {
             x2 = 0;
-            y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+            y2 = (s32)(fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX));
         }
     } break;
 
@@ -754,13 +754,13 @@ b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
     {
         // Try to find when y = 0
         y2 = 0;
-        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+        x2 = (s32)(fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY));
 
         // If never, try to find when x = 0
         if (x2 < 0 || x2 >= m_screenWidth)
         {
             x2 = m_screenWidth-1;
-            y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+            y2 = (s32)(fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX));
         }
     } break;
 
@@ -768,13 +768,13 @@ b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
     {
         // Try to find when y = 0
         y2 = m_screenHeight-1;
-        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+        x2 = (s32)(fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY));
 
         // If never, try to find when x = 0
         if (x2 < 0 || x2 >= m_screenWidth)
         {
             x2 = 0;
-            y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+            y2 = (s32)(fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX));
         }
     } break;
 
@@ -782,13 +782,13 @@ b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
     {
         // Try to find when y = 0
         y2 = m_screenHeight-1;
-        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+        x2 = (s32)(fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY));
 
         // If never, try to find when x = 0
         if (x2 < 0 || x2 >= m_screenWidth)
         {
             x2 = m_screenWidth-1;
-            y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+            y2 = (s32)(fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX));
         }
     } break;
 
