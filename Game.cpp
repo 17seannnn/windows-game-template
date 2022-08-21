@@ -23,9 +23,7 @@ void Game::Render()
     if (!Graphics::LockBack(screen, pitch))
         return;
 
-    for (s32 i = 0; i < 1000; i++)
-        Graphics::DrawLine8(screen, pitch, rand() % 256, rand() % Graphics::GetScreenWidth(), rand() % Graphics::GetScreenHeight(),
-                                                         rand() % Graphics::GetScreenWidth(), rand() % Graphics::GetScreenHeight());
+    Graphics::DrawLine8(screen, pitch, rand() % 256, 0, 0, 256, 1);
 
     Graphics::UnlockBack();
 

@@ -230,10 +230,12 @@ void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 f
     // Draw the line
     if (dx > dy)
     {
+        // Set error according to start position
         error = dy2 - dx;
 
         for (s32 i = 0; i < dx; i++)
         {
+            // Set color
             *videoBuffer = (u8)color;
 
             // Handle error
@@ -245,15 +247,19 @@ void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 f
 
             // Correct error
             error += dy2;
+
+            // Continue
             videoBuffer += incX;
         }
     }
     else
     {
+        // Set error according to start position
         error = dx2 - dy;
 
         for (s32 i = 0; i < dy; i++)
         {
+            // Set color
             *videoBuffer = (u8)color;
 
             // Handle error
@@ -265,6 +271,8 @@ void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 f
 
             // Correct error
             error += dx2;
+
+            // Continue
             videoBuffer += incY;
         }
     }
