@@ -197,6 +197,10 @@ void Graphics::PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 
 
 void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY)
 {
+    // Clip lines and check if we can draw it
+    if (!ClipLine(fromX, fromY, toX, toY))
+        return;
+
     s32 dx = toX - fromX, dy = toY - fromY;
     s32 incX, incY;
     s32 error;
@@ -276,6 +280,43 @@ void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 f
             videoBuffer += incY;
         }
     }
+}
+
+LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
+{
+    BMPFile bmp(fileName);
+    if (!bmp.buffer)
+        return NULL;
+
+    // Create surface
+    LPDIRECTDRAWSURFACE7 pDDSurface = CreateSurface(bmp.info.biWidth, bmp.info.biHeight);
+    if (!pDDSurface)
+        return NULL;
+
+    // Init description
+    DDSURFACEDESC2 DDSurfaceDesc;
+    DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+    // Copy
+    pDDSurface->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL);
+
+    u8* dst = (u8*)DDSurfaceDesc.lpSurface;
+    u8* src = (u8*)bmp.buffer;
+
+    s32 surfacePitch = DDSurfaceDesc.lPitch;
+    s32 bmpPitch = bmp.info.biWidth * (bmp.info.biBitCount/8);
+
+    for (s32 i = 0; i < bmp.info.biHeight; i++)
+    {
+        memcpy(dst, src, bmpPitch); // TODO/NOTE bitmap buffer contains pixels in BGR format
+
+        dst += surfacePitch;
+        src += bmpPitch;
+    }
+
+    pDDSurface->Unlock(NULL);
+
+    return pDDSurface;
 }
 
 void Graphics::DDrawError(HRESULT error)
@@ -520,41 +561,255 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 width, s32 height, b32 bVideoMe
     return pDDSurface;
 }
 
-LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
+b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
 {
-    BMPFile bmp(fileName);
-    if (!bmp.buffer)
-        return NULL;
-
-    // Create surface
-    LPDIRECTDRAWSURFACE7 pDDSurface = CreateSurface(bmp.info.biWidth, bmp.info.biHeight);
-    if (!pDDSurface)
-        return NULL;
-
-    // Init description
-    DDSURFACEDESC2 DDSurfaceDesc;
-    DDRAW_INIT_STRUCT(DDSurfaceDesc);
-
-    // Copy
-    pDDSurface->Lock(NULL, &DDSurfaceDesc, DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT, NULL);
-
-    u8* dst = (u8*)DDSurfaceDesc.lpSurface;
-    u8* src = (u8*)bmp.buffer;
-
-    s32 surfacePitch = DDSurfaceDesc.lPitch;
-    s32 bmpPitch = bmp.info.biWidth * (bmp.info.biBitCount/8);
-
-    for (s32 i = 0; i < bmp.info.biHeight; i++)
+    // Cohen-Sutherland algorithm
+    enum eClipCode
     {
-        memcpy(dst, src, bmpPitch); // TODO/NOTE bitmap buffer contains pixels in BGR format
+        CC_C = 0x0000,
+        CC_N = 0x0008,
+        CC_S = 0x0004,
+        CC_E = 0x0002,
+        CC_W = 0x0001,
 
-        dst += surfacePitch;
-        src += bmpPitch;
-    }
+        CC_NE = CC_N | CC_E,
+        CC_NW = CC_N | CC_W,
+        CC_SE = CC_S | CC_E,
+        CC_SW = CC_S | CC_W,
+    };
 
-    pDDSurface->Unlock(NULL);
+    // Set coordinates
+    s32 x1 = fromX,
+        x2 = toX,
+        y1 = fromY,
+        y2 = toY;
 
-    return pDDSurface;
+    // Clip codes
+    s32 c1 = CC_C, c2 = CC_C;
+
+    // Set codes
+    if (x1 < 0)
+        c1 |= CC_W;
+    else if (x1 >= m_screenWidth)
+        c1 |= CC_E;
+
+    if (y1 < 0)
+        c1 |= CC_N;
+    else if (y1 >= m_screenHeight)
+        c1 |= CC_S;
+
+    if (x2 < 0)
+        c2 |= CC_W;
+    else if (x2 >= m_screenWidth)
+        c2 |= CC_E;
+
+    if (y2 < 0)
+        c2 |= CC_N;
+    else if (y2 >= m_screenHeight)
+        c2 |= CC_S;
+
+    // No visible line
+    if (c1 & c2)
+        return false;
+
+    // If shouldn't be clipped
+    if (c1 == CC_C && c2 == CC_C)
+        return true;
+
+    // Determine clip "from" point
+    switch (c1)
+    {
+
+    case CC_C: {} break;
+
+    case CC_N:
+    {
+        y1 = 0;
+        x1 = (s32)fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+    } break;
+
+    case CC_S:
+    {
+        y1 = m_screenHeight-1;
+        x1 = fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+    } break;
+
+    case CC_W:
+    {
+        x1 = 0;
+        y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+    } break;
+
+    case CC_E:
+    {
+        x1 = m_screenWidth-1;
+        y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+    } break;
+
+    case CC_NW:
+    {
+        // Try to find when y = 0
+        y1 = 0;
+        x1 = fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+
+        // If never, try to find when x = 0
+        if (x1 < 0 || x1 >= m_screenWidth)
+        {
+            x1 = 0;
+            y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+        }
+    } break;
+
+    case CC_NE:
+    {
+        // Try to find when y = 0
+        y1 = 0;
+        x1 = fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+
+        // If never, try to find when x = 0
+        if (x1 < 0 || x1 >= m_screenWidth)
+        {
+            x1 = m_screenWidth-1;
+            y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+        }
+    } break;
+
+    case CC_SW:
+    {
+        // Try to find when y = 0
+        y1 = m_screenHeight-1;
+        x1 = fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+
+        // If never, try to find when x = 0
+        if (x1 < 0 || x1 >= m_screenWidth)
+        {
+            x1 = 0;
+            y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+        }
+    } break;
+
+    case CC_SE:
+    {
+        // Try to find when y = 0
+        y1 = m_screenHeight-1;
+        x1 = fromX+0.5f + (y1 - fromY) * (toX - fromX)/(toY - fromY);
+
+        // If never, try to find when x = 0
+        if (x1 < 0 || x1 >= m_screenWidth)
+        {
+            x1 = m_screenWidth-1;
+            y1 = fromY+0.5f + (x1 - fromX) * (toY - fromY)/(toX - fromX);
+        }
+    } break;
+
+    default: {} break;
+
+    } // switch (c1)
+
+    // Determine "to" point
+    switch (c2)
+    {
+
+    case CC_C: {} break;
+
+    case CC_N:
+    {
+        y2 = 0;
+        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+    } break;
+
+    case CC_S:
+    {
+        y2 = m_screenHeight-1;
+        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+    } break;
+
+    case CC_W:
+    {
+        x2 = 0;
+        y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+    } break;
+
+    case CC_E:
+    {
+        x2 = m_screenWidth-1;
+        y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+    } break;
+
+    case CC_NW:
+    {
+        // Try to find when y = 0
+        y2 = 0;
+        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+
+        // If never, try to find when x = 0
+        if (x2 < 0 || x2 >= m_screenWidth)
+        {
+            x2 = 0;
+            y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+        }
+    } break;
+
+    case CC_NE:
+    {
+        // Try to find when y = 0
+        y2 = 0;
+        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+
+        // If never, try to find when x = 0
+        if (x2 < 0 || x2 >= m_screenWidth)
+        {
+            x2 = m_screenWidth-1;
+            y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+        }
+    } break;
+
+    case CC_SW:
+    {
+        // Try to find when y = 0
+        y2 = m_screenHeight-1;
+        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+
+        // If never, try to find when x = 0
+        if (x2 < 0 || x2 >= m_screenWidth)
+        {
+            x2 = 0;
+            y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+        }
+    } break;
+
+    case CC_SE:
+    {
+        // Try to find when y = 0
+        y2 = m_screenHeight-1;
+        x2 = fromX+0.5f + (y2 - fromY) * (toX - fromX)/(toY - fromY);
+
+        // If never, try to find when x = 0
+        if (x2 < 0 || x2 >= m_screenWidth)
+        {
+            x2 = m_screenWidth-1;
+            y2 = fromY+0.5f + (x2 - fromX) * (toY - fromY)/(toX - fromX);
+        }
+    } break;
+
+    default: {} break;
+
+    } // switch (c2)
+
+    // Check boundaries
+    if (x1 < 0 || x1 >= m_screenWidth  ||
+        x2 < 0 || x2 >= m_screenWidth  ||
+        y1 < 0 || y1 >= m_screenHeight ||
+        y2 < 0 || y2 >= m_screenHeight)
+        return false;
+
+    // Set coordinates
+    fromX = x1;
+    toX   = x2;
+    fromY = y1;
+    toY   = y2;
+
+    return true;
 }
 
 void Graphics::EmulationBlit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
