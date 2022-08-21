@@ -159,6 +159,16 @@ void Graphics::ShutDown()
     Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module shut down");
 }
 
+void Graphics::ClearScreen()
+{
+
+    DDBLTFX DDBltFx;
+    DDRAW_INIT_STRUCT(DDBltFx);
+    DDBltFx.dwFillColor = 0;
+
+    m_pDDScreenBack->Blt(NULL, NULL, NULL, DDBLT_WAIT|DDBLT_COLORFILL, &DDBltFx);
+}
+
 b32 Graphics::LockScreen(u8*& buffer, s32& pitch)
 {
     DDSURFACEDESC2 DDSurfaceDesc;

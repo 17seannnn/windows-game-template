@@ -1,6 +1,7 @@
 /* ====== TODO ======
  * - class EngineModule() with virtual functions like MakeNote(), so you don't need to write channel every Log::Note()
-
+ * - Set const methods that i forgot
+ *
  * - put GetCaps() result in global variable
  * - BMP converters
  * - ShiftPalette()

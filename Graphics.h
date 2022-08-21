@@ -44,6 +44,8 @@ public:
     static b32 StartUp(s32 width = 640, s32 height = 480, s32 bpp = 8);
     static void ShutDown();
 
+    // Call this function before Lock()
+    static void ClearScreen();
     static void Flip() { m_pDDScreen->Flip(NULL, DDFLIP_WAIT); }
     // Doesn't work with surfaces w/o src color key
     static void Blit(LPRECT dstRect, LPDIRECTDRAWSURFACE7 srcSurface, LPRECT srcRect)
