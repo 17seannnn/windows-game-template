@@ -22,9 +22,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (!Game::StartUp())
         return Windows::EC_ERROR;
 
-    // DEBUG
-    LPDIRECTDRAWSURFACE7 pSurface = Graphics::LoadBMP("assets\\bitmap8.bmp");
-
     while (Game::Running())
     {
         // DEBUG
@@ -37,14 +34,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         if (Windows::IsWindowClosed())
             break; // DirectX may want to get window but it can be closed
         Game::Render();
-
-        // DEBUG
-        Graphics::Blit(NULL, pSurface, NULL);
     }
-
-    // DEBUG
-    pSurface->Release();
-    pSurface = NULL;
 
     Game::ShutDown();
     Graphics::ShutDown();

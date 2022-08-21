@@ -21,6 +21,7 @@
 
 #include "Windows.h"
 #include "BMP.h"
+#include "Log.h"
 
 #define INITGUID // For DirectX in "Graphics.h"
 #include "Graphics.h"
@@ -115,6 +116,9 @@ b32 Graphics::StartUp(s32 width, s32 height, s32 bpp)
     if (!m_pDDClipper)
         return false;
 
+    // Make note
+    Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module started");
+
     return true;
 }
 
@@ -152,6 +156,7 @@ void Graphics::ShutDown()
         m_pDDraw= NULL;
     }
 
+    Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module shut down");
 }
 
 void Graphics::PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b)
@@ -289,7 +294,7 @@ void Graphics::DDrawError(HRESULT error)
     default : sprintf(dderr, "Unknown Error"); break;
     }
     
-    // TODO output in Log
+    Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, dderr);
 }
 
 LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count)
@@ -382,8 +387,11 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 width, s32 height, b32 bVideoMe
         // Try to place stuff in system memory
         DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
         if ( FAILED(m_pDDraw->CreateSurface(&DDSurfaceDesc, &pDDSurface, NULL)) )
+        {
+            Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, "Can't make surface %dx%d", width, height);
             return NULL;
-        // TODO console log
+        }
+        Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_WARNING, "Have no videomemory for %dx%d surface, put it in system memory", width, height);
     }
 
     // Set color key
