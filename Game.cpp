@@ -20,12 +20,31 @@ void Game::Render()
     u8* screen;
     s32 pitch;
 
+    Polygon2 poly;
+    poly.state = 1;
+    poly.vertexCount = 3;
+    poly.x = 256;
+    poly.y = 256;
+    poly.vx = 0;
+    poly.vy = 0;
+    poly.color = 50;
+    poly.aVertex = new SVertex2[poly.vertexCount];
+
+    poly.aVertex[0].x = 0;
+    poly.aVertex[1].x = 100;
+    poly.aVertex[2].x = 200;
+    poly.aVertex[0].y = 0;
+    poly.aVertex[1].y = -150;
+    poly.aVertex[2].y = 100;
+
     if (!Graphics::LockBack(screen, pitch))
         return;
 
-    Graphics::DrawLine8(screen, pitch, rand() % 256, -Graphics::GetScreenWidth() + rand() % (Graphics::GetScreenWidth()*2), -Graphics::GetScreenHeight() + rand() % (Graphics::GetScreenHeight()*2), -Graphics::GetScreenWidth() + rand() % (Graphics::GetScreenWidth()*2), -Graphics::GetScreenHeight() + rand() % (Graphics::GetScreenHeight()*2));
+    Graphics::DrawPolygon2(screen, pitch, &poly);
 
     Graphics::UnlockBack();
+
+    delete[] poly.aVertex;
 
     Graphics::Flip();
 }

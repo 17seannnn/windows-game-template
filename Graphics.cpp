@@ -282,6 +282,20 @@ void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 f
     }
 }
 
+void Graphics::DrawPolygon2(u8* videoBuffer, s32 pitch, const Polygon2* poly)
+{
+    if (!poly->state)
+        return;
+
+    for (s32 i = 0; i < poly->vertexCount-1; i++)
+        DrawLine8(videoBuffer, pitch, poly->color, poly->x + poly->aVertex[i].x, poly->y + poly->aVertex[i].y,
+                                                   poly->x + poly->aVertex[i+1].x, poly->y + poly->aVertex[i+1].y);
+
+    // Closure
+        DrawLine8(videoBuffer, pitch, poly->color, poly->x + poly->aVertex[poly->vertexCount-1].x, poly->y + poly->aVertex[poly->vertexCount-1].y,
+                                                   poly->x + poly->aVertex[0].x, poly->y + poly->aVertex[0].y);
+}
+
 LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
 {
     BMPFile bmp(fileName);

@@ -10,6 +10,23 @@
 #define _RGB24BIT(R, G, B) ( ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 #define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
+struct SVertex2
+{
+    s32 x, y;
+};
+
+struct Polygon2
+{
+    s32 state;
+    s32 vertexCount;
+    s32 x, y;
+    s32 vx, vy;
+    s32 color;
+    SVertex2* aVertex;
+
+    Polygon2() : aVertex(NULL) {}
+};
+
 // Static class
 class Graphics
 {
@@ -44,6 +61,7 @@ public:
         { videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b); }
 
     static void DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY);
+    static void DrawPolygon2(u8* videoBuffer, s32 pitch, const Polygon2* poly);
 
     static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 
