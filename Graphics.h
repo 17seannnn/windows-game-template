@@ -31,14 +31,22 @@ public:
     // Doesn't work with surfaces w/o src color key
     static void Blit(LPRECT dstRect, LPDIRECTDRAWSURFACE7 srcSurface, LPRECT srcRect)
         { m_pDDScreenBack->Blt(dstRect, srcSurface, srcRect, DDBLT_WAIT|DDBLT_KEYSRC, NULL); }
-    
+
+    static b32 LockScreen(u8*& buffer, s32& pitch);
+    static b32 LockBack(u8*& buffer, s32& pitch);
+    static void UnlockScreen() { m_pDDScreen->Unlock(NULL); }
+    static void UnlockBack() { m_pDDScreenBack->Unlock(NULL); }
+
     static void PlotPixel16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
         { videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b); }
     static void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b);
     static void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 a, s32 r, s32 g, s32 b)
         { videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b); }
-    
+
     static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
+
+    static s32 GetScreenWidth() { return m_screenWidth; }
+    static s32 GetScreenHeight() { return m_screenHeight; }
 private:
     static void DDrawError(HRESULT error);
     static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, LPRECT clipList, s32 count);

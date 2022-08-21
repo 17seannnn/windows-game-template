@@ -159,6 +159,34 @@ void Graphics::ShutDown()
     Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module shut down");
 }
 
+b32 Graphics::LockScreen(u8*& buffer, s32& pitch)
+{
+    DDSURFACEDESC2 DDSurfaceDesc;
+    DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+    if ( FAILED(m_pDDScreen->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL)) )
+        return false;
+
+    buffer = (u8*)DDSurfaceDesc.lpSurface;
+    pitch = DDSurfaceDesc.lPitch;
+
+    return true;
+}
+
+b32 Graphics::LockBack(u8*& buffer, s32& pitch)
+{
+    DDSURFACEDESC2 DDSurfaceDesc;
+    DDRAW_INIT_STRUCT(DDSurfaceDesc);
+
+    if ( FAILED(m_pDDScreenBack->Lock(NULL, &DDSurfaceDesc, DDLOCK_WAIT|DDLOCK_SURFACEMEMORYPTR, NULL)) )
+        return false;
+
+    buffer = (u8*)DDSurfaceDesc.lpSurface;
+    pitch = DDSurfaceDesc.lPitch;
+
+    return true;
+}
+
 void Graphics::PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b)
 {
     s32 addr = y*pitch + (x+x+x);
@@ -386,9 +414,11 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 width, s32 height, b32 bVideoMe
     {
         // Try to place stuff in system memory
         DDSurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-        if ( FAILED(m_pDDraw->CreateSurface(&DDSurfaceDesc, &pDDSurface, NULL)) )
+        s32 res = m_pDDraw->CreateSurface(&DDSurfaceDesc, &pDDSurface, NULL);
+        if (FAILED(res))
         {
-            Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, "Can't make surface %dx%d", width, height);
+            Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, "Can't make surface %dx%d, check DDrawError below", width, height);
+            DDrawError(res);
             return NULL;
         }
         Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_WARNING, "Have no videomemory for %dx%d surface, put it in system memory", width, height);
