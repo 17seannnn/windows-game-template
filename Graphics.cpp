@@ -46,6 +46,9 @@ LPDIRECTDRAWSURFACE7 Graphics::m_pDDScreenBack = NULL;
 LPDIRECTDRAWPALETTE Graphics::m_pDDPalette = NULL;
 LPDIRECTDRAWCLIPPER Graphics::m_pDDClipper = NULL;
 
+f32 Graphics::sinLook[361];
+f32 Graphics::cosLook[361];
+
 /* ====== METHODS ====== */
 b32 Graphics::StartUp(s32 width, s32 height, s32 bpp)
 {
@@ -117,6 +120,14 @@ b32 Graphics::StartUp(s32 width, s32 height, s32 bpp)
     m_pDDClipper = AttachClipper(m_pDDScreenBack, clipList, 1);
     if (!m_pDDClipper)
         return false;
+
+    // Sin/Cos look
+    for (s32 i = 0; i < 361; i++)
+    {
+        f32 angle = (f32)i * PI/180;
+        sinLook[i] = sinf(angle);
+        cosLook[i] = cosf(angle);
+    }
 
     // Make note
     Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module started");
@@ -318,15 +329,15 @@ void Graphics::TranslatePolygon2(Polygon2* poly, s32 dx, s32 dy)
     poly->y += dy;
 }
 
-void Graphics::RotatePolygon2(Polygon2* poly, f32 fAngle)
+void Graphics::RotatePolygon2(Polygon2* poly, s32 angle)
 {
     if (!poly)
         return;
 
     for (s32 i = 0; i < poly->vertexCount; i++)
     {
-        f32 x = poly->aVertex[i].x*cosf(fAngle) - poly->aVertex[i].y*sinf(fAngle);
-        f32 y = poly->aVertex[i].x*sinf(fAngle) - poly->aVertex[i].y*cosf(fAngle);
+        f32 x = poly->aVertex[i].x*cosLook[angle] - poly->aVertex[i].y*sinLook[angle];
+        f32 y = poly->aVertex[i].x*sinLook[angle] - poly->aVertex[i].y*cosLook[angle];
 
         poly->aVertex[i].x = (s32)x;
         poly->aVertex[i].y = (s32)y;

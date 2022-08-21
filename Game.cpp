@@ -2,10 +2,6 @@
 
 #include "Game.h"
 
-#ifndef PI
-#define PI 3.14159f
-#endif
-
 Polygon2 Game::poly;
 b32 Game::m_bRunning = true;
 
@@ -51,7 +47,7 @@ void Game::Render()
 
     Graphics::UnlockBack();
 
-    Graphics::RotatePolygon2(&poly, PI/2);
+    Graphics::RotatePolygon2(&poly, 90);
 
     Sleep(1000);
 

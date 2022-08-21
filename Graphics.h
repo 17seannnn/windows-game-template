@@ -10,6 +10,10 @@
 #define _RGB24BIT(R, G, B) ( ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 #define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
+#ifndef PI
+#define PI 3.14159f
+#endif
+
 struct SVertex2
 {
     s32 x, y;
@@ -40,6 +44,9 @@ class Graphics
     static LPDIRECTDRAWPALETTE m_pDDPalette;
     static LPDIRECTDRAWCLIPPER m_pDDClipper;
 
+    static f32 sinLook[361];
+    static f32 cosLook[361];
+
 public:
     static b32 StartUp(s32 width = 640, s32 height = 480, s32 bpp = 8);
     static void ShutDown();
@@ -65,7 +72,7 @@ public:
     static void DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY);
     static void DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch);
     static void TranslatePolygon2(Polygon2* poly, s32 dx, s32 dy);
-    static void RotatePolygon2(Polygon2* poly, f32 fAngle);
+    static void RotatePolygon2(Polygon2* poly, s32 angle);
 
     static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 
