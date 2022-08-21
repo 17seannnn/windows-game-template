@@ -30,8 +30,8 @@ public:
     static void ShutDown();
 
     static b32 HandleEvents();
-    static void ShowMouse() { ShowCursor(true); }
-    static void HideMouse() { ShowCursor(false); }
+    static void ShowMouse() { ShowCursor(TRUE); }
+    static void HideMouse() { ShowCursor(FALSE); }
 
     static s32 GetExitCode() { return m_nExitCode; }
     static b32 IsWindowClosed() { return m_bWindowClosed; }

@@ -2,19 +2,11 @@
  * - Use my surface or texture structure
  * - Maybe return true or false on geometric operations?
 
- * - DrawLine()
- * - ClipLine()
- * - DrawPolygon2D()
- * - TranslatePolygon2D()
- * - RotatePolygon2D()
- * - Sin/Cos table
- * - ScalePolygon2D()
-
  * - GDIDisplayText()
  * - DisplayText()
  * - ScaleSurface()
- * - ClearSurface()
- * - DisplayRect()
+ * - DrawRect()
+ * - FillRect()
  */
 
 /* ====== INCLUDES ====== */

@@ -11,7 +11,7 @@
 #define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
 #ifndef PI
-#define PI 3.14159f
+#define PI 3.1415926535f
 #endif
 
 struct SVertex2
