@@ -17,7 +17,7 @@ f32 Math::m_cosLook[361];
 b32 Math::StartUp()
 {
     // Sin/Cos look
-    for (s32 i = 0; i < 361; i++)
+    for (s32 i = 0; i < 361; ++i)
     {
         f32 angle = DEG_TO_RAD((f32)i);
         m_sinLook[i] = sinf(angle);
@@ -50,10 +50,10 @@ void Math::RotatePolygon2(Polygon2* poly, s32 angle)
     if (!poly)
         return;
 
-    for (s32 i = 0; i < poly->vertexCount; i++)
+    for (s32 i = 0; i < poly->vertexCount; ++i)
     {
         f32 x = poly->aVertex[i].x*m_cosLook[angle] - poly->aVertex[i].y*m_sinLook[angle];
-        f32 y = poly->aVertex[i].x*m_sinLook[angle] - poly->aVertex[i].y*m_cosLook[angle];
+        f32 y = poly->aVertex[i].x*m_sinLook[angle] + poly->aVertex[i].y*m_cosLook[angle];
 
         poly->aVertex[i].x = x;
         poly->aVertex[i].y = y;
@@ -65,7 +65,7 @@ void Math::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
     if (!poly)
         return;
 
-    for (s32 i = 0; i < poly->vertexCount; i++)
+    for (s32 i = 0; i < poly->vertexCount; ++i)
     {
         poly->aVertex[i].x *= scaleX;
         poly->aVertex[i].y *= scaleY;
@@ -74,13 +74,13 @@ void Math::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
 
 void Math::MultiplyMatrix3x3(const Matrix3x3& A, const Matrix3x3& B, Matrix3x3& R)
 {
-    for (s32 row = 0; row < 3; row++)
+    for (s32 row = 0; row < 3; ++row)
     {
-        for (s32 col = 0; col < 3; col++)
+        for (s32 col = 0; col < 3; ++col)
         {
             f32 sum = 0;
 
-            for (s32 i = 0; i < 3; i++)
+            for (s32 i = 0; i < 3; ++i)
                 sum += A.M[row][i] * B.M[i][col];
 
             R.M[row][col] = sum;

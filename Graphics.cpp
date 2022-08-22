@@ -79,7 +79,7 @@ b32 Graphics::StartUp(s32 width, s32 height, s32 bpp)
     {
         PALETTEENTRY palette[PALETTE_COLORS];
 
-        for (s32 i = 1; i < PALETTE_COLORS-1; i++)
+        for (s32 i = 1; i < PALETTE_COLORS-1; ++i)
         {
             palette[i].peRed = rand() % 256;
             palette[i].peGreen = rand() % 256;
@@ -290,7 +290,7 @@ void Graphics::DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch)
     if (!poly || !poly->state)
         return;
 
-    for (s32 i = 0; i < poly->vertexCount-1; i++)
+    for (s32 i = 0; i < poly->vertexCount-1; ++i)
         DrawLine8(videoBuffer, pitch, poly->color, (s32)(poly->x + poly->aVertex[i].x), (s32)(poly->y + (s32)poly->aVertex[i].y),
                                                    (s32)(poly->x + poly->aVertex[i+1].x), (s32)(poly->y + poly->aVertex[i+1].y));
 
@@ -494,7 +494,7 @@ LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, con
     pRegionData->rdh.rcBound.bottom = -64000;
 
     // Resize bound
-    for (s32 i = 0; i < count; i++)
+    for (s32 i = 0; i < count; ++i)
     {
         // Left
         if (clipList[i].left < pRegionData->rdh.rcBound.left)
@@ -835,9 +835,9 @@ void Graphics::EmulationBlit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, 
 {
     videoBuffer += posY*pitch32 + posX; // Start position for videoBuffer pointer
 
-    for (s32 y = 0; y < h; y++)
+    for (s32 y = 0; y < h; ++y)
     {
-        for (s32 x = 0; x < w; x++)
+        for (s32 x = 0; x < w; ++x)
         {
             u32 pixel;
             if ((pixel = bitMap[x])) // Plot opaque pixels only
@@ -905,9 +905,9 @@ void Graphics::EmulationBlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32
     bitMap += srcOffsetY*w + srcOffsetX;
 
     // Blitting
-    for (s32 y = 0; y < dY; y++)
+    for (s32 y = 0; y < dY; ++y)
     {
-        for (s32 x = 0; x < dX; x++)
+        for (s32 x = 0; x < dX; ++x)
         {
             u32 pixel;
             if ((pixel = bitMap[x]) != _RGB32BIT(255, 0, 0, 0)) // Plot opaque pixels only
