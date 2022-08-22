@@ -14,6 +14,7 @@ class Log
 
     static HFILE hLog;
     static HFILE hWindows;
+    static HFILE hMath;
     static HFILE hGraphics;
     static HFILE hGame;
 
@@ -23,8 +24,9 @@ public:
     {
         CHANNEL_LOG      = 1 << 0,
         CHANNEL_WINDOWS  = 1 << 1,
-        CHANNEL_GRAPHICS = 1 << 2,
-        CHANNEL_GAME     = 1 << 3
+        CHANNEL_MATH     = 1 << 2,
+        CHANNEL_GRAPHICS = 1 << 3,
+        CHANNEL_GAME     = 1 << 4
     };
 
     enum ePriority

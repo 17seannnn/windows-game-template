@@ -21,6 +21,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return Windows::EC_ERROR;
     if (!Windows::StartUp(hInstance))
         return Windows::EC_ERROR;
+    if (!Math::StartUp())
+        return Windows::EC_ERROR;
     if (!Graphics::StartUp())
         return Windows::EC_ERROR;
     if (!Game::StartUp())
@@ -42,6 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     Game::ShutDown();
     Graphics::ShutDown();
+    Math::ShutDown();
     Windows::ShutDown();
     Log::ShutDown();
 

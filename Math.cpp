@@ -1,0 +1,73 @@
+/* ====== INCLUDES ====== */
+#include <math.h>
+
+#include "Log.h"
+
+#include "Math.h"
+
+/* ====== DEFINES ====== */
+#define DEG_TO_RAD(DEG) ((DEG) * PI/180)
+#define RAD_TO_DEG(RAD) ((RAD) * 180/PI)
+
+/* ====== VARIABLES ====== */
+f32 Math::m_sinLook[361];
+f32 Math::m_cosLook[361];
+
+/* ====== METHODS ====== */
+b32 Math::StartUp()
+{
+    // Sin/Cos look
+    for (s32 i = 0; i < 361; i++)
+    {
+        f32 angle = DEG_TO_RAD((f32)i);
+        m_sinLook[i] = sinf(angle);
+        m_cosLook[i] = cosf(angle);
+    }
+
+    // Add note
+    Log::Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "Module started");
+
+    return true;
+}
+
+void Math::ShutDown()
+{
+    // Add note
+    Log::Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "Module shut down");
+}
+
+void Math::TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy)
+{
+    if (!poly)
+        return;
+
+    poly->x += dx;
+    poly->y += dy;
+}
+
+void Math::RotatePolygon2(Polygon2* poly, s32 angle)
+{
+    if (!poly)
+        return;
+
+    for (s32 i = 0; i < poly->vertexCount; i++)
+    {
+        f32 x = poly->aVertex[i].x*m_cosLook[angle] - poly->aVertex[i].y*m_sinLook[angle];
+        f32 y = poly->aVertex[i].x*m_sinLook[angle] - poly->aVertex[i].y*m_cosLook[angle];
+
+        poly->aVertex[i].x = x;
+        poly->aVertex[i].y = y;
+    }
+}
+
+void Math::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
+{
+    if (!poly)
+        return;
+
+    for (s32 i = 0; i < poly->vertexCount; i++)
+    {
+        poly->aVertex[i].x *= scaleX;
+        poly->aVertex[i].y *= scaleY;
+    }
+}

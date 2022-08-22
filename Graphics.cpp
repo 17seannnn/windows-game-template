@@ -11,10 +11,10 @@
 
 /* ====== INCLUDES ====== */
 #include <stdio.h>
-#include <math.h>
 
 #include "Windows.h"
 #include "BMP.h"
+#include "Math.h"
 #include "Log.h"
 
 #define INITGUID // For DirectX in "Graphics.h"
@@ -37,9 +37,6 @@ LPDIRECTDRAWSURFACE7 Graphics::m_pDDScreen = NULL;
 LPDIRECTDRAWSURFACE7 Graphics::m_pDDScreenBack = NULL;
 LPDIRECTDRAWPALETTE Graphics::m_pDDPalette = NULL;
 LPDIRECTDRAWCLIPPER Graphics::m_pDDClipper = NULL;
-
-f32 Graphics::sinLook[361];
-f32 Graphics::cosLook[361];
 
 /* ====== METHODS ====== */
 b32 Graphics::StartUp(s32 width, s32 height, s32 bpp)
@@ -112,14 +109,6 @@ b32 Graphics::StartUp(s32 width, s32 height, s32 bpp)
     m_pDDClipper = AttachClipper(m_pDDScreenBack, clipList, 1);
     if (!m_pDDClipper)
         return false;
-
-    // Sin/Cos look
-    for (s32 i = 0; i < 361; i++)
-    {
-        f32 angle = (f32)i * PI/180;
-        sinLook[i] = sinf(angle);
-        cosLook[i] = cosf(angle);
-    }
 
     // Make note
     Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module started");
@@ -310,42 +299,6 @@ void Graphics::DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch)
                                                (s32)(poly->y + poly->aVertex[poly->vertexCount-1].y),
                                                (s32)(poly->x + poly->aVertex[0].x),
                                                (s32)(poly->y + poly->aVertex[0].y));
-}
-
-void Graphics::TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy)
-{
-    if (!poly)
-        return;
-
-    poly->x += dx;
-    poly->y += dy;
-}
-
-void Graphics::RotatePolygon2(Polygon2* poly, s32 angle)
-{
-    if (!poly)
-        return;
-
-    for (s32 i = 0; i < poly->vertexCount; i++)
-    {
-        f32 x = poly->aVertex[i].x*cosLook[angle] - poly->aVertex[i].y*sinLook[angle];
-        f32 y = poly->aVertex[i].x*sinLook[angle] - poly->aVertex[i].y*cosLook[angle];
-
-        poly->aVertex[i].x = x;
-        poly->aVertex[i].y = y;
-    }
-}
-
-void Graphics::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
-{
-    if (!poly)
-        return;
-
-    for (s32 i = 0; i < poly->vertexCount; i++)
-    {
-        poly->aVertex[i].x *= scaleX;
-        poly->aVertex[i].y *= scaleY;
-    }
 }
 
 LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)

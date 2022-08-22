@@ -7,7 +7,7 @@
 // Static class
 class Game
 {
-    static Polygon2 poly;
+    static Polygon2 m_poly;
     static b32 m_bRunning;
 public:
     static b32 StartUp();

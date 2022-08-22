@@ -1,40 +1,19 @@
 #ifndef GRAPHICS_H_
 #define GRAPHICS_H_
 
-#include "Types.h"
-
+/* ====== INCLUDES ====== */
 #include <ddraw.h>
 
+#include "Types.h"
+#include "Math.h"
+
+/* ====== DEFINES ====== */
 #define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )
 #define _RGB16BIT555(R, G, B) ( ((R & 31) << 10) + ((G & 31) << 5) + (B & 31) )
 #define _RGB24BIT(R, G, B) ( ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 #define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
-#ifndef PI
-#define PI 3.1415926535f
-#endif
-
-struct SVertex2
-{
-    s32 x, y;
-};
-
-struct FVertex2
-{
-    f32 x, y;
-};
-
-struct Polygon2
-{
-    s32 state;
-    s32 vertexCount;
-    f32 x, y;
-    f32 vx, vy;
-    s32 color;
-    FVertex2* aVertex;
-
-    Polygon2() : aVertex(NULL) {}
-};
+/* ====== STRUCTURES ====== */
 
 // Static class
 class Graphics
@@ -48,9 +27,6 @@ class Graphics
     static LPDIRECTDRAWSURFACE7 m_pDDScreenBack;
     static LPDIRECTDRAWPALETTE m_pDDPalette;
     static LPDIRECTDRAWCLIPPER m_pDDClipper;
-
-    static f32 sinLook[361];
-    static f32 cosLook[361];
 
 public:
     static b32 StartUp(s32 width = 640, s32 height = 480, s32 bpp = 8);
@@ -76,9 +52,6 @@ public:
 
     static void DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY);
     static void DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch);
-    static void TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy);
-    static void RotatePolygon2(Polygon2* poly, s32 angle);
-    static void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY);
 
     static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 
