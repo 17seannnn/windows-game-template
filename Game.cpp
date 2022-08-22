@@ -44,34 +44,11 @@ void Game::Render()
     if (!Graphics::LockBack(screen, pitch))
         return;
 
-    Graphics::DrawPolygon2(&m_poly, screen, pitch);
+    Graphics::DrawTriangle(screen, pitch, 50, -50, 0, 50, 0, 10, 100);
 
     Graphics::UnlockBack();
 
-    Math::RotatePolygon2(&m_poly, 45);
-    //Math::ScalePolygon2(&m_poly, rand() % 2 ? 2.0f : 0.5f, rand() % 2 ? 2.0f : 0.5f);
-
-    Mat13 a, r;
-    Mat33 b;
-    for (s32 i = 0; i < 3; ++i)
-    {
-        for (s32 j = 0; j < 3; ++j)
-        {
-            a.c[j] = j+1.0f;
-            b.c[i][j] = j+1.0f;
-        }
-    }
-    Math::MulMat13x33(a, b, r);
-
-    for (s32 row = 0; row < 3; ++row)
-        for (s32 col = 0; col < 3; ++col)
-        {
-            Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "A[%d] %f", col, a.c[col]);
-            Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "B[%d][%d] %f", row, col, b.c[row][col]);
-            Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "R[%d] %f", col, r.c[col]);
-        }
-
-    Sleep(1000);
+    Sleep(33);
 
     Graphics::Flip();
 }

@@ -32,6 +32,9 @@ public:
     static b32 StartUp(s32 width = 640, s32 height = 480, s32 bpp = 8);
     static void ShutDown();
 
+    static s32 GetScreenWidth() { return m_screenWidth; }
+    static s32 GetScreenHeight() { return m_screenHeight; }
+
     // Call this function before Lock()
     static void ClearScreen();
     static void Flip() { m_pDDScreen->Flip(NULL, DDFLIP_WAIT); }
@@ -53,10 +56,11 @@ public:
     static void DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY);
     static void DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch);
 
-    static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
+    static void DrawTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
+    static void DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
+    static void DrawBottomTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
 
-    static s32 GetScreenWidth() { return m_screenWidth; }
-    static s32 GetScreenHeight() { return m_screenHeight; }
+    static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 private:
     static void DDrawError(HRESULT error);
     static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, const LPRECT clipList, s32 count);

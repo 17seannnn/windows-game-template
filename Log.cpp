@@ -106,8 +106,8 @@ b32 Log::StartUp()
 {
 #ifdef _DEBUG
     // Allocate console
-    if (!AllocConsole())
-        return false;
+    // DEBUG(sean) if (!AllocConsole())
+    //    return false;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     // Open all log files
@@ -143,7 +143,7 @@ void Log::ShutDown()
     _lclose(hGame);
 
     // Detach console
-    FreeConsole();
+    // DEBUG(sean) FreeConsole();
 #endif
 }
 

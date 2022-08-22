@@ -301,6 +301,153 @@ void Graphics::DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch)
                                                (s32)(poly->y + poly->aVertex[0].y));
 }
 
+void Graphics::DrawTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3)
+{
+    // Check if we don't need to draw this triangle
+    if ((x1 == x2 && x2 == x3) || (y1 == y2 && y2 == y3))
+        return;
+
+    // Sort points
+    if (y2 < y1)
+    {
+        s32 temp = y1;
+        y1 = y2;
+        y2 = temp;
+        temp = x1;
+        x1 = x2;
+        x2 = temp;
+    }
+
+    if (y3 < y1)
+    {
+        s32 temp = y1;
+        y1 = y3;
+        y3 = temp;
+        temp = x1;
+        x1 = x3;
+        x3 = temp;
+    }
+
+    if (y3 < y2)
+    {
+        s32 temp = y2;
+        y2 = y3;
+        y3 = temp;
+        temp = x2;
+        x2 = x3;
+        x3 = temp;
+    }
+
+    // Check if we don't need to draw it
+    if (y3 < 0 || y1 >= m_screenHeight ||
+        (x1 < 0 && x2 < 0 && x3 < 0)  ||
+        (x1 >= m_screenWidth && x2 >= m_screenWidth && x3 >= m_screenWidth))
+        return;
+
+    // If triangle's up is flat
+    if (y1 == y2)
+    {
+        DrawTopTriangle(videoBuffer, pitch, color, x1, y1, x2, y2, x3, y3);
+    }
+    else if (y2 == y3) // If triangle's bottom is flat
+    {
+        DrawBottomTriangle(videoBuffer, pitch, color, x1, y1, x2, y2, x3, y3);
+    }
+    else // Not flat...
+    {
+        // newX will get X for third point when it's y == y2,
+        // so we'll get line that crosses the greatest side of triangle
+        s32 newX = x1 + (s32)( 0.5f+(f32)(y2-y1) * (f32)(x3-x1)/(f32)(y3-y1));
+
+        DrawBottomTriangle(videoBuffer, pitch, color, x1, y1, newX, y2, x2, y2);
+        DrawTopTriangle(videoBuffer, pitch, color, x2, y2, newX, y2, x3, y3);
+    }
+}
+
+void Graphics::DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3)
+{
+    // Sort points on top of triangle
+    if (x2 < x1)
+    {
+        s32 temp = x1;
+        x1 = x2;
+        x2 = temp;
+    }
+
+    // Delta X for points
+    f32 height = (f32)(y3 - y1);
+    f32 leftDX = (x3-x1)/height;
+    f32 rightDX = (x3-x2)/height;
+
+    // Start, end X
+    f32 startX = (f32)x1;
+    f32 endX = (f32)x2 + 0.5f;
+
+    // Clipping along the axis Y
+    if (y1 < 0)
+    {
+        startX += leftDX * (f32)(0 - y1);
+        endX += rightDX * (f32)(0 - y1);
+
+        y1 = 0;
+    }
+
+    if (y3 >= m_screenHeight)
+        y3 = m_screenHeight-1;
+
+    // Set videoBuffer pointer
+    videoBuffer += y1*pitch;
+
+    // Check if we don't need clipping along the axis X
+    if (x1 >= 0 && x1 < m_screenWidth &&
+        x2 >= 0 && x2 < m_screenWidth &&
+        x3 >= 0 && x3 < m_screenWidth)
+    {
+        for (s32 y = 0; y <= y3; y++)
+        {
+            memset(videoBuffer+(s32)startX, (u8)color, (s32)(endX-startX)+1);
+
+            startX += leftDX;
+            endX += rightDX;
+            videoBuffer += pitch;
+        }
+    }
+    else // So we need...
+    {
+        for (s32 y = 0; y <= y3; y++)
+        {
+            // X clipping
+            s32 left = (s32)startX;
+            s32 right = (s32)endX;
+
+            // Correct start/endX
+            startX += leftDX;
+            endX += rightDX;
+
+            if (left < 0)
+            {
+                if (right < 0)
+                    continue;
+                left = 0;
+            }
+
+            if (right >= m_screenWidth)
+            {
+                if (left >= m_screenWidth)
+                    continue;
+                right = m_screenWidth-1;
+            }
+
+            memset(videoBuffer+left, color, (right-left)+1);
+            videoBuffer += pitch;
+        }
+    }
+}
+
+void Graphics::DrawBottomTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3)
+{
+}
+
 LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
 {
     BMPFile bmp(fileName);
