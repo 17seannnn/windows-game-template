@@ -72,7 +72,7 @@ void Math::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
     }
 }
 
-void Math::MultiplyMatrix3x3(const Matrix3x3& A, const Matrix3x3& B, Matrix3x3& R)
+void Math::MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr)
 {
     for (s32 row = 0; row < 3; ++row)
     {
@@ -81,9 +81,22 @@ void Math::MultiplyMatrix3x3(const Matrix3x3& A, const Matrix3x3& B, Matrix3x3& 
             f32 sum = 0;
 
             for (s32 i = 0; i < 3; ++i)
-                sum += A.M[row][i] * B.M[i][col];
+                sum += m1.c[row][i] * m2.c[i][col];
 
-            R.M[row][col] = sum;
+            mr.c[row][col] = sum;
         }
+    }
+}
+
+void Math::MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr)
+{
+    for (s32 col = 0; col < 3; ++col)
+    {
+        f32 sum = 0;
+
+        for (s32 i = 0; i < 3; ++i)
+            sum += m1.c[i] * m2.c[i][col];
+
+        mr.c[col] = sum;
     }
 }

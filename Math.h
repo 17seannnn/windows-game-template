@@ -34,9 +34,14 @@ struct Polygon2
     Polygon2() : aVertex(NULL) {}
 };
 
-struct Matrix3x3
+struct Mat33
 {
-    f32 M[3][3];
+    f32 c[3][3];
+};
+
+struct Mat13
+{
+    f32 c[3];
 };
 
 // Static class
@@ -55,7 +60,8 @@ public:
     static void RotatePolygon2(Polygon2* poly, s32 angle);
     static void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY);
 
-    static void MultiplyMatrix3x3(const Matrix3x3& A, const Matrix3x3& B, Matrix3x3& R);
+    static void MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr);
+    static void MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr);
 };
 
 #endif // MATH_H_
