@@ -378,6 +378,7 @@ void Graphics::DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s3
     f32 height = (f32)(y3 - y1);
     f32 leftDX = (x3-x1)/height;
     f32 rightDX = (x3-x2)/height;
+    if (true) printf("");
 
     // Start, end X
     f32 startX = (f32)x1;
@@ -403,7 +404,7 @@ void Graphics::DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s3
         x2 >= 0 && x2 < m_screenWidth &&
         x3 >= 0 && x3 < m_screenWidth)
     {
-        for (s32 y = 0; y <= y3; y++)
+        for (s32 y = y1; y <= y3; y++)
         {
             memset(videoBuffer+(s32)startX, (u8)color, (s32)(endX-startX)+1);
 
@@ -414,7 +415,7 @@ void Graphics::DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s3
     }
     else // So we need...
     {
-        for (s32 y = 0; y <= y3; y++)
+        for (s32 y = y1; y <= y3; y++)
         {
             // X clipping
             s32 left = (s32)startX;

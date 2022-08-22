@@ -44,7 +44,7 @@ void Game::Render()
     if (!Graphics::LockBack(screen, pitch))
         return;
 
-    Graphics::DrawTriangle(screen, pitch, 50, -50, 0, 50, 0, 10, 100);
+    Graphics::DrawTriangle(screen, pitch, 50, 0, 0, 50, 50, 30, 100);
 
     Graphics::UnlockBack();
 
