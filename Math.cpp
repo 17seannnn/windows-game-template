@@ -71,3 +71,19 @@ void Math::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
         poly->aVertex[i].y *= scaleY;
     }
 }
+
+void Math::MultiplyMatrix3x3(const Matrix3x3& A, const Matrix3x3& B, Matrix3x3& R)
+{
+    for (s32 row = 0; row < 3; row++)
+    {
+        for (s32 col = 0; col < 3; col++)
+        {
+            f32 sum = 0;
+
+            for (s32 i = 0; i < 3; i++)
+                sum += A.M[row][i] * B.M[i][col];
+
+            R.M[row][col] = sum;
+        }
+    }
+}

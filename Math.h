@@ -54,6 +54,8 @@ public:
     static void TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy);
     static void RotatePolygon2(Polygon2* poly, s32 angle);
     static void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY);
+
+    static void MultiplyMatrix3x3(const Matrix3x3& A, const Matrix3x3& B, Matrix3x3& R);
 };
 
 #endif // MATH_H_

@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include "Log.h"
 
 #include "Game.h"
 
@@ -47,8 +48,7 @@ void Game::Render()
 
     Graphics::UnlockBack();
 
-    Math::RotatePolygon2(&m_poly, 90);
-    //Math::ScalePolygon2(&m_poly, rand() % 2 ? 2.0f : 0.5f, rand() % 2 ? 2.0f : 0.5f);
+    Math::ScalePolygon2(&m_poly, rand() % 2 ? 2.0f : 0.5f, rand() % 2 ? 2.0f : 0.5f);
 
     Sleep(1000);
 
