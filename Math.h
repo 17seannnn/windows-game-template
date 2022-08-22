@@ -44,6 +44,16 @@ struct Mat13
     f32 c[3];
 };
 
+struct Mat32
+{
+    f32 c[3][2];
+};
+
+struct Mat12
+{
+    f32 c[2];
+};
+
 // Static class
 class Math
 {
@@ -62,6 +72,7 @@ public:
 
     static void MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr);
     static void MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr);
+    static void MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr);
 };
 
 #endif // MATH_H_

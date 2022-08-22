@@ -100,3 +100,37 @@ void Math::MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr)
         mr.c[col] = sum;
     }
 }
+
+void Math::MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr)
+{
+    /* NOTE Just a memo...
+     *  Rotation:
+     *  [ 100 150 ]
+     *       *
+     *  [ cos   sin  0 ]
+     *  [ -sin  cos  0 ]
+     *  [  0     0   1 ]
+     *
+     *  Translation:
+     *  [ 100 150 ] - Vector
+     *       *
+     *  [ 1   0   0 ] - Matrix
+     *  [ 0   1   0 ]
+     *  [ dx  dy  1 ]
+     */
+
+    for (s32 col = 0; col < 2; ++col)
+    {
+        f32 sum = 0;
+
+        // Sum first two multiplications
+        for (s32 i = 0; i < 2; ++i)
+            sum += m1.c[i] * m2.c[i][col];
+
+        // Sum last fictive element of first matrix with last element of second
+        sum += m2.c[2][col];
+
+        // Set element
+        mr.c[col] = sum;
+    }
+}
