@@ -378,7 +378,6 @@ void Graphics::DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s3
     f32 height = (f32)(y3 - y1);
     f32 leftDX = (x3-x1)/height;
     f32 rightDX = (x3-x2)/height;
-    if (true) printf("");
 
     // Start, end X
     f32 startX = (f32)x1;
@@ -447,6 +446,82 @@ void Graphics::DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s3
 
 void Graphics::DrawBottomTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3)
 {
+    // Sort points on bottom of triangle
+    if (x3 < x2)
+    {
+        s32 temp = x2;
+        x2 = x3;
+        x3 = temp;
+    }
+
+    // Delta X for points
+    f32 height = (f32)(y3 - y1);
+    f32 leftDX = (x2-x1)/height;
+    f32 rightDX = (x3-x1)/height;
+
+    // Start, end X
+    f32 startX = (f32)x1;
+    f32 endX = startX;
+
+    // Clipping along the axis Y
+    if (y1 < 0)
+    {
+        startX += leftDX * (f32)(0 - y1);
+        endX += rightDX * (f32)(0 - y1);
+
+        y1 = 0;
+    }
+
+    if (y3 >= m_screenHeight)
+        y3 = m_screenHeight-1;
+
+    // Set videoBuffer pointer
+    videoBuffer += y1*pitch;
+
+    // Check if we don't need clipping along the axis X
+    if (x1 >= 0 && x1 < m_screenWidth &&
+        x2 >= 0 && x2 < m_screenWidth &&
+        x3 >= 0 && x3 < m_screenWidth)
+    {
+        for (s32 y = y1; y <= y3; y++)
+        {
+            memset(videoBuffer+(s32)startX, (u8)color, (s32)(endX-startX)+1);
+
+            startX += leftDX;
+            endX += rightDX;
+            videoBuffer += pitch;
+        }
+    }
+    else // So we need...
+    {
+        for (s32 y = y1; y <= y3; y++)
+        {
+            // X clipping
+            s32 left = (s32)startX;
+            s32 right = (s32)endX;
+
+            // Correct start/endX
+            startX += leftDX;
+            endX += rightDX;
+
+            if (left < 0)
+            {
+                if (right < 0)
+                    continue;
+                left = 0;
+            }
+
+            if (right >= m_screenWidth)
+            {
+                if (left >= m_screenWidth)
+                    continue;
+                right = m_screenWidth-1;
+            }
+
+            memset(videoBuffer+left, color, (right-left)+1);
+            videoBuffer += pitch;
+        }
+    }
 }
 
 LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
