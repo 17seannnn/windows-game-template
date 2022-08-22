@@ -1,6 +1,4 @@
 /* ====== TODO ======
- * - Maybe use something like NOTE(17) or TODO(sean)?
- *
  * - class EngineModule() with virtual functions like AddNote(), so you don't need to write channel every Log::Note()
  * - Set const methods that i forgot
  *

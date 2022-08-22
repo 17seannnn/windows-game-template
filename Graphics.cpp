@@ -327,7 +327,7 @@ LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
 
     for (s32 i = 0; i < bmp.info.biHeight; i++)
     {
-        memcpy(dst, src, bmpPitch); // TODO/NOTE bitmap buffer contains pixels in BGR format
+        memcpy(dst, src, bmpPitch); // TODO/NOTE(sean) bitmap buffer contains pixels in BGR format
 
         dst += surfacePitch;
         src += bmpPitch;

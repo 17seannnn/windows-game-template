@@ -103,7 +103,7 @@ void Math::MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr)
 
 void Math::MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr)
 {
-    /* NOTE Just a memo...
+    /* NOTE(sean) Just a memo...
      *  Rotation:
      *  [ 100 150 ]
      *       *

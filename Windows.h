@@ -15,7 +15,7 @@
 class Windows
 {
     static s32 m_nExitCode;
-    static b32 m_bWindowClosed; // NOTE think about this bool... maybe we don't need this.. or maybe need?
+    static b32 m_bWindowClosed; // NOTE(sean) think about this bool... maybe we don't need this.. or maybe need?
 
     static HINSTANCE m_hInstance;
     static HWND m_hWindow;
