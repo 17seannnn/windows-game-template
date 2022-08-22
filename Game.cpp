@@ -50,6 +50,25 @@ void Game::Render()
 
     Math::ScalePolygon2(&m_poly, rand() % 2 ? 2.0f : 0.5f, rand() % 2 ? 2.0f : 0.5f);
 
+    Matrix3x3 a, b, r;
+    for (s32 i = 0; i < 3; i++)
+    {
+        for (s32 j = 0; j < 3; j++)
+        {
+            a.M[i][j] = j+1.0f;
+            b.M[i][j] = j+1.0f;
+        }
+    }
+    Math::MultiplyMatrix3x3(a, b, r);
+
+    for (s32 row = 0; row < 3; row++)
+        for (s32 col = 0; col < 3; col++)
+        {
+            Log::Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "A[%d][%d] %f", row, col, a.M[row][col]);
+            Log::Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "B[%d][%d] %f", row, col, b.M[row][col]);
+            Log::Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "R[%d][%d] %f", row, col, r.M[row][col]);
+        }
+
     Sleep(1000);
 
     Graphics::Flip();
