@@ -43,7 +43,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
         if (!Windows::HandleEvents())
             break; // Break on quit event
-        Game::Update();
+        Game::Update(dtTime);
         if (Windows::IsWindowClosed())
             break; // DirectX may want to get window but it can be closed
         Game::Render();

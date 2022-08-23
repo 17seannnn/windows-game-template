@@ -179,7 +179,7 @@ void Log::Note(s32 channel, s32 priority, const char* fmt, ...)
         channelPrefix = CHANNEL_PREFIX_WINDOWS;
         noteColor |= CHANNEL_COLOR_WINDOWS;
     } break;
-    
+
     case CHANNEL_CLOCK:
     {
         hFile = hClock;

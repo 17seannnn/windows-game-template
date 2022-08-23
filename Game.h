@@ -7,13 +7,15 @@
 // Static class
 class Game
 {
-    static Polygon2 m_poly;
+    static f32 m_dtTime;
     static b32 m_bRunning;
+    
+    static Polygon2 m_poly;
 public:
     static b32 StartUp();
     static void ShutDown();
 
-    static void Update();
+    static void Update(f32 dtTime);
     static void Render();
 
     static b32 Running() { return m_bRunning; }

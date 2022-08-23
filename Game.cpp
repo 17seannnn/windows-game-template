@@ -1,11 +1,16 @@
+/* ====== INCLUDES ====== */
 #include "Graphics.h"
 #include "Log.h"
 
 #include "Game.h"
 
-Polygon2 Game::m_poly;
+/* ====== VARIABLES ====== */
+f32 Game::m_dtTime = 0;
 b32 Game::m_bRunning = true;
 
+Polygon2 Game::m_poly;
+
+/* ====== METHODS====== */
 b32 Game::StartUp()
 {   
     m_poly.state = 1;
@@ -32,8 +37,10 @@ void Game::ShutDown()
     delete[] m_poly.aVertex;
 }
 
-void Game::Update()
-{}
+void Game::Update(f32 dtTime)
+{
+    m_dtTime = dtTime;
+}
 
 void Game::Render()
 {
