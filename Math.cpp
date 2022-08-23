@@ -1,6 +1,5 @@
 /* ====== TODO ======
- * - FastDist2()
- * - FastDist3()
+ * - Simplify structures' name
  */
 
 /* ====== INCLUDES ====== */
@@ -110,6 +109,32 @@ void Math::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
         poly->aVertex[i].x *= scaleX;
         poly->aVertex[i].y *= scaleY;
     }
+}
+
+b32 Math::FindBoxPoly2(Polygon2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY)
+{
+    // Check if polygon is correct
+    if (!poly || poly->vertexCount <= 0)
+        return false;
+
+    // Init coords
+    minX = minY = maxX = maxY = 0;
+
+    // Find box
+    for (s32 i = 0; i < poly->vertexCount; ++i)
+    {
+        if (poly->aVertex[i].x < minX)
+            minX = poly->aVertex[i].x;
+        if (poly->aVertex[i].x > maxX)
+            maxX = poly->aVertex[i].x;
+
+        if (poly->aVertex[i].y < minY)
+            minY = poly->aVertex[i].y;
+        if (poly->aVertex[i].y > maxY)
+            maxY = poly->aVertex[i].y;
+    }
+
+    return true;
 }
 
 void Math::MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr)

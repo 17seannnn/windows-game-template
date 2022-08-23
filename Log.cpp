@@ -1,4 +1,5 @@
 /* ====== TODO ======
+ * - Timestamp
  * - What if modules ask open log file for themselves? They can handle their names and colors
  * - Use Win32 funcs for files handling
  * - Filters: channels, priorities
@@ -23,6 +24,7 @@
 #define CHANNEL_PREFIX_UNDEFINED "Undefined"
 #define CHANNEL_PREFIX_LOG       "Log"
 #define CHANNEL_PREFIX_WINDOWS   "Windows"
+#define CHANNEL_PREFIX_CLOCK     "Clock"
 #define CHANNEL_PREFIX_MATH      "Math"
 #define CHANNEL_PREFIX_GRAPHICS  "Graphics"
 #define CHANNEL_PREFIX_GAME      "Game"
@@ -78,6 +80,7 @@ enum eChannelColor
     CHANNEL_COLOR_UNDEFINED = FG_LIGHTMAGENTA,
     CHANNEL_COLOR_LOG       = FG_WHITE,
     CHANNEL_COLOR_WINDOWS   = FG_LIGHTBLUE,
+    CHANNEL_COLOR_CLOCK     = FG_YELLOW,
     CHANNEL_COLOR_MATH      = FG_LIGHTRED,
     CHANNEL_COLOR_GRAPHICS  = FG_LIGHTGREEN,
     CHANNEL_COLOR_GAME      = FG_BROWN,
@@ -97,6 +100,7 @@ HFILE Log::hFullLog;
 
 HFILE Log::hLog;
 HFILE Log::hWindows;
+HFILE Log::hClock;
 HFILE Log::hMath;
 HFILE Log::hGraphics;
 HFILE Log::hGame;
@@ -106,8 +110,8 @@ b32 Log::StartUp()
 {
 #ifdef _DEBUG
     // Allocate console
-    // DEBUG(sean) if (!AllocConsole())
-    //    return false;
+    if (!AllocConsole())
+        return false;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     // Open all log files
@@ -119,6 +123,8 @@ b32 Log::StartUp()
     if (-1 == (hLog = OpenFile(DIR_LOGS"ModuleLog.txt", &fileInfo, OF_CREATE)) )
         return false;
     if (-1 == (hWindows = OpenFile(DIR_LOGS"ModuleWindows.txt", &fileInfo, OF_CREATE)) )
+        return false;
+    if (-1 == (hClock = OpenFile(DIR_LOGS"ModuleClock.txt", &fileInfo, OF_CREATE)) )
         return false;
     if (-1 == (hMath = OpenFile(DIR_LOGS"ModuleMath.txt", &fileInfo, OF_CREATE)) )
         return false;
@@ -138,12 +144,13 @@ void Log::ShutDown()
     _lclose(hFullLog);
     _lclose(hLog);
     _lclose(hWindows);
+    _lclose(hClock);
     _lclose(hMath);
     _lclose(hGraphics);
     _lclose(hGame);
 
     // Detach console
-    // DEBUG(sean) FreeConsole();
+    FreeConsole();
 #endif
 }
 
@@ -171,6 +178,13 @@ void Log::Note(s32 channel, s32 priority, const char* fmt, ...)
         hFile = hWindows;
         channelPrefix = CHANNEL_PREFIX_WINDOWS;
         noteColor |= CHANNEL_COLOR_WINDOWS;
+    } break;
+    
+    case CHANNEL_CLOCK:
+    {
+        hFile = hClock;
+        channelPrefix = CHANNEL_PREFIX_CLOCK;
+        noteColor |= CHANNEL_COLOR_CLOCK;
     } break;
 
     case CHANNEL_MATH:

@@ -74,6 +74,8 @@ public:
     static void RotatePolygon2(Polygon2* poly, s32 angle);
     static void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY);
 
+    static b32 FindBoxPoly2(Polygon2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY);
+
     static void MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr);
     static void MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr);
     static void MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr);

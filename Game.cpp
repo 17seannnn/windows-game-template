@@ -45,12 +45,7 @@ void Game::Render()
         return;
 
     Graphics::DrawQuad2(screen, pitch, 50, 300, 200, 250, 300, 400, 300, 400, 200);
-    Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "distance between (0, 0) and (12, 12): %d", Math::FastDist2(12, 12));
-    Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "distance between (0, 0, 0) and (12, 12, 12): %f", Math::FastDist3(12, 12, 12));
 
     Graphics::UnlockBack();
-
-    Sleep(33);
-
     Graphics::Flip();
 }
