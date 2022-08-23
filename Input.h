@@ -13,6 +13,7 @@
 class Input
 {
     static LPDIRECTINPUT8 m_pDInput;
+    static LPDIRECTINPUTDEVICE8 m_pDIKey;
 public:
     static b32 StartUp(HINSTANCE hInstance);
     static void ShutDown();
