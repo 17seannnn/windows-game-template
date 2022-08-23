@@ -19,8 +19,12 @@ typedef u8 _DIKEYSTATE[256];
 class Input
 {
     static LPDIRECTINPUT8 m_pDInput;
+
     static LPDIRECTINPUTDEVICE8 m_pDIKey;
     static _DIKEYSTATE m_keyState;
+
+    static LPDIRECTINPUTDEVICE8 m_pDIMouse;
+    static DIMOUSESTATE m_mouseState;
 public:
     static b32 StartUp(HINSTANCE hInstance, HWND hWindow);
     static void ShutDown();
