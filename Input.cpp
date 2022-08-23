@@ -63,5 +63,16 @@ void Input::ShutDown()
 
 b32 Input::HandleEvents()
 {
-    return SUCCEEDED(m_pDIKey->GetDeviceState(sizeof(m_keyState), (LPVOID)m_keyState));
+    // Try to capture keyboard
+    HRESULT hRes;
+    while ( DIERR_INPUTLOST == (hRes = m_pDIKey->GetDeviceState(sizeof(m_keyState),
+                                                                (LPVOID)m_keyState)) )
+        if ( FAILED(m_pDIKey->Acquire()) )
+            return false;
+
+    // If we got different from INPUTLOST error
+    if ( FAILED(hRes) )
+        return false;
+
+    return true;
 }
