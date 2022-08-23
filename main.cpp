@@ -29,21 +29,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return Windows::EC_ERROR;
     if (!Graphics::StartUp(Windows::GetWindow()))
         return Windows::EC_ERROR;
-    if (!Input::StartUp(Windows::GetInstance()))
+    if (!Input::StartUp(Windows::GetInstance(), Windows::GetWindow()))
         return Windows::EC_ERROR;
     if (!Game::StartUp())
         return Windows::EC_ERROR;
 
     while (Game::Running())
     {
-        // DEBUG
-        if (KEYDOWN(VK_ESCAPE))
-            break;
-
         f32 dtTime = Clock::GetDelta();
 
         if (!Windows::HandleEvents())
             break; // Break on quit event
+        if (!Input::HandleEvents())
+            break; // TODO(sean) Log this stuff
         Game::Update(dtTime);
         if (Windows::IsWindowClosed())
             break; // DirectX may want to get window but it can be closed

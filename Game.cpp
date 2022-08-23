@@ -1,5 +1,6 @@
 /* ====== INCLUDES ====== */
 #include "Graphics.h"
+#include "Input.h"
 #include "Log.h"
 
 #include "Game.h"
@@ -40,6 +41,9 @@ void Game::ShutDown()
 void Game::Update(f32 dtTime)
 {
     m_dtTime = dtTime;
+
+    if (Input::KeyDown(DIK_ESCAPE))
+        m_bRunning = false;
 }
 
 void Game::Render()
