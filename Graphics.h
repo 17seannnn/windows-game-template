@@ -2,6 +2,8 @@
 #define GRAPHICS_H_
 
 /* ====== INCLUDES ====== */
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #include <ddraw.h>
 
 #include "Types.h"
@@ -29,7 +31,7 @@ class Graphics
     static LPDIRECTDRAWCLIPPER m_pDDClipper;
 
 public:
-    static b32 StartUp(s32 width = 640, s32 height = 480, s32 bpp = 8);
+    static b32 StartUp(HWND hWindow, s32 width = 640, s32 height = 480, s32 bpp = 8);
     static void ShutDown();
 
     static s32 GetScreenWidth() { return m_screenWidth; }

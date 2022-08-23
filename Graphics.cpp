@@ -12,7 +12,6 @@
 /* ====== INCLUDES ====== */
 #include <stdio.h>
 
-#include "Windows.h"
 #include "BMP.h"
 #include "Math.h"
 #include "Log.h"
@@ -39,7 +38,7 @@ LPDIRECTDRAWPALETTE Graphics::m_pDDPalette = NULL;
 LPDIRECTDRAWCLIPPER Graphics::m_pDDClipper = NULL;
 
 /* ====== METHODS ====== */
-b32 Graphics::StartUp(s32 width, s32 height, s32 bpp)
+b32 Graphics::StartUp(HWND hWindow, s32 width, s32 height, s32 bpp)
 {
     // Set screen variables
     m_screenWidth = width;
@@ -50,7 +49,7 @@ b32 Graphics::StartUp(s32 width, s32 height, s32 bpp)
     if ( FAILED(DirectDrawCreateEx(NULL, (void**)&m_pDDraw, IID_IDirectDraw7, NULL)) )
         return false;
     // Cooperative level with window
-    if ( FAILED(m_pDDraw->SetCooperativeLevel(Windows::GetWindow(),
+    if ( FAILED(m_pDDraw->SetCooperativeLevel(hWindow,
                                               DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE|
                                               DDSCL_ALLOWMODEX|DDSCL_ALLOWREBOOT)) )
         return false;

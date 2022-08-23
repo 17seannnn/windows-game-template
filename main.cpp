@@ -1,12 +1,10 @@
 /* ====== TODO ======
  * - class EngineModule() with virtual functions like AddNote(), so you don't need to write channel every Log::Note()
  * - Set const methods that i forgot
- *
  * - maybe do something like g_math.StartUp() instead of Math::StartUp()? Static class is interesting paradigm but... i think it's not that flexible
- * - put GetCaps() result in global variable
+ *
+ * - DirectDraw Getcaps info
  * - BMP converters
- * - ShiftPalette()
- * - HandleLight()
  * - Windowed mode
  */
 
@@ -28,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return Windows::EC_ERROR;
     if (!Math::StartUp())
         return Windows::EC_ERROR;
-    if (!Graphics::StartUp())
+    if (!Graphics::StartUp(Windows::GetWindow()))
         return Windows::EC_ERROR;
     if (!Game::StartUp())
         return Windows::EC_ERROR;
