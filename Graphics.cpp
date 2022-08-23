@@ -530,6 +530,36 @@ void Graphics::DrawQuad2(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, 
     DrawTriangle(videoBuffer, pitch, color, x1, y1, x3, y3, x4, y4);
 }
 
+b32 Graphics::DrawText_GDI(s32 x, s32 y, s32 r, s32 g, s32 b, const char* fmt, ...)
+{
+    // Get text buffer
+    va_list vl;
+    va_start(vl, fmt);
+
+    char buf[256];
+    _vsnprintf(buf, 256, fmt, vl);
+
+    va_end(vl);
+
+    // Try to get DC
+    HDC hDC;
+    if ( FAILED(m_pDDScreenBack->GetDC(&hDC)) )
+    {
+        Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, "Can't get back screen DC");
+        return false;
+    }
+
+    // Draw text
+    SetTextColor(hDC, RGB(r, g, b));
+    SetBkMode(hDC, TRANSPARENT);
+    TextOut(hDC, x, y, buf, strlen(buf));
+
+    // Release DC
+    m_pDDScreenBack->ReleaseDC(hDC);
+
+    return true;
+}
+
 LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
 {
     BMPFile bmp(fileName);

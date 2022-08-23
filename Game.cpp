@@ -47,12 +47,20 @@ void Game::Render()
     u8* screen;
     s32 pitch;
 
-    Graphics::ClearScreen();
-    if (!Graphics::LockBack(screen, pitch))
-        return;
+    { // Render game objects
+        Graphics::ClearScreen();
+        if (!Graphics::LockBack(screen, pitch))
+            return;
 
-    Graphics::DrawQuad2(screen, pitch, 50, 300, 200, 250, 300, 400, 300, 400, 200);
+        Graphics::DrawQuad2(screen, pitch, 50, 300, 200, 250, 300, 400, 300, 400, 200);
 
-    Graphics::UnlockBack();
+        Graphics::UnlockBack();
+    }
+
+    { // Render debug stuff
+        Graphics::DrawText_GDI(0, 0, 0, 255, 0, "FPS: %f", 1000.0f/m_dtTime);
+    }
+
+    // Flip screen
     Graphics::Flip();
 }
