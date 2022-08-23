@@ -1,7 +1,7 @@
 /* ====== TODO ======
  * - Use my surface or texture structure
  * - Maybe return true or false on geometric operations?
-
+ * - DrawFilledPolygon2()
  * - GDIDisplayText()
  * - DisplayText()
  * - ScaleSurface()

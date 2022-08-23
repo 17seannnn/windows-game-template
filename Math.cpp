@@ -1,3 +1,8 @@
+/* ====== TODO ======
+ * - FastDist2()
+ * - FastDist3()
+ */
+
 /* ====== INCLUDES ====== */
 #include <math.h>
 
@@ -8,6 +13,11 @@
 /* ====== DEFINES ====== */
 #define DEG_TO_RAD(DEG) ((DEG) * PI/180)
 #define RAD_TO_DEG(RAD) ((RAD) * 180/PI)
+
+#define MAX(A, B) ((A) > (B) ? (A) : (B))
+#define MIN(A, B) ((A) < (B) ? (A) : (B))
+
+#define SWAP(A, B, T) { T = A; A = B; B = T; }
 
 /* ====== VARIABLES ====== */
 f32 Math::m_sinLook[361];
@@ -34,6 +44,36 @@ void Math::ShutDown()
 {
     // Add note
     Log::Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "Module shut down");
+}
+
+s32 Math::FastDist2(s32 x, s32 y)
+{
+    // Get absolute coordinates
+    x = abs(x);
+    y = abs(y);
+
+    // Get minimal value
+    s32 min = MIN(x, y);
+
+    // Return distance
+    return x + y - (min >> 1) - (min >> 2) + (min >> 4);
+}
+
+f32 Math::FastDist3(f32 fx, f32 fy, f32 fz)
+{
+    // Absolute values
+    s32 x = (s32)(fabsf(fx) * 1024);
+    s32 y = (s32)(fabsf(fy) * 1024);
+    s32 z = (s32)(fabsf(fz) * 1024);
+
+    s32 temp;
+    if (x > y) SWAP(x, y, temp);
+    if (y > z) SWAP(y, z, temp);
+    if (x > y) SWAP(x, y, temp);
+
+    s32 dist = z + 11*(y >> 5) + (x >> 2);
+
+    return (f32)(dist >> 10);
 }
 
 void Math::TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy)

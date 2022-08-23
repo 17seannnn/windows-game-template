@@ -66,6 +66,10 @@ public:
     static f32 SinLook(s32 angle) { return m_sinLook[angle]; }
     static f32 CosLook(s32 angle) { return m_cosLook[angle]; }
 
+    // Fast distance functions return distance between zero point and xy/xyz point
+    static s32 FastDist2(s32 x, s32 y);
+    static f32 FastDist3(f32 x, f32 y, f32 z);
+
     static void TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy);
     static void RotatePolygon2(Polygon2* poly, s32 angle);
     static void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY);
