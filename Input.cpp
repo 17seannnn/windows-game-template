@@ -96,7 +96,7 @@ void Input::ShutDown()
 
 b32 Input::HandleEvents()
 {
-    // Try to capture keyboard
+    // Try to get keyboard state
     HRESULT hRes;
     while ( DIERR_INPUTLOST == (hRes = m_pDIKey->GetDeviceState(sizeof(m_keyState),
                                                                 (LPVOID)m_keyState)) )
@@ -104,6 +104,15 @@ b32 Input::HandleEvents()
             return false;
 
     // If we got different from INPUTLOST error
+    if ( FAILED(hRes) )
+        return false;
+
+    // Mouse state
+    while ( DIERR_INPUTLOST == (hRes = m_pDIMouse->GetDeviceState(sizeof(m_mouseState),
+                                                                  (LPVOID)&m_mouseState)) )
+        if ( FAILED(m_pDIMouse->Acquire()) )
+            return false;
+
     if ( FAILED(hRes) )
         return false;
 

@@ -13,6 +13,13 @@
 /* ====== DEFINES ====== */
 typedef u8 _DIKEYSTATE[256];
 
+enum eMouseButton
+{
+    _DIM_LEFT   = 0,
+    _DIM_RIGHT  = 1,
+    _DIM_MIDDLE = 2
+};
+
 /* ====== STRUCTURES ====== */
 
 // Static class
@@ -31,6 +38,7 @@ public:
 
     static b32 HandleEvents();
     static b32 KeyDown(s32 key) { return m_keyState[key] & 0x80; }
+    static b32 MouseDown(s32 key) { return m_mouseState.rgbButtons[key] & 0x80; }
 };
 
 #endif // INPUT_H_
