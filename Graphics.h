@@ -60,6 +60,8 @@ public:
     static void DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
     static void DrawBottomTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
 
+    static void DrawQuad2(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3, s32 x4, s32 y4);
+
     static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 private:
     static void DDrawError(HRESULT error);

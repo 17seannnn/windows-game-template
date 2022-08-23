@@ -524,6 +524,12 @@ void Graphics::DrawBottomTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1,
     }
 }
 
+void Graphics::DrawQuad2(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3, s32 x4, s32 y4)
+{
+    DrawTriangle(videoBuffer, pitch, color, x1, y1, x2, y2, x3, y3);
+    DrawTriangle(videoBuffer, pitch, color, x1, y1, x3, y3, x4, y4);
+}
+
 LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
 {
     BMPFile bmp(fileName);
