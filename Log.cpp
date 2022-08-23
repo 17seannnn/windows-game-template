@@ -1,4 +1,5 @@
 /* ====== TODO ======
+ * - PRIORITY_* -> * because it's hard to type
  * - Timestamp
  * - What if modules ask open log file for themselves? They can handle their names and colors
  * - Use Win32 funcs for files handling

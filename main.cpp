@@ -12,6 +12,7 @@
 #include "Windows.h"
 #include "Clock.h"
 #include "Graphics.h"
+#include "Input.h"
 #include "Game.h"
 
 #define FPS 30
@@ -27,6 +28,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (!Math::StartUp())
         return Windows::EC_ERROR;
     if (!Graphics::StartUp(Windows::GetWindow()))
+        return Windows::EC_ERROR;
+    if (!Input::StartUp(Windows::GetInstance()))
         return Windows::EC_ERROR;
     if (!Game::StartUp())
         return Windows::EC_ERROR;
@@ -50,6 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     Game::ShutDown();
+    Input::ShutDown();
     Graphics::ShutDown();
     Math::ShutDown();
     Clock::ShutDown();
