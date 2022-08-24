@@ -64,7 +64,7 @@ b32 Input::StartUp(HINSTANCE hInstance, HWND hWindow)
             return false;
     }
 
-    //Log::Note(Log::CHANNEL_INPUT, Log::PRIORITY_NOTE, "Module started");
+    Log::Note(Log::CHANNEL_INPUT, Log::PRIORITY_NOTE, "Module started");
 
     return true;
 }
@@ -91,7 +91,7 @@ void Input::ShutDown()
         m_pDInput = NULL;
     }
 
-    //Log::Note(Log::CHANNEL_INPUT, Log::PRIORITY_NOTE, "Module shut down");
+    Log::Note(Log::CHANNEL_INPUT, Log::PRIORITY_NOTE, "Module shut down");
 }
 
 b32 Input::HandleEvents()

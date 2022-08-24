@@ -28,6 +28,7 @@
 #define CHANNEL_PREFIX_CLOCK     "Clock"
 #define CHANNEL_PREFIX_MATH      "Math"
 #define CHANNEL_PREFIX_GRAPHICS  "Graphics"
+#define CHANNEL_PREFIX_INPUT     "Input"
 #define CHANNEL_PREFIX_GAME      "Game"
 
 #define PRIORITY_PREFIX_UNDEFINED "Undefined"
@@ -84,6 +85,7 @@ enum eChannelColor
     CHANNEL_COLOR_CLOCK     = FG_YELLOW,
     CHANNEL_COLOR_MATH      = FG_LIGHTRED,
     CHANNEL_COLOR_GRAPHICS  = FG_LIGHTGREEN,
+    CHANNEL_COLOR_INPUT     = FG_LIGHTCYAN,
     CHANNEL_COLOR_GAME      = FG_BROWN,
 };
 
@@ -104,6 +106,7 @@ HFILE Log::hWindows;
 HFILE Log::hClock;
 HFILE Log::hMath;
 HFILE Log::hGraphics;
+HFILE Log::hInput;
 HFILE Log::hGame;
 
 /* ====== METHODS ====== */
@@ -131,6 +134,8 @@ b32 Log::StartUp()
         return false;
     if (-1 == (hGraphics = OpenFile(DIR_LOGS"ModuleGraphics.txt", &fileInfo, OF_CREATE)) )
         return false;
+    if (-1 == (hInput = OpenFile(DIR_LOGS"ModuleGraphics.txt", &fileInfo, OF_CREATE)) )
+        return false;
     if (-1 == (hGame = OpenFile(DIR_LOGS"ModuleGame.txt", &fileInfo, OF_CREATE)) )
         return false;
 
@@ -147,6 +152,7 @@ void Log::ShutDown()
     _lclose(hWindows);
     _lclose(hClock);
     _lclose(hMath);
+    _lclose(hInput);
     _lclose(hGraphics);
     _lclose(hGame);
 
@@ -200,6 +206,13 @@ void Log::Note(s32 channel, s32 priority, const char* fmt, ...)
         hFile = hGraphics;
         channelPrefix = CHANNEL_PREFIX_GRAPHICS;
         noteColor |= CHANNEL_COLOR_GRAPHICS;
+    } break;
+
+    case CHANNEL_INPUT:
+    {
+        hFile = hInput;
+        channelPrefix = CHANNEL_PREFIX_INPUT;
+        noteColor |= CHANNEL_COLOR_INPUT;
     } break;
 
     case CHANNEL_GAME:

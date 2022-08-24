@@ -17,6 +17,7 @@ class Log
     static HFILE hClock;
     static HFILE hMath;
     static HFILE hGraphics;
+    static HFILE hInput;
     static HFILE hGame;
 
 public:
@@ -28,7 +29,8 @@ public:
         CHANNEL_CLOCK    = 1 << 2,
         CHANNEL_MATH     = 1 << 3,
         CHANNEL_GRAPHICS = 1 << 4,
-        CHANNEL_GAME     = 1 << 5
+        CHANNEL_INPUT    = 1 << 5,
+        CHANNEL_GAME     = 1 << 6
     };
 
     enum ePriority
