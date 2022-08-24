@@ -1,4 +1,6 @@
 /* ====== TODO ======
+ * - Maybe put all .lib and .dll files in project directory?
+ *
  * - class EngineModule() with virtual functions like AddNote(), so you don't need to write channel every Log::Note()
  * - Set const methods that i forgot
  * - maybe do something like g_math.StartUp() instead of Math::StartUp()? Static class is interesting paradigm but... i think it's not that flexible
@@ -13,6 +15,7 @@
 #include "Clock.h"
 #include "Graphics.h"
 #include "Input.h"
+#include "Sound.h"
 #include "Game.h"
 
 #define FPS 30
@@ -30,6 +33,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (!Graphics::StartUp(Windows::GetWindow()))
         return Windows::EC_ERROR;
     if (!Input::StartUp(Windows::GetInstance(), Windows::GetWindow()))
+        return Windows::EC_ERROR;
+    if (!Sound::StartUp(Windows::GetWindow()))
         return Windows::EC_ERROR;
     if (!Game::StartUp())
         return Windows::EC_ERROR;
@@ -51,6 +56,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     Game::ShutDown();
+    Sound::ShutDown();
     Input::ShutDown();
     Graphics::ShutDown();
     Math::ShutDown();
