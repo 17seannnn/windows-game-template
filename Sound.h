@@ -42,6 +42,7 @@ public:
 
     // Returns buffer's ID, -1 on error
     static s32 LoadWAV(const char* fileName);
+    static b32 Play(s32 id, b32 loop = false) { return SUCCEEDED(m_aSounds[id].pDSBuffer->Play(0, 0, loop ? DSBPLAY_LOOPING : 0)); }
 };
 
 #endif // SOUND_H_

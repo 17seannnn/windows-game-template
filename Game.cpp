@@ -32,6 +32,7 @@ b32 Game::StartUp()
     m_poly.aVertex[2].y = 100.0f;
 
     Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "%d", Sound::LoadWAV("assets\\beam.wav"));
+    Sound::Play(0, true);
 
     return true;
 }
