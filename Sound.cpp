@@ -217,3 +217,15 @@ void Sound::Unload(s32 id)
         m_aSounds[id].pDSBuffer = NULL;
     }
 }
+
+b32 Sound::Play(s32 id, b32 loop)
+{
+    m_aSounds[id].state = Buffer::STATE_PLAYING;
+    return SUCCEEDED(m_aSounds[id].pDSBuffer->Play(0, 0, loop ? DSBPLAY_LOOPING : 0));
+}
+
+b32 Sound::Stop(s32 id)
+{
+    m_aSounds[id].state = Buffer::STATE_STOPPED;
+    return SUCCEEDED(m_aSounds[id].pDSBuffer->Stop());
+}
