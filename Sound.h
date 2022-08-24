@@ -15,6 +15,7 @@
 class Sound
 {
     static LPDIRECTSOUND m_pDSound;
+    static LPDIRECTSOUNDBUFFER m_pDSBuffer;
 public:
     static b32 StartUp(HWND hWindow);
     static void ShutDown();
