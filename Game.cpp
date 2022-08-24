@@ -1,6 +1,7 @@
 /* ====== INCLUDES ====== */
 #include "Graphics.h"
 #include "Input.h"
+#include "Sound.h"
 #include "Log.h"
 
 #include "Game.h"
@@ -29,6 +30,8 @@ b32 Game::StartUp()
     m_poly.aVertex[0].y = 0.0f;
     m_poly.aVertex[1].y = -150.0f;
     m_poly.aVertex[2].y = 100.0f;
+
+    Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "%d", Sound::LoadWAV("assets\\beam.wav"));
 
     return true;
 }

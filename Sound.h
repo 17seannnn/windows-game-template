@@ -10,15 +10,38 @@
 
 #include "Types.h"
 
+/* ====== DEFINES====== */
+#define MAX_SOUNDS 256
+
 /* ====== STRUCTURES ====== */
 // Static class
 class Sound
 {
+    struct Buffer
+    {
+        enum eState
+        {
+            STATE_NULL = 0,
+            STATE_LOADED,
+            STATE_PLAYING,
+            STATE_STOPPED
+        };
+
+        LPDIRECTSOUNDBUFFER pDSBuffer;
+        eState state;
+        s32 rate;
+        s32 size;
+    };
+
     static LPDIRECTSOUND m_pDSound;
-    static LPDIRECTSOUNDBUFFER m_pDSBuffer;
+    static Buffer m_aSounds[MAX_SOUNDS];
+
 public:
     static b32 StartUp(HWND hWindow);
     static void ShutDown();
+
+    // Returns buffer's ID, -1 on error
+    static s32 LoadWAV(const char* fileName);
 };
 
 #endif // SOUND_H_
