@@ -206,3 +206,14 @@ s32 Sound::LoadWAV(const char *fileName)
 
     return soundID;
 }
+
+void Sound::Unload(s32 id)
+{
+    m_aSounds[id].state = Buffer::STATE_NULL;
+    if (m_aSounds[id].pDSBuffer)
+    {
+        m_aSounds[id].pDSBuffer->Stop();
+        m_aSounds[id].pDSBuffer->Release();
+        m_aSounds[id].pDSBuffer = NULL;
+    }
+}
