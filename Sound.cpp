@@ -3,6 +3,9 @@
 #include "Sound.h"
 #undef INITGUID
 
+/* ====== DEFINES ====== */
+#define _DSBVOLUME100(VOL) ((VOL) == 0 ? DSBVOLUME_MIN : -50 * (100 - (VOL)) )
+
 /* ====== VARIABLES ====== */
 LPDIRECTSOUND Sound::m_pDSound = NULL;
 LPDIRECTSOUNDBUFFER Sound::m_pDSBuffer = NULL;
@@ -66,6 +69,7 @@ b32 Sound::StartUp(HWND hWindow)
 
     delete[] temp;
 
+    m_pDSBuffer->SetVolume(_DSBVOLUME100(1));
     m_pDSBuffer->Play(0, 0, DSBPLAY_LOOPING);
 
     // Log::Note(Log::CHANNEL_SOUND, Log::PRIORITY_NOTE, "Module started");
