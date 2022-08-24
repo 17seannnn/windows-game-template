@@ -7,6 +7,9 @@
 LPDIRECTSOUND Sound::m_pDSound = NULL;
 LPDIRECTSOUNDBUFFER Sound::m_pDSBuffer = NULL;
 
+// DEBUG(sean)
+#include <math.h>
+
 /* ====== METHODS ====== */
 b32 Sound::StartUp(HWND hWindow)
 {
@@ -43,6 +46,28 @@ b32 Sound::StartUp(HWND hWindow)
     if ( FAILED(m_pDSound->CreateSoundBuffer(&DSBufferDesc, &m_pDSBuffer, NULL)) )
         return false;
 
+    // DEBUG(sean)
+    u8 *audioBuffer1, *audioBuffer2;
+    lu32 audioLen1, audioLen2;
+
+    u8* temp = new u8[22050];
+    for (s32 i = 0; i < 22050; ++i)
+        temp[i] = (u8)(127*sinf(6.28f*((f32)(i%110))/(f32)110));
+
+    m_pDSBuffer->Lock(0, 22050,
+                      (void**)&audioBuffer1, &audioLen1,
+                      (void**)&audioBuffer2, &audioLen2,
+                      DSBLOCK_ENTIREBUFFER);
+
+    memcpy(audioBuffer1, temp, audioLen1);
+    memcpy(audioBuffer2, temp+audioLen1, audioLen2);
+
+    m_pDSBuffer->Unlock(audioBuffer1, audioLen1, audioBuffer2, audioLen2);
+
+    delete[] temp;
+
+    m_pDSBuffer->Play(0, 0, DSBPLAY_LOOPING);
+
     // Log::Note(Log::CHANNEL_SOUND, Log::PRIORITY_NOTE, "Module started");
 
     return true;
@@ -52,6 +77,7 @@ void Sound::ShutDown()
 {
     if (m_pDSBuffer)
     {
+        m_pDSBuffer->Stop();
         m_pDSBuffer->Release();
         m_pDSBuffer = NULL;
     }
