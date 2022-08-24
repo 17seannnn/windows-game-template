@@ -1,5 +1,4 @@
 /* ====== TODO ======
- * - My structure for sound buffers
  * - GetCaps()
  * - GetStatus()
  */
@@ -8,9 +7,6 @@
 #define INITGUID
 #include "Sound.h"
 #undef INITGUID
-
-/* ====== DEFINES ====== */
-#define _DSBVOLUME100(VOL) ((VOL) == 0 ? DSBVOLUME_MIN : -50 * (100 - (VOL)) )
 
 /* ====== VARIABLES ====== */
 LPDIRECTSOUND Sound::m_pDSound = NULL;

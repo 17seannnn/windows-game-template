@@ -33,6 +33,9 @@ b32 Game::StartUp()
 
     Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "%d", Sound::LoadWAV("assets\\beam.wav"));
     Sound::Play(0, true);
+    Sound::SetVolume(0, 100);
+    Sound::SetFrequency(0, 1000);
+    Sound::SetPan(0, -10000);
 
     return true;
 }
