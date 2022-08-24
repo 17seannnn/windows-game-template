@@ -63,6 +63,7 @@ void Game::Render()
 
     { // Render debug stuff
         Graphics::DrawText_GDI(0, 0, 0, 255, 0, "FPS: %f", 1000.0f/m_dtTime);
+        Graphics::DrawText_GDI(0, 100, 0, 255, 0, "X:%d Y:%d Z:%d", Input::GetMouseRelX(), Input::GetMouseRelY(), Input::GetMouseRelZ());
     }
 
     // Flip screen

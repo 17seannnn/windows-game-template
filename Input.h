@@ -37,8 +37,15 @@ public:
     static void ShutDown();
 
     static b32 HandleEvents();
+
+    // Keyboard
     static b32 KeyDown(s32 key) { return m_keyState[key] & 0x80; }
+
+    // Mouse
     static b32 MouseDown(s32 key) { return m_mouseState.rgbButtons[key] & 0x80; }
+    static s32 GetMouseRelX() { return m_mouseState.lX; }
+    static s32 GetMouseRelY() { return m_mouseState.lY; }
+    static s32 GetMouseRelZ() { return m_mouseState.lZ; }
 };
 
 #endif // INPUT_H_
