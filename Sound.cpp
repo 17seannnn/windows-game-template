@@ -1,16 +1,27 @@
 /* ====== TODO ======
+ * - Maybe give classes instead of id's and classes will call Sound's functions
+ * - Check if id == -1
  * - GetCaps()
  * - GetStatus()
  */
 
 /* ====== INCLUDES ====== */
+#include <direct.h> // _getcwd()
+
 #define INITGUID
 #include "Sound.h"
 #undef INITGUID
 
+/* ====== DEFINES ====== */
+#define MULTI_TO_WIDE(W, M) MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, M, -1, W, _MAX_PATH)
+
 /* ====== VARIABLES ====== */
 LPDIRECTSOUND Sound::m_pDSound = NULL;
 Sound::Buffer Sound::m_aSounds[MAX_SOUNDS];
+
+IDirectMusicPerformance* Sound::m_pDMPerf = NULL;
+IDirectMusicLoader* Sound::m_pDMLoader = NULL;
+Sound::Midi Sound::m_aMIDI[MAX_MIDI];
 
 /* ====== METHODS ====== */
 b32 Sound::StartUp(HWND hWindow)
@@ -27,7 +38,58 @@ b32 Sound::StartUp(HWND hWindow)
     for (s32 i = 0; i < MAX_SOUNDS; ++i)
     {
         m_aSounds[i].pDSBuffer = NULL;
-        m_aSounds[i].state = Buffer::STATE_NULL;
+        m_aSounds[i].state = STATE_NULL;
+    }
+
+    // Inititialize DirectMusic
+    if ( FAILED(CoInitialize(NULL)) )
+    {
+        // TODO(sean)
+        return false;
+    }
+
+    // COM init
+    if ( FAILED(CoCreateInstance(CLSID_DirectMusicPerformance,
+                                 NULL,
+                                 CLSCTX_INPROC,
+                                 IID_IDirectMusicPerformance,
+                                 (void**)&m_pDMPerf)) )
+    {
+        // TODO(sean)
+        return false;
+    }
+
+    // Init DirectMusic Perfomance
+    if ( FAILED(m_pDMPerf->Init(NULL, m_pDSound, hWindow)) )
+    {
+        // TODO(sean)
+        return false;
+    }
+
+    // Add default port
+    if ( FAILED(m_pDMPerf->AddPort(NULL)) )
+    {
+        // TODO(sean)
+        return false;
+    }
+
+    // Initialize DirectMusic Loader
+    if ( FAILED(CoCreateInstance(CLSID_DirectMusicLoader,
+                                 NULL,
+                                 CLSCTX_INPROC,
+                                 IID_IDirectMusicLoader,
+                                 (void**)&m_pDMLoader)) )
+    {
+        // TODO(sean)
+        return false;
+    }
+
+    // Initialize array of midi
+    for (s32 id = 0; id < MAX_MIDI; ++id)
+    {
+        m_aMIDI[id].pDMSeg = NULL;
+        m_aMIDI[id].pDMSegState = NULL;
+        m_aMIDI[id].state = STATE_NULL;
     }
 
     // Log::Note(Log::CHANNEL_SOUND, Log::PRIORITY_NOTE, "Module started");
@@ -37,6 +99,20 @@ b32 Sound::StartUp(HWND hWindow)
 
 void Sound::ShutDown()
 {
+    // DirectMusic
+    if (m_pDMLoader)
+    {
+        m_pDMLoader->Release();
+        m_pDMLoader = NULL;
+    }
+
+    if (m_pDMPerf)
+    {
+        m_pDMPerf->Release();
+        m_pDMPerf = NULL;
+    }
+
+    // DirectSound
     for (s32 i = 0; i < MAX_SOUNDS; ++i)
     {
         if (m_aSounds[i].pDSBuffer)
@@ -62,7 +138,7 @@ s32 Sound::LoadWAV(const char *fileName)
     s32 soundID = -1;
     for (s32 i = 0; i < MAX_SOUNDS; ++i)
     {
-        if (m_aSounds[i].state == Buffer::STATE_NULL)
+        if (m_aSounds[i].state == STATE_NULL)
         {
             soundID = i;
             break;
@@ -148,7 +224,7 @@ s32 Sound::LoadWAV(const char *fileName)
 
     m_aSounds[soundID].rate = waveFormat.nSamplesPerSec;
     m_aSounds[soundID].size = child.cksize;
-    m_aSounds[soundID].state = Buffer::STATE_LOADED;
+    m_aSounds[soundID].state = STATE_LOADED;
 
     // Set wave format
     memset(&waveFormat, 0, sizeof(waveFormat));
@@ -203,9 +279,9 @@ s32 Sound::LoadWAV(const char *fileName)
     return soundID;
 }
 
-void Sound::Unload(s32 id)
+void Sound::UnloadBuffer(s32 id)
 {
-    m_aSounds[id].state = Buffer::STATE_NULL;
+    m_aSounds[id].state = STATE_NULL;
     if (m_aSounds[id].pDSBuffer)
     {
         m_aSounds[id].pDSBuffer->Stop();
@@ -214,14 +290,110 @@ void Sound::Unload(s32 id)
     }
 }
 
-b32 Sound::Play(s32 id, b32 loop)
+b32 Sound::PlayBuffer(s32 id, b32 loop)
 {
-    m_aSounds[id].state = Buffer::STATE_PLAYING;
+    m_aSounds[id].state = STATE_PLAYING;
     return SUCCEEDED(m_aSounds[id].pDSBuffer->Play(0, 0, loop ? DSBPLAY_LOOPING : 0));
 }
 
-b32 Sound::Stop(s32 id)
+b32 Sound::StopBuffer(s32 id)
 {
-    m_aSounds[id].state = Buffer::STATE_STOPPED;
+    m_aSounds[id].state = STATE_STOPPED;
     return SUCCEEDED(m_aSounds[id].pDSBuffer->Stop());
+}
+
+s32 Sound::LoadMIDI(const char* fileName)
+{
+    // Find free slot
+    s32 id = -1;
+    for (s32 i = 0; i < MAX_MIDI; ++i)
+    {
+        if (m_aMIDI[i].state == STATE_NULL)
+        {
+            id = i;
+            break;
+        }
+    }
+
+    if (id == -1)
+        return -1;
+
+    // Set loader's search directory
+    char dirName[_MAX_PATH];
+    WCHAR wDirName[_MAX_PATH];
+
+    if (_getcwd(dirName, _MAX_PATH) == NULL)
+    {
+        // TODO(sean)
+        return -1;
+    }
+    MULTI_TO_WIDE(wDirName, dirName);
+
+    if ( FAILED(m_pDMLoader->SetSearchDirectory(GUID_DirectMusicAllTypes, wDirName, FALSE)) )
+    {
+        // TODO(sean)
+        return -1;
+    }
+
+    // Convert file name
+    WCHAR wFileName[_MAX_PATH];
+    MULTI_TO_WIDE(wFileName, fileName);
+
+    // Set object description
+    DMUS_OBJECTDESC desc;
+    memset(&desc, 0, sizeof(desc));
+    desc.dwSize = sizeof(desc);
+
+    desc.guidClass = CLSID_DirectMusicSegment;
+    wcscpy(desc.wszFileName, wFileName);
+    desc.dwValidData = DMUS_OBJ_CLASS|DMUS_OBJ_FILENAME;
+    
+    // Get segment
+    IDirectMusicSegment* pSeg;
+    if ( FAILED(m_pDMLoader->GetObject(&desc,
+                                       IID_IDirectMusicSegment,
+                                       (void**)&pSeg)) )
+    {
+        // TODO(sean)
+        return -1;
+    }
+
+    // Segment is MIDI file
+    if ( FAILED(pSeg->SetParam(GUID_StandardMIDIFile,
+                               -1, 0, 0,
+                               (void*)m_pDMPerf)) )
+    {
+        // TODO(sean)
+        return -1;
+    }
+
+    // Set instruments
+    if ( FAILED(pSeg->SetParam(GUID_Download,
+                               -1, 0, 0,
+                               (void*)m_pDMPerf)) )
+    {
+        // TODO(sean)
+        return -1;
+    }
+
+    // Finally...
+    m_aMIDI[id].pDMSeg = pSeg;
+    m_aMIDI[id].pDMSegState = NULL;
+    m_aMIDI[id].state = STATE_LOADED;
+
+    return id;
+}
+
+void Sound::UnloadMIDI(s32 id) {}
+
+b32 Sound::PlayMIDI(s32 id)
+{
+    m_aMIDI[id].state = STATE_PLAYING;
+    return true;
+}
+
+b32 Sound::StopMIDI(s32 id)
+{
+    m_aMIDI[id].state = STATE_STOPPED;
+    return true;
 }

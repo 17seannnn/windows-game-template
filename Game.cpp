@@ -31,11 +31,7 @@ b32 Game::StartUp()
     m_poly.aVertex[1].y = -150.0f;
     m_poly.aVertex[2].y = 100.0f;
 
-    Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "%d", Sound::LoadWAV("assets\\beam.wav"));
-    Sound::Play(0, true);
-    Sound::SetVolume(0, 100);
-    Sound::SetFrequency(0, 1000);
-    Sound::SetPan(0, -10000);
+    Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "%d", Sound::LoadMIDI("assets\\miditest.mid"));
 
     return true;
 }
