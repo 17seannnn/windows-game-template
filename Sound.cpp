@@ -1,6 +1,6 @@
 /* ====== TODO ======
  * - Maybe give classes instead of id's and classes will call Sound's functions
- * - Check if id == -1
+ * - Check if id == -1 and state == STATE_NULL
  * - GetCaps()
  * - GetStatus()
  */
@@ -99,7 +99,22 @@ b32 Sound::StartUp(HWND hWindow)
 
 void Sound::ShutDown()
 {
+    s32 i;
+
     // DirectMusic
+    if (m_pDMPerf)
+        m_pDMPerf->Stop(NULL, NULL, 0, 0);
+
+    for (i = 0; i < MAX_MIDI; ++i)
+    {
+        if (m_aMIDI[i].state != STATE_NULL && m_aMIDI[i].pDMSeg)
+        {
+            m_aMIDI[i].pDMSeg->SetParam(GUID_Unload, -1, 0, 0, (void*)m_pDMPerf);
+            m_aMIDI[i].pDMSeg->Release();
+            m_aMIDI[i].pDMSeg = NULL;
+        }
+    }
+
     if (m_pDMLoader)
     {
         m_pDMLoader->Release();
@@ -108,14 +123,17 @@ void Sound::ShutDown()
 
     if (m_pDMPerf)
     {
+        m_pDMPerf->CloseDown();
         m_pDMPerf->Release();
         m_pDMPerf = NULL;
     }
 
+    CoUninitialize();
+
     // DirectSound
-    for (s32 i = 0; i < MAX_SOUNDS; ++i)
+    for (i = 0; i < MAX_SOUNDS; ++i)
     {
-        if (m_aSounds[i].pDSBuffer)
+        if (m_aSounds[i].state != STATE_NULL && m_aSounds[i].pDSBuffer)
         {
             m_aSounds[i].pDSBuffer->Stop();
             m_aSounds[i].pDSBuffer->Release();
@@ -389,11 +407,11 @@ void Sound::UnloadMIDI(s32 id) {}
 b32 Sound::PlayMIDI(s32 id)
 {
     m_aMIDI[id].state = STATE_PLAYING;
-    return true;
+    return SUCCEEDED(m_pDMPerf->PlaySegment(m_aMIDI[id].pDMSeg, 0, 0, &m_aMIDI[id].pDMSegState));
 }
 
 b32 Sound::StopMIDI(s32 id)
 {
     m_aMIDI[id].state = STATE_STOPPED;
-    return true;
+    return SUCCEEDED(m_pDMPerf->Stop(m_aMIDI[id].pDMSeg, NULL, 0, 0));
 }
