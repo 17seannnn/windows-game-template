@@ -46,7 +46,7 @@ void Game::Update(f32 dtTime)
 {
     m_dtTime = dtTime;
 
-    if (Input::KeyDown(DIK_ESCAPE) || Input::MouseDown(_DIM_LEFT))
+    if (Input::KeyDown(DIK_ESCAPE))
         m_bRunning = false;
 }
 

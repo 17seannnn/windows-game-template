@@ -98,23 +98,37 @@ b32 Input::HandleEvents()
 {
     // Try to get keyboard state
     HRESULT hRes;
-    while ( DIERR_INPUTLOST == (hRes = m_pDIKey->GetDeviceState(sizeof(m_keyState),
-                                                                (LPVOID)m_keyState)) )
+    while ( DIERR_INPUTLOST == (hRes = m_pDIKey->GetDeviceState(sizeof(m_keyState), (LPVOID)m_keyState)) )
+    {
         if ( FAILED(m_pDIKey->Acquire()) )
+        {
+            Log::Note(Log::CHANNEL_INPUT, Log::PRIORITY_ERROR, "Can't acquire keyboard, error: %d", hRes);
             return false;
+        }
+    }
 
     // If we got different from INPUTLOST error
     if ( FAILED(hRes) )
+    {
+        Log::Note(Log::CHANNEL_INPUT, Log::PRIORITY_ERROR, "Can't get keyboard state, error: %d", hRes);
         return false;
+    }
 
     // Mouse state
-    while ( DIERR_INPUTLOST == (hRes = m_pDIMouse->GetDeviceState(sizeof(m_mouseState),
-                                                                  (LPVOID)&m_mouseState)) )
+    while ( DIERR_INPUTLOST == (hRes = m_pDIMouse->GetDeviceState(sizeof(m_mouseState), (LPVOID)&m_mouseState)) )
+    {
         if ( FAILED(m_pDIMouse->Acquire()) )
+        {
+            Log::Note(Log::CHANNEL_INPUT, Log::PRIORITY_ERROR, "Can't acquire mouse, error: %d", hRes);
             return false;
+        }
+    }
 
     if ( FAILED(hRes) )
+    {
+        Log::Note(Log::CHANNEL_INPUT, Log::PRIORITY_ERROR, "Can't get mouse state, error: %d", hRes);
         return false;
+    }
 
     return true;
 }

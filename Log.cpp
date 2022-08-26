@@ -114,8 +114,8 @@ b32 Log::StartUp()
 {
 #ifdef _DEBUG
     // Allocate console
-    // DEBUG(sean) if (!AllocConsole())
-    //    return false;
+    if (!AllocConsole())
+        return false;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     // Open all log files
