@@ -1,10 +1,9 @@
 /* ====== TODO ======
- * - Windowed mode
- * - Maybe put all .lib and .dll files in project directory?
- *
  * - class EngineModule() with virtual functions like AddNote(), so you don't need to write channel every Log::Note()
  * - Set const methods that i forgot
- * - maybe do something like g_mathModule.StartUp() instead of Math::StartUp()? Static class is interesting paradigm but... i think it's not that flexible
+ *
+ * - Windowed mode
+ * - Maybe put all .lib and .dll files in project directory?
  *
  * - DirectDraw Getcaps info
  * - BMP converters
@@ -22,23 +21,50 @@
 
 #define FPS 30
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+static b32 GT_StartUp(HINSTANCE hInstance)
 {
     if (!g_logModule.StartUp())
-        return Windows::EC_ERROR;
+        return false;
+
     if (!g_windowsModule.StartUp(hInstance))
-        return Windows::EC_ERROR;
+        return false;
+
     if (!g_clockModule.StartUp(FPS))
-        return Windows::EC_ERROR;
+        return false;
+
     if (!g_mathModule.StartUp())
-        return Windows::EC_ERROR;
+        return false;
+
     if (!g_graphicsModule.StartUp(g_windowsModule.GetWindow()))
-        return Windows::EC_ERROR;
+        return false;
+
     if (!g_inputModule.StartUp(g_windowsModule.GetInstance(), g_windowsModule.GetWindow()))
-        return Windows::EC_ERROR;
+        return false;
+
     if (!g_soundModule.StartUp(g_windowsModule.GetWindow()))
-        return Windows::EC_ERROR;
+        return false;
+
     if (!g_game.StartUp())
+        return false;
+
+    return true;
+}
+
+static void GT_ShutDown()
+{
+    g_game.ShutDown();
+    g_soundModule.ShutDown();
+    g_inputModule.ShutDown();
+    g_graphicsModule.ShutDown();
+    g_mathModule.ShutDown();
+    g_clockModule.ShutDown();
+    g_windowsModule.ShutDown();
+    g_logModule.ShutDown();
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+    if (!GT_StartUp(hInstance))
         return Windows::EC_ERROR;
 
     while (g_game.Running())
@@ -58,14 +84,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         g_clockModule.Sync();
     }
 
-    g_game.ShutDown();
-    g_soundModule.ShutDown();
-    g_inputModule.ShutDown();
-    g_graphicsModule.ShutDown();
-    g_mathModule.ShutDown();
-    g_clockModule.ShutDown();
-    g_windowsModule.ShutDown();
-    g_logModule.ShutDown();
+    GT_ShutDown();
 
     return g_windowsModule.GetExitCode();
 }
