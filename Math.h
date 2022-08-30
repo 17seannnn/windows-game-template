@@ -54,31 +54,32 @@ struct Mat12
     f32 c[2];
 };
 
-// Static class
 class Math
 {
-    static f32 m_sinLook[361];
-    static f32 m_cosLook[361];
+    f32 m_sinLook[361];
+    f32 m_cosLook[361];
 public:
-    static b32 StartUp();
-    static void ShutDown();
+    b32 StartUp();
+    void ShutDown();
 
-    static f32 SinLook(s32 angle) { return m_sinLook[angle]; }
-    static f32 CosLook(s32 angle) { return m_cosLook[angle]; }
+    f32 SinLook(s32 angle) { return m_sinLook[angle]; }
+    f32 CosLook(s32 angle) { return m_cosLook[angle]; }
 
     // Fast distance functions return distance between zero point and xy/xyz point
-    static s32 FastDist2(s32 x, s32 y);
-    static f32 FastDist3(f32 x, f32 y, f32 z);
+    s32 FastDist2(s32 x, s32 y);
+    f32 FastDist3(f32 x, f32 y, f32 z);
 
-    static void TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy);
-    static void RotatePolygon2(Polygon2* poly, s32 angle);
-    static void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY);
+    void TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy);
+    void RotatePolygon2(Polygon2* poly, s32 angle);
+    void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY);
 
-    static b32 FindBoxPoly2(Polygon2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY);
+    b32 FindBoxPoly2(Polygon2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY);
 
-    static void MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr);
-    static void MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr);
-    static void MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr);
+    void MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr);
+    void MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr);
+    void MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr);
 };
+
+extern Math g_mathModule;
 
 #endif // MATH_H_

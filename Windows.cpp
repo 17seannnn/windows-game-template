@@ -1,21 +1,22 @@
+/* ====== INCLUDES ====== */
 #include <stdlib.h>
 
 #include "Windows.h"
 
+/* ====== DEFINES ====== */
 #define WINDOW_CLASS_NAME "WINDOWCLASS1"
 
-s32 Windows::m_nExitCode = Windows::EC_SUCCESS;
-b32 Windows::m_bWindowClosed = false;
+/* ====== VARIABLES ====== */
+Windows g_windowsModule;
 
-HINSTANCE Windows::m_hInstance = NULL;
-HWND Windows::m_hWindow = NULL;
-
+/* ====== METHODS ====== */
 b32 Windows::StartUp(HINSTANCE hInstance, const char* title)
 {
-    // Init rand seed
-    srand(GetTickCount());
+    // Defaults
+    m_nExitCode = EC_SUCCESS;
+    m_bWindowClosed = false;
 
-    // Define global hInstance
+    // Save hInstance
     m_hInstance = hInstance;
 
     // Register class
@@ -52,7 +53,11 @@ b32 Windows::StartUp(HINSTANCE hInstance, const char* title)
     if (!m_hWindow)
         return false;
 
+    // No comments
     HideMouse();
+    
+    // Init rand seed
+    srand(GetTickCount());
 
     // Success
     return true;
@@ -99,7 +104,7 @@ LRESULT CALLBACK Windows::WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM 
 
     case WM_DESTROY:
     {
-        m_bWindowClosed = true;
+        g_windowsModule.m_bWindowClosed = true;
         PostQuitMessage(0);
     } break;
 

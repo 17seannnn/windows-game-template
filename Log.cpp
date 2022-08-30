@@ -17,6 +17,9 @@
 
 #include "Log.h"
 
+/* ====== VARIABLES ====== */
+Log g_logModule;
+
 /* ====== DEFINES ====== */
 #define NOTE_PREFIX_BUFSIZE  64
 #define NOTE_MESSAGE_BUFSIZE 512
@@ -96,18 +99,6 @@ enum ePriorityColor
     PRIORITY_COLOR_WARNING   = BG_NAVYBLUE,
     PRIORITY_COLOR_NOTE      = 0,
 };
-
-/* ====== VARIABLES ====== */
-HANDLE Log::hConsole;
-HFILE Log::hFullLog;
-
-HFILE Log::hLog;
-HFILE Log::hWindows;
-HFILE Log::hClock;
-HFILE Log::hMath;
-HFILE Log::hGraphics;
-HFILE Log::hInput;
-HFILE Log::hGame;
 
 /* ====== METHODS ====== */
 b32 Log::StartUp()

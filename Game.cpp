@@ -7,14 +7,13 @@
 #include "Game.h"
 
 /* ====== VARIABLES ====== */
-f32 Game::m_dtTime = 0;
-b32 Game::m_bRunning = true;
-
-Polygon2 Game::m_poly;
+Game g_game;
 
 /* ====== METHODS====== */
 b32 Game::StartUp()
-{   
+{
+    m_bRunning = true;
+
     m_poly.state = 1;
     m_poly.vertexCount = 3;
     m_poly.x = 250;
@@ -31,8 +30,8 @@ b32 Game::StartUp()
     m_poly.aVertex[1].y = -150.0f;
     m_poly.aVertex[2].y = 100.0f;
 
-    Log::Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "%d", Sound::LoadMIDI("assets\\miditest.mid"));
-    Sound::PlayMIDI(0);
+    g_logModule.Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "%d", g_soundModule.LoadMIDI("assets\\miditest.mid"));
+    g_soundModule.PlayMIDI(0);
 
     return true;
 }
@@ -46,7 +45,7 @@ void Game::Update(f32 dtTime)
 {
     m_dtTime = dtTime;
 
-    if (Input::KeyDown(DIK_ESCAPE))
+    if (g_inputModule.KeyDown(DIK_ESCAPE))
         m_bRunning = false;
 }
 
@@ -56,20 +55,20 @@ void Game::Render()
     s32 pitch;
 
     { // Render game objects
-        Graphics::ClearScreen();
-        if (!Graphics::LockBack(screen, pitch))
+        g_graphicsModule.ClearScreen();
+        if (!g_graphicsModule.LockBack(screen, pitch))
             return;
 
-        Graphics::DrawQuad2(screen, pitch, 50, 300, 200, 250, 300, 400, 300, 400, 200);
+        g_graphicsModule.DrawQuad2(screen, pitch, 50, 300, 200, 250, 300, 400, 300, 400, 200);
 
-        Graphics::UnlockBack();
+        g_graphicsModule.UnlockBack();
     }
 
     { // Render debug stuff
-        Graphics::DrawText_GDI(0, 0, 0, 255, 0, "FPS: %f", 1000.0f/m_dtTime);
-        Graphics::DrawText_GDI(0, 100, 0, 255, 0, "X:%d Y:%d Z:%d", Input::GetMouseRelX(), Input::GetMouseRelY(), Input::GetMouseRelZ());
+        g_graphicsModule.DrawText_GDI(0, 0, 0, 255, 0, "FPS: %f", 1000.0f/m_dtTime);
+        g_graphicsModule.DrawText_GDI(0, 100, 0, 255, 0, "X:%d Y:%d Z:%d", g_inputModule.GetMouseRelX(), g_inputModule.GetMouseRelY(), g_inputModule.GetMouseRelZ());
     }
 
     // Flip screen
-    Graphics::Flip();
+    g_graphicsModule.Flip();
 }

@@ -3,17 +3,18 @@
 
 #include "Types.h"
 
-// Static class
 class Clock
 {
-    static u32 m_startTime;
-    static u32 m_msSyncDelay;
+    u32 m_startTime;
+    u32 m_msSyncDelay;
 public:
-    static b32 StartUp(s32 fps);
-    static void ShutDown();
+    b32 StartUp(s32 fps);
+    void ShutDown();
 
-    static f32 GetDelta();
-    static void Sync();
+    f32 GetDelta();
+    void Sync();
 };
+
+extern Clock g_clockModule;
 
 #endif CLOCK_H_

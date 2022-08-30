@@ -19,7 +19,6 @@
 #define MAX_MIDI 64
 
 /* ====== STRUCTURES ====== */
-// Static class
 class Sound
 {
 private:
@@ -46,39 +45,41 @@ private:
         eState state;
     };
 
-    static LPDIRECTSOUND m_pDSound;
-    static Buffer m_aSounds[MAX_SOUNDS];
+    LPDIRECTSOUND m_pDSound;
+    Buffer m_aSounds[MAX_SOUNDS];
 
-    static IDirectMusicPerformance* m_pDMPerf;
-    static IDirectMusicLoader* m_pDMLoader;
-    static Midi m_aMIDI[MAX_MIDI];
+    IDirectMusicPerformance* m_pDMPerf;
+    IDirectMusicLoader* m_pDMLoader;
+    Midi m_aMIDI[MAX_MIDI];
 
 public:
-    static b32 StartUp(HWND hWindow);
-    static void ShutDown();
+    b32 StartUp(HWND hWindow);
+    void ShutDown();
 
     /* Sound */
     // Returns buffer's ID, -1 on error
-    static s32 LoadWAV(const char* fileName);
-    static void UnloadBuffer(s32 id);
+    s32 LoadWAV(const char* fileName);
+    void UnloadBuffer(s32 id);
 
-    static b32 PlayBuffer(s32 id, b32 loop = false);
-    static b32 StopBuffer(s32 id);
+    b32 PlayBuffer(s32 id, b32 loop = false);
+    b32 StopBuffer(s32 id);
 
-    static b32 SetBufferVolume(s32 id, s32 volume) // volume = [0..100]
+    b32 SetBufferVolume(s32 id, s32 volume) // volume = [0..100]
         { return m_aSounds[id].pDSBuffer->SetVolume(volume > 0 ? -50 * (100-volume) : DSBVOLUME_MIN); }
-    static b32 SetBufferFrequency(s32 id, s32 frequency) // frequency = [100..100000]
+    b32 SetBufferFrequency(s32 id, s32 frequency) // frequency = [100..100000]
         { return m_aSounds[id].pDSBuffer->SetFrequency(frequency); }
-    static b32 SetBufferPan(s32 id, s32 pan) // pan = [-10000..10000]
+    b32 SetBufferPan(s32 id, s32 pan) // pan = [-10000..10000]
         { return m_aSounds[id].pDSBuffer->SetPan(pan); }
 
     /* Midi */
     // -1 on error
-    static s32 LoadMIDI(const char* fileName);
-    static void UnloadMIDI(s32 id);
+    s32 LoadMIDI(const char* fileName);
+    void UnloadMIDI(s32 id);
 
-    static b32 PlayMIDI(s32 id);
-    static b32 StopMIDI(s32 id);
+    b32 PlayMIDI(s32 id);
+    b32 StopMIDI(s32 id);
 };
+
+extern Sound g_soundModule;
 
 #endif // SOUND_H_

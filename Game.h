@@ -4,24 +4,22 @@
 #include "Types.h"
 #include "Graphics.h"
  
-// Static class
 class Game
 {
-    static f32 m_dtTime;
-    static b32 m_bRunning;
+    f32 m_dtTime;
+    b32 m_bRunning;
     
-    static Polygon2 m_poly;
+    Polygon2 m_poly;
 public:
-    static b32 StartUp();
-    static void ShutDown();
+    b32 StartUp();
+    void ShutDown();
 
-    static void Update(f32 dtTime);
-    static void Render();
+    void Update(f32 dtTime);
+    void Render();
 
-    static b32 Running() { return m_bRunning; }
-private:
-    Game() {}
-    ~Game() {}
+    b32 Running() { return m_bRunning; }
 };
+
+extern Game g_game;
 
 #endif // GAME_H_

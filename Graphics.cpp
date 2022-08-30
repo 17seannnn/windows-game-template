@@ -2,9 +2,6 @@
  * - Use my surface or texture structure
  * - Maybe return true or false on geometric operations?
  * - DrawFilledPolygon2()
- * - GDIDisplayText()
- * - DisplayText()
- * - ScaleSurface()
  * - DrawRect()
  * - FillRect()
  */
@@ -27,15 +24,7 @@
 #define DDRAW_INIT_STRUCT(STRUCT) { memset(&STRUCT, 0, sizeof(STRUCT)); STRUCT.dwSize = sizeof(STRUCT); }
 
 /* ====== VARIABLES ====== */
-s32 Graphics::m_screenWidth = 0;
-s32 Graphics::m_screenHeight = 0;
-s32 Graphics::m_screenBPP = 0;
-
-LPDIRECTDRAW7 Graphics::m_pDDraw = NULL;
-LPDIRECTDRAWSURFACE7 Graphics::m_pDDScreen = NULL;
-LPDIRECTDRAWSURFACE7 Graphics::m_pDDScreenBack = NULL;
-LPDIRECTDRAWPALETTE Graphics::m_pDDPalette = NULL;
-LPDIRECTDRAWCLIPPER Graphics::m_pDDClipper = NULL;
+Graphics g_graphicsModule;
 
 /* ====== METHODS ====== */
 b32 Graphics::StartUp(HWND hWindow, s32 width, s32 height, s32 bpp)
@@ -110,7 +99,7 @@ b32 Graphics::StartUp(HWND hWindow, s32 width, s32 height, s32 bpp)
         return false;
 
     // Make note
-    Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module started");
+    g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module started");
 
     return true;
 }
@@ -149,7 +138,7 @@ void Graphics::ShutDown()
         m_pDDraw= NULL;
     }
 
-    Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module shut down");
+    g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module shut down");
 }
 
 void Graphics::ClearScreen()
@@ -544,7 +533,7 @@ b32 Graphics::DrawText_GDI(s32 x, s32 y, s32 r, s32 g, s32 b, const char* fmt, .
     HDC hDC;
     if ( FAILED(m_pDDScreenBack->GetDC(&hDC)) )
     {
-        Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, "Can't get back screen DC");
+        g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, "Can't get back screen DC");
         return false;
     }
 
@@ -723,7 +712,7 @@ void Graphics::DDrawError(HRESULT error)
     default : sprintf(dderr, "Unknown Error"); break;
     }
     
-    Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, dderr);
+    g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, dderr);
 }
 
 LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, const LPRECT clipList, s32 count)
@@ -818,11 +807,11 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 width, s32 height, b32 bVideoMe
         s32 res = m_pDDraw->CreateSurface(&DDSurfaceDesc, &pDDSurface, NULL);
         if (FAILED(res))
         {
-            Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, "Can't make surface %dx%d, check DDrawError below", width, height);
+            g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, "Can't make surface %dx%d, check DDrawError below", width, height);
             DDrawError(res);
             return NULL;
         }
-        Log::Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_WARNING, "Have no videomemory for %dx%d surface, put it in system memory", width, height);
+        g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_WARNING, "Have no videomemory for %dx%d surface, put it in system memory", width, height);
     }
 
     // Set color key

@@ -6,19 +6,18 @@
 
 #include "Types.h"
 
-// Static class
 class Log
 {
-    static HANDLE hConsole;
-    static HFILE hFullLog;
+    HANDLE hConsole;
+    HFILE hFullLog;
 
-    static HFILE hLog;
-    static HFILE hWindows;
-    static HFILE hClock;
-    static HFILE hMath;
-    static HFILE hGraphics;
-    static HFILE hInput;
-    static HFILE hGame;
+    HFILE hLog;
+    HFILE hWindows;
+    HFILE hClock;
+    HFILE hMath;
+    HFILE hGraphics;
+    HFILE hInput;
+    HFILE hGame;
 
 public:
     // Each channel represent engine's module
@@ -40,10 +39,12 @@ public:
         PRIORITY_NOTE    = 1 << 2
     };
 
-    static b32 StartUp();
-    static void ShutDown();
+    b32 StartUp();
+    void ShutDown();
 
-    static void Note(s32 channel, s32 priority, const char* fmt, ...);
+    void Note(s32 channel, s32 priority, const char* fmt, ...);
 };
+
+extern Log g_logModule;
 
 #endif // LOG_H_

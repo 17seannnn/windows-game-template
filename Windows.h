@@ -11,14 +11,13 @@
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
 #define KEYUP(VK)   (GetAsyncKeyState(VK) & 0x8000 ? 0 : 1)
 
-// Static class
 class Windows
 {
-    static s32 m_nExitCode;
-    static b32 m_bWindowClosed;
+    s32 m_nExitCode;
+    b32 m_bWindowClosed;
 
-    static HINSTANCE m_hInstance;
-    static HWND m_hWindow;
+    HINSTANCE m_hInstance;
+    HWND m_hWindow;
 public:
     enum eExitCode
     {
@@ -26,24 +25,23 @@ public:
         EC_ERROR
     };
 
-    static b32 StartUp(HINSTANCE hInstance, const char* title = "Game Template");
-    static void ShutDown();
+    b32 StartUp(HINSTANCE hInstance, const char* title = "Game Template");
+    void ShutDown();
 
-    static b32 HandleEvents();
-    static void ShowMouse() { ShowCursor(TRUE); }
-    static void HideMouse() { ShowCursor(FALSE); }
+    b32 HandleEvents();
+    void ShowMouse() { ShowCursor(TRUE); }
+    void HideMouse() { ShowCursor(FALSE); }
 
-    static s32 GetExitCode() { return m_nExitCode; }
-    static b32 IsWindowClosed() { return m_bWindowClosed; }
+    s32 GetExitCode() { return m_nExitCode; }
+    b32 IsWindowClosed() { return m_bWindowClosed; }
 
-    static HINSTANCE GetInstance() { return m_hInstance; }
-    static HWND GetWindow() { return m_hWindow; }
+    HINSTANCE GetInstance() { return m_hInstance; }
+    HWND GetWindow() { return m_hWindow; }
 private:
-    Windows() {}
-    ~Windows() {}
-
     static LRESULT CALLBACK WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 
 };
+
+extern Windows g_windowsModule;
 
 #endif // WINDOWS_H_

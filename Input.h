@@ -21,31 +21,31 @@ enum eMouseButton
 };
 
 /* ====== STRUCTURES ====== */
-
-// Static class
 class Input
 {
-    static LPDIRECTINPUT8 m_pDInput;
+    LPDIRECTINPUT8 m_pDInput;
 
-    static LPDIRECTINPUTDEVICE8 m_pDIKey;
-    static _DIKEYSTATE m_keyState;
+    LPDIRECTINPUTDEVICE8 m_pDIKey;
+    _DIKEYSTATE m_keyState;
 
-    static LPDIRECTINPUTDEVICE8 m_pDIMouse;
-    static DIMOUSESTATE m_mouseState;
+    LPDIRECTINPUTDEVICE8 m_pDIMouse;
+    DIMOUSESTATE m_mouseState;
 public:
-    static b32 StartUp(HINSTANCE hInstance, HWND hWindow);
-    static void ShutDown();
+    b32 StartUp(HINSTANCE hInstance, HWND hWindow);
+    void ShutDown();
 
-    static b32 HandleEvents();
+    b32 HandleEvents();
 
     // Keyboard
-    static b32 KeyDown(s32 key) { return m_keyState[key] & 0x80; }
+    b32 KeyDown(s32 key) { return m_keyState[key] & 0x80; }
 
     // Mouse
-    static b32 MouseDown(s32 key) { return m_mouseState.rgbButtons[key] & 0x80; }
-    static s32 GetMouseRelX() { return m_mouseState.lX; }
-    static s32 GetMouseRelY() { return m_mouseState.lY; }
-    static s32 GetMouseRelZ() { return m_mouseState.lZ; }
+    b32 MouseDown(s32 key) { return m_mouseState.rgbButtons[key] & 0x80; }
+    s32 GetMouseRelX() { return m_mouseState.lX; }
+    s32 GetMouseRelY() { return m_mouseState.lY; }
+    s32 GetMouseRelZ() { return m_mouseState.lZ; }
 };
+
+extern Input g_inputModule;
 
 #endif // INPUT_H_

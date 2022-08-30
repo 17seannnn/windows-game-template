@@ -7,22 +7,22 @@
 #include "Clock.h"
 
 /* ====== VARIABLES ====== */
-u32 Clock::m_startTime = GetTickCount();
-u32 Clock::m_msSyncDelay = 0;
+Clock g_clockModule;
 
 /* ====== METHODS ====== */
 b32 Clock::StartUp(s32 fps)
 {
+    m_startTime = GetTickCount();
     m_msSyncDelay = (u32)(1000.0f / fps);
 
-    Log::Note(Log::CHANNEL_CLOCK, Log::PRIORITY_NOTE, "Module started");
+    g_logModule.Note(Log::CHANNEL_CLOCK, Log::PRIORITY_NOTE, "Module started");
 
     return true;
 }
 
 void Clock::ShutDown()
 {
-    Log::Note(Log::CHANNEL_CLOCK, Log::PRIORITY_NOTE, "Module shut down");
+    g_logModule.Note(Log::CHANNEL_CLOCK, Log::PRIORITY_NOTE, "Module shut down");
 }
 
 f32 Clock::GetDelta()

@@ -16,12 +16,7 @@
 #define MULTI_TO_WIDE(W, M) MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, M, -1, W, _MAX_PATH)
 
 /* ====== VARIABLES ====== */
-LPDIRECTSOUND Sound::m_pDSound = NULL;
-Sound::Buffer Sound::m_aSounds[MAX_SOUNDS];
-
-IDirectMusicPerformance* Sound::m_pDMPerf = NULL;
-IDirectMusicLoader* Sound::m_pDMLoader = NULL;
-Sound::Midi Sound::m_aMIDI[MAX_MIDI];
+Sound g_soundModule;
 
 /* ====== METHODS ====== */
 b32 Sound::StartUp(HWND hWindow)
@@ -92,7 +87,7 @@ b32 Sound::StartUp(HWND hWindow)
         m_aMIDI[id].state = STATE_NULL;
     }
 
-    // Log::Note(Log::CHANNEL_SOUND, Log::PRIORITY_NOTE, "Module started");
+    // g_logModule.Note(Log::CHANNEL_SOUND, Log::PRIORITY_NOTE, "Module started");
 
     return true;
 }
@@ -147,7 +142,7 @@ void Sound::ShutDown()
         m_pDSound = NULL;
     }
 
-    // Log::Note(Log::CHANNEL_SOUND, Log::PRIORITY_NOTE, "Module shut down");
+    // g_logModule.Note(Log::CHANNEL_SOUND, Log::PRIORITY_NOTE, "Module shut down");
 }
 
 s32 Sound::LoadWAV(const char *fileName)

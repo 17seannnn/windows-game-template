@@ -19,8 +19,7 @@
 #define SWAP(A, B, T) { T = A; A = B; B = T; }
 
 /* ====== VARIABLES ====== */
-f32 Math::m_sinLook[361];
-f32 Math::m_cosLook[361];
+Math g_mathModule;
 
 /* ====== METHODS ====== */
 b32 Math::StartUp()
@@ -34,7 +33,7 @@ b32 Math::StartUp()
     }
 
     // Add note
-    Log::Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "Module started");
+    g_logModule.Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "Module started");
 
     return true;
 }
@@ -42,7 +41,7 @@ b32 Math::StartUp()
 void Math::ShutDown()
 {
     // Add note
-    Log::Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "Module shut down");
+    g_logModule.Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "Module shut down");
 }
 
 s32 Math::FastDist2(s32 x, s32 y)

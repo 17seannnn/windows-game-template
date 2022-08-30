@@ -17,66 +17,67 @@
 
 /* ====== STRUCTURES ====== */
 
-// Static class
 class Graphics
 {
-    static s32 m_screenWidth;
-    static s32 m_screenHeight;
-    static s32 m_screenBPP;
+    s32 m_screenWidth;
+    s32 m_screenHeight;
+    s32 m_screenBPP;
 
-    static LPDIRECTDRAW7 m_pDDraw;
-    static LPDIRECTDRAWSURFACE7 m_pDDScreen;
-    static LPDIRECTDRAWSURFACE7 m_pDDScreenBack;
-    static LPDIRECTDRAWPALETTE m_pDDPalette;
-    static LPDIRECTDRAWCLIPPER m_pDDClipper;
+    LPDIRECTDRAW7 m_pDDraw;
+    LPDIRECTDRAWSURFACE7 m_pDDScreen;
+    LPDIRECTDRAWSURFACE7 m_pDDScreenBack;
+    LPDIRECTDRAWPALETTE m_pDDPalette;
+    LPDIRECTDRAWCLIPPER m_pDDClipper;
 
 public:
-    static b32 StartUp(HWND hWindow, s32 width = 640, s32 height = 480, s32 bpp = 8);
-    static void ShutDown();
+    b32 StartUp(HWND hWindow, s32 width = 640, s32 height = 480, s32 bpp = 8);
+    void ShutDown();
 
-    static s32 GetScreenWidth() { return m_screenWidth; }
-    static s32 GetScreenHeight() { return m_screenHeight; }
+    s32 GetScreenWidth() { return m_screenWidth; }
+    s32 GetScreenHeight() { return m_screenHeight; }
 
     // Call this function before Lock()
-    static void ClearScreen();
-    static void Flip() { m_pDDScreen->Flip(NULL, DDFLIP_WAIT); }
+    void ClearScreen();
+    void Flip() { m_pDDScreen->Flip(NULL, DDFLIP_WAIT); }
     // Doesn't work with surfaces w/o src color key
-    static void Blit(const LPRECT dstRect, const LPDIRECTDRAWSURFACE7 srcSurface, const LPRECT srcRect)
+    void Blit(const LPRECT dstRect, const LPDIRECTDRAWSURFACE7 srcSurface, const LPRECT srcRect)
         { m_pDDScreenBack->Blt(dstRect, srcSurface, srcRect, DDBLT_WAIT|DDBLT_KEYSRC, NULL); }
 
-    static b32 LockScreen(u8*& buffer, s32& pitch);
-    static b32 LockBack(u8*& buffer, s32& pitch);
-    static void UnlockScreen() { m_pDDScreen->Unlock(NULL); }
-    static void UnlockBack() { m_pDDScreenBack->Unlock(NULL); }
+    b32 LockScreen(u8*& buffer, s32& pitch);
+    b32 LockBack(u8*& buffer, s32& pitch);
+    void UnlockScreen() { m_pDDScreen->Unlock(NULL); }
+    void UnlockBack() { m_pDDScreenBack->Unlock(NULL); }
 
-    static void PlotPixel16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
+    void PlotPixel16(u16* videoBuffer, s32 pitch16, s32 x, s32 y, s32 r, s32 g, s32 b)
         { videoBuffer[y*pitch16 + x] = _RGB16BIT565(r, g, b); }
-    static void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b);
-    static void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 a, s32 r, s32 g, s32 b)
+    void PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b);
+    void PlotPixel32(u32* videoBuffer, s32 pitch32, s32 x, s32 y, s32 a, s32 r, s32 g, s32 b)
         { videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b); }
 
-    static void DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY);
-    static void DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch);
+    void DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY);
+    void DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch);
 
-    static void DrawTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
-    static void DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
-    static void DrawBottomTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
+    void DrawTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
+    void DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
+    void DrawBottomTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3);
 
-    static void DrawQuad2(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3, s32 x4, s32 y4);
+    void DrawQuad2(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3, s32 x4, s32 y4);
 
-    static b32 DrawText_GDI(s32 x, s32 y, s32 r, s32 g, s32 b, const char* fmt, ...);
+    b32 DrawText_GDI(s32 x, s32 y, s32 r, s32 g, s32 b, const char* fmt, ...);
 
-    static LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
+    LPDIRECTDRAWSURFACE7 LoadBMP(const char* fileName);
 private:
-    static void DDrawError(HRESULT error);
-    static LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, const LPRECT clipList, s32 count);
-    static LPDIRECTDRAWSURFACE7 CreateSurface(s32 width, s32 height, b32 bVideoMemory = true, b32 bColorKey = true);
+    void DDrawError(HRESULT error);
+    LPDIRECTDRAWCLIPPER AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, const LPRECT clipList, s32 count);
+    LPDIRECTDRAWSURFACE7 CreateSurface(s32 width, s32 height, b32 bVideoMemory = true, b32 bColorKey = true);
 
-    static b32 ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY);
+    b32 ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY);
 
-    // Emulation
-    static void EmulationBlit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h);
-    static void EmulationBlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h);
+    /* Emulation */
+    void EmulationBlit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h);
+    void EmulationBlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h);
 };
+
+extern Graphics g_graphicsModule;
 
 #endif GRAPHICS_H_
