@@ -44,7 +44,7 @@ void Math::ShutDown()
     g_logModule.Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "Module shut down");
 }
 
-s32 Math::FastDist2(s32 x, s32 y)
+s32 Math::FastDist2(s32 x, s32 y) const
 {
     // Get absolute coordinates
     x = abs(x);
@@ -57,7 +57,7 @@ s32 Math::FastDist2(s32 x, s32 y)
     return x + y - (min >> 1) - (min >> 2) + (min >> 4);
 }
 
-f32 Math::FastDist3(f32 fx, f32 fy, f32 fz)
+f32 Math::FastDist3(f32 fx, f32 fy, f32 fz) const
 {
     // Absolute values
     s32 x = (s32)(fabsf(fx) * 1024);
@@ -74,7 +74,7 @@ f32 Math::FastDist3(f32 fx, f32 fy, f32 fz)
     return (f32)(dist >> 10);
 }
 
-void Math::TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy)
+void Math::TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy) const
 {
     if (!poly)
         return;
@@ -83,7 +83,7 @@ void Math::TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy)
     poly->y += dy;
 }
 
-void Math::RotatePolygon2(Polygon2* poly, s32 angle)
+void Math::RotatePolygon2(Polygon2* poly, s32 angle) const
 {
     if (!poly)
         return;
@@ -98,7 +98,7 @@ void Math::RotatePolygon2(Polygon2* poly, s32 angle)
     }
 }
 
-void Math::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
+void Math::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY) const
 {
     if (!poly)
         return;
@@ -110,7 +110,7 @@ void Math::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
     }
 }
 
-b32 Math::FindBoxPoly2(Polygon2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY)
+b32 Math::FindBoxPoly2(Polygon2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY) const
 {
     // Check if polygon is correct
     if (!poly || poly->vertexCount <= 0)
@@ -136,7 +136,7 @@ b32 Math::FindBoxPoly2(Polygon2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY)
     return true;
 }
 
-void Math::MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr)
+void Math::MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr) const
 {
     for (s32 row = 0; row < 3; ++row)
     {
@@ -152,7 +152,7 @@ void Math::MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr)
     }
 }
 
-void Math::MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr)
+void Math::MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr) const
 {
     for (s32 col = 0; col < 3; ++col)
     {
@@ -165,7 +165,7 @@ void Math::MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr)
     }
 }
 
-void Math::MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr)
+void Math::MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr) const
 {
     /* NOTE(sean) Just a memo...
      *  Rotation:

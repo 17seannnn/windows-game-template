@@ -1,6 +1,5 @@
 /* ====== TODO ======
  * - class EngineModule() with virtual functions like AddNote(), so you don't need to write channel every Log::Note()
- * - Set const methods that i forgot
  *
  * - Windowed mode
  * - Maybe put all .lib and .dll files in project directory?
@@ -69,16 +68,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     while (g_game.Running())
     {
-        f32 dtTime = g_clockModule.GetDelta();
-
         if (!g_windowsModule.HandleEvents())
-            break; // Break on quit event
+            break;
         if (!g_inputModule.HandleEvents())
             break;
 
+        f32 dtTime = g_clockModule.GetDelta();
+
         g_game.Update(dtTime);
         if (g_windowsModule.IsWindowClosed())
-            break; // DirectX may want to get window but it can be closed
+            break;
         g_game.Render();
 
         g_clockModule.Sync();

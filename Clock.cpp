@@ -34,7 +34,7 @@ f32 Clock::GetDelta()
     return dtTime;
 }
 
-void Clock::Sync()
+void Clock::Sync() const
 {
     while (GetTickCount() - m_startTime < m_msSyncDelay)
         {}

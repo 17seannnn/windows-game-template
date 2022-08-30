@@ -15,9 +15,9 @@ public:
     void ShutDown();
 
     void Update(f32 dtTime);
-    void Render();
+    void Render() const;
 
-    b32 Running() { return m_bRunning; }
+    b32 Running() const { return m_bRunning; }
 };
 
 extern Game g_game;

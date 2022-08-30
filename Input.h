@@ -37,13 +37,13 @@ public:
     b32 HandleEvents();
 
     // Keyboard
-    b32 KeyDown(s32 key) { return m_keyState[key] & 0x80; }
+    b32 KeyDown(s32 key) const { return m_keyState[key] & 0x80; }
 
     // Mouse
-    b32 MouseDown(s32 key) { return m_mouseState.rgbButtons[key] & 0x80; }
-    s32 GetMouseRelX() { return m_mouseState.lX; }
-    s32 GetMouseRelY() { return m_mouseState.lY; }
-    s32 GetMouseRelZ() { return m_mouseState.lZ; }
+    b32 MouseDown(s32 key) const { return m_mouseState.rgbButtons[key] & 0x80; }
+    s32 GetMouseRelX() const { return m_mouseState.lX; }
+    s32 GetMouseRelY() const { return m_mouseState.lY; }
+    s32 GetMouseRelZ() const { return m_mouseState.lZ; }
 };
 
 extern Input g_inputModule;

@@ -178,7 +178,7 @@ b32 Graphics::LockBack(u8*& buffer, s32& pitch)
     return true;
 }
 
-void Graphics::PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b)
+void Graphics::PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 g, s32 b) const
 {
     s32 addr = y*pitch + (x+x+x);
     videoBuffer[addr] = (u8)r;
@@ -186,7 +186,7 @@ void Graphics::PlotPixel24(u8* videoBuffer, s32 pitch, s32 x, s32 y, s32 r, s32 
     videoBuffer[addr+2] = (u8)b;
 }
 
-void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY)
+void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY) const
 {
     // Clip lines and check if we can draw it
     if (!ClipLine(fromX, fromY, toX, toY))
@@ -273,7 +273,7 @@ void Graphics::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 f
     }
 }
 
-void Graphics::DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch)
+void Graphics::DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch) const
 {
     if (!poly || !poly->state)
         return;
@@ -289,7 +289,7 @@ void Graphics::DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch)
                                                (s32)(poly->y + poly->aVertex[0].y));
 }
 
-void Graphics::DrawTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3)
+void Graphics::DrawTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3) const
 {
     // Check if we don't need to draw this triangle
     if ((x1 == x2 && x2 == x3) || (y1 == y2 && y2 == y3))
@@ -352,7 +352,7 @@ void Graphics::DrawTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y
     }
 }
 
-void Graphics::DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3)
+void Graphics::DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3) const
 {
     // Sort points on top of triangle
     if (x2 < x1)
@@ -432,7 +432,7 @@ void Graphics::DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s3
     }
 }
 
-void Graphics::DrawBottomTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3)
+void Graphics::DrawBottomTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3) const
 {
     // Sort points on bottom of triangle
     if (x3 < x2)
@@ -512,7 +512,7 @@ void Graphics::DrawBottomTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1,
     }
 }
 
-void Graphics::DrawQuad2(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3, s32 x4, s32 y4)
+void Graphics::DrawQuad2(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3, s32 x4, s32 y4) const
 {
     DrawTriangle(videoBuffer, pitch, color, x1, y1, x2, y2, x3, y3);
     DrawTriangle(videoBuffer, pitch, color, x1, y1, x3, y3, x4, y4);
@@ -548,7 +548,7 @@ b32 Graphics::DrawText_GDI(s32 x, s32 y, s32 r, s32 g, s32 b, const char* fmt, .
     return true;
 }
 
-LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
+LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName) const
 {
     BMPFile bmp(fileName);
     if (!bmp.buffer)
@@ -585,7 +585,7 @@ LPDIRECTDRAWSURFACE7 Graphics::LoadBMP(const char* fileName)
     return pDDSurface;
 }
 
-void Graphics::DDrawError(HRESULT error)
+void Graphics::DDrawError(HRESULT error) const
 {
     char dderr[256];
 
@@ -715,7 +715,7 @@ void Graphics::DDrawError(HRESULT error)
     g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, dderr);
 }
 
-LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, const LPRECT clipList, s32 count)
+LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, const LPRECT clipList, s32 count) const
 {
     b32 bResult = true;
     LPDIRECTDRAWCLIPPER pDDClipper;
@@ -780,7 +780,7 @@ LPDIRECTDRAWCLIPPER Graphics::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, con
     }
 }
 
-LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 width, s32 height, b32 bVideoMemory, b32 bColorKey)
+LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 width, s32 height, b32 bVideoMemory, b32 bColorKey) const
 {
     // Init structures
     DDSURFACEDESC2 DDSurfaceDesc;
@@ -827,7 +827,7 @@ LPDIRECTDRAWSURFACE7 Graphics::CreateSurface(s32 width, s32 height, b32 bVideoMe
     return pDDSurface;
 }
 
-b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
+b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY) const
 {
     // Cohen-Sutherland algorithm
     enum eClipCode
@@ -1078,7 +1078,7 @@ b32 Graphics::ClipLine(s32& fromX, s32& fromY, s32& toX, s32& toY)
     return true;
 }
 
-void Graphics::EmulationBlit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
+void Graphics::EmulationBlit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h) const
 {
     videoBuffer += posY*pitch32 + posX; // Start position for videoBuffer pointer
 
@@ -1095,7 +1095,7 @@ void Graphics::EmulationBlit(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, 
     }
 }
 
-void Graphics::EmulationBlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h)
+void Graphics::EmulationBlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h) const
 {
     // Check if it's visible
     if (posX >= m_screenWidth  || posX + w <= 0 ||

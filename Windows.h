@@ -29,11 +29,11 @@ public:
     void ShutDown();
 
     b32 HandleEvents();
-    void ShowMouse() { ShowCursor(TRUE); }
-    void HideMouse() { ShowCursor(FALSE); }
+    void ShowMouse() const { ShowCursor(TRUE); }
+    void HideMouse() const { ShowCursor(FALSE); }
 
-    s32 GetExitCode() { return m_nExitCode; }
-    b32 IsWindowClosed() { return m_bWindowClosed; }
+    s32 GetExitCode() const { return m_nExitCode; }
+    b32 IsWindowClosed() const { return m_bWindowClosed; }
 
     HINSTANCE GetInstance() { return m_hInstance; }
     HWND GetWindow() { return m_hWindow; }

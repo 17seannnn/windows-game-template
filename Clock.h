@@ -12,7 +12,7 @@ public:
     void ShutDown();
 
     f32 GetDelta();
-    void Sync();
+    void Sync() const;
 };
 
 extern Clock g_clockModule;

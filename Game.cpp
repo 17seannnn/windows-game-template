@@ -49,7 +49,7 @@ void Game::Update(f32 dtTime)
         m_bRunning = false;
 }
 
-void Game::Render()
+void Game::Render() const
 {
     u8* screen;
     s32 pitch;
