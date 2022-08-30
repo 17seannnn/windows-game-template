@@ -1,9 +1,11 @@
 /* ====== TODO ======
- * - PRIORITY_* -> * because it's hard to type
+ * - AddNote() instead of Note()
+ * - Log -> DebugLogModule, g_logModule -> g_debugLogModule;
+ *
+ * - PRIORITY_* -> PR_* because it's hard to type
  * - Timestamp
- * - What if modules ask open log file for themselves? They can handle their names and colors
  * - Use Win32 funcs for files handling
- * - Filters: channels, priorities
+ * - Filter
  * - Verbosity
  * - Enable, disable console
  */
@@ -25,6 +27,7 @@ Log g_logModule;
 #define NOTE_MESSAGE_BUFSIZE 512
 #define NOTE_FINAL_BUFSIZE   1024
 
+// TODO(sean) remove this stuff
 #define CHANNEL_PREFIX_UNDEFINED "Undefined"
 #define CHANNEL_PREFIX_LOG       "Log"
 #define CHANNEL_PREFIX_WINDOWS   "Windows"
@@ -149,6 +152,123 @@ void Log::ShutDown()
 
     // Detach console
     FreeConsole();
+#endif
+}
+
+void Log::Note2(s32 channel, s32 priority, const char* name, const char* fmt, va_list vl)
+{
+#ifdef _DEBUG
+    HFILE hFile;
+    const char* priorityPrefix = ""; // TODO(sean) prefix -> name
+    WORD noteColor = 0;
+
+    // Foreground color and channel prefix
+    switch (channel)
+    {
+
+    case CHANNEL_LOG:
+    {
+        hFile = hLog;
+        noteColor |= CHANNEL_COLOR_LOG;
+    } break;
+
+    case CHANNEL_WINDOWS:
+    {
+        hFile = hWindows;
+        noteColor |= CHANNEL_COLOR_WINDOWS;
+    } break;
+
+    case CHANNEL_CLOCK:
+    {
+        hFile = hClock;
+        noteColor |= CHANNEL_COLOR_CLOCK;
+    } break;
+
+    case CHANNEL_MATH:
+    {
+        hFile = hMath;
+        noteColor |= CHANNEL_COLOR_MATH;
+    } break;
+
+    case CHANNEL_GRAPHICS:
+    {
+        hFile = hGraphics;
+        noteColor |= CHANNEL_COLOR_GRAPHICS;
+    } break;
+
+    case CHANNEL_INPUT:
+    {
+        hFile = hInput;
+        noteColor |= CHANNEL_COLOR_INPUT;
+    } break;
+
+    case CHANNEL_GAME:
+    {
+        hFile = hGame;
+        noteColor |= CHANNEL_COLOR_GAME;
+    } break;
+
+    default:
+    {
+        hFile = -1;
+        noteColor |= CHANNEL_COLOR_UNDEFINED;
+    } break;
+
+    }
+
+    // Background color and priority prefix
+    switch (priority)
+    {
+    case PRIORITY_ERROR:
+    {
+        priorityPrefix = PRIORITY_PREFIX_ERROR;
+        noteColor |= PRIORITY_COLOR_ERROR;
+    } break;
+
+    case PRIORITY_WARNING:
+    {
+        priorityPrefix = PRIORITY_PREFIX_WARNING;
+        noteColor |= PRIORITY_COLOR_WARNING;
+    } break;
+
+    case PRIORITY_NOTE:
+    {
+        priorityPrefix = PRIORITY_PREFIX_NOTE;
+        noteColor |= PRIORITY_COLOR_NOTE;
+    } break;
+
+    default:
+    {
+        priorityPrefix = PRIORITY_PREFIX_UNDEFINED;
+        noteColor |= PRIORITY_COLOR_UNDEFINED;
+    } break;
+
+    }
+
+    // Get note prefix
+    char notePrefix[NOTE_PREFIX_BUFSIZE];
+    _snprintf(notePrefix, NOTE_PREFIX_BUFSIZE, "<%s> %s", name, priorityPrefix);
+
+    // Get note message
+    char noteMessage[NOTE_MESSAGE_BUFSIZE];
+    _vsnprintf(noteMessage, NOTE_MESSAGE_BUFSIZE, fmt, vl);
+
+    // Get final note
+    char noteFinal[NOTE_FINAL_BUFSIZE];
+    _snprintf(noteFinal, NOTE_FINAL_BUFSIZE, "%s: %s\r\n", notePrefix, noteMessage);
+    s32 noteLength = strlen(noteFinal);
+
+    // Output
+    SetConsoleTextAttribute(hConsole, noteColor);
+    WriteConsole(hConsole, noteFinal, noteLength, NULL, NULL);
+
+    _lwrite(hFullLog, noteFinal, noteLength);
+    if (hFile != -1)
+        _lwrite(hFile, noteFinal, noteLength);
+
+    // Flush stuff
+    FlushFileBuffers((HANDLE)hFullLog);
+    FlushFileBuffers((HANDLE)hFile);
 #endif
 }
 

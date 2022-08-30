@@ -1,5 +1,6 @@
 /* ====== TODO ======
  * - Simplify structures' name
+ * - math should be library, not module
  */
 
 /* ====== INCLUDES ====== */

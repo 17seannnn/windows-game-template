@@ -1,4 +1,5 @@
-/* ====== TODO ======
+/* ====== TODO ======\
+ * - Rename everything like: class Windows -> WindowsModule
  * - class EngineModule() with virtual functions like AddNote(), so you don't need to write channel every Log::Note()
  *
  * - Windowed mode

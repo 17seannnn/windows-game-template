@@ -16,7 +16,6 @@
 #define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
 /* ====== STRUCTURES ====== */
-
 class Graphics
 {
     s32 m_screenWidth;

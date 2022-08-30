@@ -1,9 +1,11 @@
 #ifndef CLOCK_H_
 #define CLOCK_H_
 
-#include "Types.h"
+/* ====== INCLUDES ====== */
+#include "EngineModule.h"
 
-class Clock
+/* ====== STRUCTURES ====== */
+class Clock : EngineModule
 {
     u32 m_startTime;
     u32 m_msSyncDelay;

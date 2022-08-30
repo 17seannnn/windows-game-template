@@ -1,9 +1,4 @@
 /* ====== INCLUDES ====== */
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-#include "Log.h"
-
 #include "Clock.h"
 
 /* ====== VARIABLES ====== */
@@ -12,10 +7,12 @@ Clock g_clockModule;
 /* ====== METHODS ====== */
 b32 Clock::StartUp(s32 fps)
 {
+    SetModuleInfo("Clock", Log::CHANNEL_CLOCK);
+
     m_startTime = GetTickCount();
     m_msSyncDelay = (u32)(1000.0f / fps);
 
-    g_logModule.Note(Log::CHANNEL_CLOCK, Log::PRIORITY_NOTE, "Module started");
+    AddNote(Log::PRIORITY_NOTE, "Hello, world");
 
     return true;
 }
