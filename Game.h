@@ -8,16 +8,14 @@ class Game
 {
     f32 m_dtTime;
     b32 m_bRunning;
-    
-    Polygon2 m_poly;
 public:
     b32 StartUp();
     void ShutDown();
 
+    b32 Running() const { return m_bRunning; }
+
     void Update(f32 dtTime);
     void Render() const;
-
-    b32 Running() const { return m_bRunning; }
 };
 
 extern Game g_game;

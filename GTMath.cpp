@@ -11,18 +11,26 @@
 
 #include "GTMath.h"
 
-/* ====== DEFINES ====== */
-#define DEG_TO_RAD(DEG) ((DEG) * PI/180)
-#define RAD_TO_DEG(RAD) ((RAD) * 180/PI)
-
-#define MAX(A, B) ((A) > (B) ? (A) : (B))
-#define MIN(A, B) ((A) < (B) ? (A) : (B))
-
-#define SWAP(A, B, T) { T = A; A = B; B = T; }
-
 /* ====== VARIABLES ====== */
 static f32 m_sinLook[361];
 static f32 m_cosLook[361];
+
+const Mat44 g_IMat44 = { 1, 0, 0, 0,
+                         0, 1, 0, 0,
+                         0, 0, 1, 0,
+                         0, 0, 0, 1 };
+
+const Mat43 g_IMat43 = { 1, 0, 0,
+                         0, 1, 0,
+                         0, 0, 1,
+                         0, 0, 0 };
+
+const Mat33 g_IMat33 = { 1, 0, 0,
+                         0, 1, 0,
+                         0, 0, 1 };
+
+const Mat22 g_IMat22 = { 1, 0,
+                         0, 1 };
 
 /* ====== METHODS ====== */
 b32 GTM::StartUp()

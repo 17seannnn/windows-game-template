@@ -1,7 +1,7 @@
 /* ====== TODO ======\
  * - Rename everything like: class Windows -> WindowsModule
  * - All modules inherite EngineModule
- * - AddNote() instead of g_logModule.Note();
+ * - AddNote() instead of g_debugLogMgr.Note();
  * - DebugLogManager::PRIORITY_* -> PR_*
  *
  * - Windowed mode
