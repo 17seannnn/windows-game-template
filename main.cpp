@@ -1,6 +1,8 @@
 /* ====== TODO ======\
  * - Rename everything like: class Windows -> WindowsModule
- * - class EngineModule() with virtual functions like AddNote(), so you don't need to write channel every Log::Note()
+ * - All modules inherite EngineModule
+ * - AddNote() instead of g_logModule.Note();
+ * - DebugLogManager::PRIORITY_* -> PR_*
  *
  * - Windowed mode
  * - Maybe put all .lib and .dll files in project directory?
@@ -32,7 +34,7 @@ static b32 GT_StartUp(HINSTANCE hInstance)
     if (!g_clockModule.StartUp(FPS))
         return false;
 
-    if (!g_mathModule.StartUp())
+    if (!Math::StartUp())
         return false;
 
     if (!g_graphicsModule.StartUp(g_windowsModule.GetWindow()))
@@ -56,7 +58,7 @@ static void GT_ShutDown()
     g_soundModule.ShutDown();
     g_inputModule.ShutDown();
     g_graphicsModule.ShutDown();
-    g_mathModule.ShutDown();
+    Math::ShutDown();
     g_clockModule.ShutDown();
     g_windowsModule.ShutDown();
     g_logModule.ShutDown();

@@ -1,6 +1,6 @@
 /* ====== TODO ======
  * - AddNote() instead of Note()
- * - Log -> DebugLogModule, g_logModule -> g_debugLogModule;
+ * - Log -> DebugLogManager, g_logModule -> g_debugLogMgr;
  *
  * - PRIORITY_* -> PR_* because it's hard to type
  * - Timestamp

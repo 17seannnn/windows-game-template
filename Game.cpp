@@ -30,9 +30,6 @@ b32 Game::StartUp()
     m_poly.aVertex[1].y = -150.0f;
     m_poly.aVertex[2].y = 100.0f;
 
-    g_logModule.Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "%d", g_soundModule.LoadMIDI("assets\\miditest.mid"));
-    g_soundModule.PlayMIDI(0);
-
     return true;
 }
 
