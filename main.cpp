@@ -23,7 +23,10 @@
 
 #define FPS 30
 
-static b32 GT_StartUp(HINSTANCE hInstance)
+namespace GT
+{
+
+static b32 StartUp(HINSTANCE hInstance)
 {
     if (!g_logModule.StartUp())
         return false;
@@ -34,7 +37,7 @@ static b32 GT_StartUp(HINSTANCE hInstance)
     if (!g_clockModule.StartUp(FPS))
         return false;
 
-    if (!Math::StartUp())
+    if (!GTM::StartUp())
         return false;
 
     if (!g_graphicsModule.StartUp(g_windowsModule.GetWindow()))
@@ -52,21 +55,23 @@ static b32 GT_StartUp(HINSTANCE hInstance)
     return true;
 }
 
-static void GT_ShutDown()
+static void ShutDown()
 {
     g_game.ShutDown();
     g_soundModule.ShutDown();
     g_inputModule.ShutDown();
     g_graphicsModule.ShutDown();
-    Math::ShutDown();
+    GTM::ShutDown();
     g_clockModule.ShutDown();
     g_windowsModule.ShutDown();
     g_logModule.ShutDown();
 }
 
+} // namespace GT
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    if (!GT_StartUp(hInstance))
+    if (!GT::StartUp(hInstance))
         return Windows::EC_ERROR;
 
     while (g_game.Running())
@@ -86,7 +91,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         g_clockModule.Sync();
     }
 
-    GT_ShutDown();
+    GT::ShutDown();
 
     return g_windowsModule.GetExitCode();
 }

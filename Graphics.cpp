@@ -10,7 +10,7 @@
 #include <stdio.h>
 
 #include "BMP.h"
-#include "Math.h"
+#include "GTMath.h"
 #include "Log.h"
 
 #define INITGUID // For DirectX in "Graphics.h"

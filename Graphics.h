@@ -7,7 +7,7 @@
 #include <ddraw.h>
 
 #include "Types.h"
-#include "Math.h"
+#include "GTMath.h"
 
 /* ====== DEFINES ====== */
 #define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )

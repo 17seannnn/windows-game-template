@@ -1,5 +1,5 @@
-#ifndef MATH_H_
-#define MATH_H_
+#ifndef GTMATH_H_
+#define GTMATH_H_
 
 /* ====== INCLUDES ====== */
 #include <stddef.h>
@@ -54,7 +54,7 @@ struct Mat12
     f32 c[2];
 };
 
-namespace Math
+namespace GTM
 {
     b32 StartUp();
     void ShutDown();
@@ -77,4 +77,4 @@ namespace Math
     void MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr);
 };
 
-#endif // MATH_H_
+#endif // GTMATH_H_
