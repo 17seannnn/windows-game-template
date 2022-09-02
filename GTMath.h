@@ -7,17 +7,27 @@
 #include "Types.h"
 
 /* ====== DEFINES ====== */
-#define PI       3.1415926535f
-#define PI2      6.283185307f
-#define PI_DIV_2 1.570796327f
-#define PI_DIV_4 0.785398163f
-#define PI_INV   0.318309886f
 
+/* === Fixed Point === */
 #define FIXED16_SHIFT    16
 #define FIXED16_MAG      65536
 #define FIXED16_DP_MASK  0x0000ffff
 #define FIXED16_WP_MASK  0xffff0000
 #define FIXED16_ROUND_UP 0x00008000
+
+#define FIXED16_WP(FP) ((FP) >> FIXED16_SHIFT)
+#define FIXED16_DP(FP) ((FP) && FIXED16_DP_MASK)
+
+#define INT_TO_FIXED16(N) ((N) << FIXED16_SHIFT)
+#define FLOAT_TO_FIXED16(F) ( (f32)(F) * (f32)FIXED16_MAG + 0.5f )
+#define FIXED16_TO_FLOAT(FP) ( (f32)(FP)/(f32)FIXED16_MAG )
+
+/* === Other === */
+#define PI       3.1415926535f
+#define PI2      6.283185307f
+#define PI_DIV_2 1.570796327f
+#define PI_DIV_4 0.785398163f
+#define PI_INV   0.318309886f
 
 #define EPSILON_E4 (f32)(1e-4)
 #define EPSILON_E5 (f32)(1e-5)
@@ -249,8 +259,7 @@ struct Spher3
     f32 phi; // The angle from the projection if o->p onto the x-y plane and x-axis
 };
 
-// TODO(sean) other stuff
-
+/* === Polygon === */
 struct Polygon2
 {
     s32 state;
@@ -343,9 +352,28 @@ namespace GTM
         dst->c30 = src->c03; dst->c31 = src->c13; dst->c32 = src->c23; dst->c33 = src->c33;
     }
 
+    inline void SwapColumnMat22(Mat22* m, s32 c, Mat12* v)
+        { m->c[0][c] = v->c[0]; m->c[1][c] = v->c[1]; }
+
+    inline void SwapColumnMat33(Mat33* m, s32 c, Mat13* v)
+        { m->c[0][c] = v->c[0]; m->c[1][c] = v->c[1]; m->c[2][c] = v->c[2]; }
+
+    inline void SwapColumnMat44(Mat44* m, s32 c, Mat14* v)
+        { m->c[0][c] = v->c[0]; m->c[1][c] = v->c[1]; m->c[2][c] = v->c[2]; m->c[3][c] = v->c[3]; }
+
+    inline void SwapColumnMat43(Mat43* m, s32 c, Mat14* v)
+        { m->c[0][c] = v->c[0]; m->c[1][c] = v->c[1]; m->c[2][c] = v->c[2]; m->c[3][c] = v->c[3]; }
+
     void MulMat33(const Mat33* m1, const Mat33* m2, Mat33* mr);
     void MulMat13x33(const Mat13* m1, const Mat33* m2, Mat13* mr);
     void MulMat12x32(const Mat12* m1, const Mat32* m2, Mat12* mr);
+
+    /* Quaternion */
+    inline void ZeroQuat(Quat* q) { q->w = q->x = q->y = q->z = 0.0f; }
+    inline void InitQuat(Quat* q, f32 w, f32 x, f32 y, f32 z) { q->w = w; q->x = x; q->y = y; q->z = z; }
+    inline void InitQuat(Quat* q, Vec3* v) { q->w = 0.0f; q->x = v->x; q->y = v->y; q->z = v->z; }
+    inline void InitQuat(Quat* dst, Quat* src) { dst->w = src->w; dst->x = src->x; dst->y = src->y; dst->z = src->z; }
+    inline void CopyQuat(Quat* dst, Quat* src) { dst->w = src->w; dst->x = src->x; dst->y = src->y; dst->z = src->z; }
 
     /* Polygon */
     void TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy);
