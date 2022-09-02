@@ -1,6 +1,5 @@
 /* ====== TODO ======
  * - Simplify structures' name
- * - math should be library, not module
  * - Remove math from log
  */
 
@@ -157,7 +156,7 @@ b32 GTM::FindBoxPoly2(Polygon2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY)
     return true;
 }
 
-void GTM::MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr)
+void GTM::MulMat33(const Mat33* m1, const Mat33* m2, Mat33* mr)
 {
     for (s32 row = 0; row < 3; ++row)
     {
@@ -166,27 +165,27 @@ void GTM::MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr)
             f32 sum = 0;
 
             for (s32 i = 0; i < 3; ++i)
-                sum += m1.c[row][i] * m2.c[i][col];
+                sum += m1->c[row][i] * m2->c[i][col];
 
-            mr.c[row][col] = sum;
+            mr->c[row][col] = sum;
         }
     }
 }
 
-void GTM::MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr)
+void GTM::MulMat13x33(const Mat13* m1, const Mat33* m2, Mat13* mr)
 {
     for (s32 col = 0; col < 3; ++col)
     {
         f32 sum = 0;
 
         for (s32 i = 0; i < 3; ++i)
-            sum += m1.c[i] * m2.c[i][col];
+            sum += m1->c[i] * m2->c[i][col];
 
-        mr.c[col] = sum;
+        mr->c[col] = sum;
     }
 }
 
-void GTM::MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr)
+void GTM::MulMat12x32(const Mat12* m1, const Mat32* m2, Mat12* mr)
 {
     for (s32 col = 0; col < 2; ++col)
     {
@@ -194,12 +193,12 @@ void GTM::MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr)
 
         // Sum first two multiplications
         for (s32 i = 0; i < 2; ++i)
-            sum += m1.c[i] * m2.c[i][col];
+            sum += m1->c[i] * m2->c[i][col];
 
         // Sum last fictive element of first matrix with last element of second
-        sum += m2.c[2][col];
+        sum += m2->c[2][col];
 
         // Set element
-        mr.c[col] = sum;
+        mr->c[col] = sum;
     }
 }

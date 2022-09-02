@@ -343,9 +343,9 @@ namespace GTM
         dst->c30 = src->c03; dst->c31 = src->c13; dst->c32 = src->c23; dst->c33 = src->c33;
     }
 
-    void MulMat33(const Mat33& m1, const Mat33& m2, Mat33& mr);
-    void MulMat13x33(const Mat13& m1, const Mat33& m2, Mat13& mr);
-    void MulMat12x32(const Mat12& m1, const Mat32& m2, Mat12& mr);
+    void MulMat33(const Mat33* m1, const Mat33* m2, Mat33* mr);
+    void MulMat13x33(const Mat13* m1, const Mat33* m2, Mat13* mr);
+    void MulMat12x32(const Mat12* m1, const Mat32* m2, Mat12* mr);
 
     /* Polygon */
     void TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy);
