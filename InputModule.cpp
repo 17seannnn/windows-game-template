@@ -12,6 +12,9 @@ InputModule g_inputModule;
 /* ====== METHODS ====== */
 b32 InputModule::StartUp(HINSTANCE hInstance, HWND hWindow)
 {
+    // Set module info
+    SetModuleInfo("Input Module", Log::CHANNEL_INPUT);
+
     // Init DirectInput
     if ( FAILED(DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_pDInput, NULL)) )
         return false;
@@ -58,7 +61,7 @@ b32 InputModule::StartUp(HINSTANCE hInstance, HWND hWindow)
             return false;
     }
 
-    g_logModule.Note(Log::CHANNEL_INPUT, Log::PRIORITY_NOTE, "Module started");
+    AddNote(Log::PRIORITY_NOTE, "Module started");
 
     return true;
 }
@@ -85,7 +88,7 @@ void InputModule::ShutDown()
         m_pDInput = NULL;
     }
 
-    g_logModule.Note(Log::CHANNEL_INPUT, Log::PRIORITY_NOTE, "Module shut down");
+    AddNote(Log::PRIORITY_NOTE, "Module shut down");
 }
 
 b32 InputModule::HandleEvents()
@@ -96,7 +99,7 @@ b32 InputModule::HandleEvents()
     {
         if ( FAILED(m_pDIKey->Acquire()) )
         {
-            g_logModule.Note(Log::CHANNEL_INPUT, Log::PRIORITY_ERROR, "Can't acquire keyboard, error: %d", hRes);
+            AddNote(Log::PRIORITY_ERROR, "Can't acquire keyboard, error: %d", hRes);
             return false;
         }
     }
@@ -104,7 +107,7 @@ b32 InputModule::HandleEvents()
     // If we got different from INPUTLOST error
     if ( FAILED(hRes) )
     {
-        g_logModule.Note(Log::CHANNEL_INPUT, Log::PRIORITY_ERROR, "Can't get keyboard state, error: %d", hRes);
+        AddNote(Log::PRIORITY_ERROR, "Can't get keyboard state, error: %d", hRes);
         return false;
     }
 
@@ -113,14 +116,14 @@ b32 InputModule::HandleEvents()
     {
         if ( FAILED(m_pDIMouse->Acquire()) )
         {
-            g_logModule.Note(Log::CHANNEL_INPUT, Log::PRIORITY_ERROR, "Can't acquire mouse, error: %d", hRes);
+            AddNote(Log::PRIORITY_ERROR, "Can't acquire mouse, error: %d", hRes);
             return false;
         }
     }
 
     if ( FAILED(hRes) )
     {
-        g_logModule.Note(Log::CHANNEL_INPUT, Log::PRIORITY_ERROR, "Can't get mouse state, error: %d", hRes);
+        AddNote(Log::PRIORITY_ERROR, "Can't get mouse state, error: %d", hRes);
         return false;
     }
 

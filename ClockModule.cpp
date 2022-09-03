@@ -7,19 +7,19 @@ ClockModule g_clockModule;
 /* ====== METHODS ====== */
 b32 ClockModule::StartUp(s32 fps)
 {
-    SetModuleInfo("Clock", Log::CHANNEL_CLOCK);
+    SetModuleInfo("Clock Module", Log::CHANNEL_CLOCK);
 
     m_startTime = GetTickCount();
     m_msSyncDelay = (u32)(1000.0f / fps);
 
-    AddNote(Log::PRIORITY_NOTE, "Hello, world");
+    AddNote(Log::PRIORITY_NOTE, "Module started");
 
     return true;
 }
 
 void ClockModule::ShutDown()
 {
-    g_logModule.Note(Log::CHANNEL_CLOCK, Log::PRIORITY_NOTE, "Module shut down");
+    AddNote(Log::PRIORITY_NOTE, "Module shut down");
 }
 
 f32 ClockModule::GetDelta()

@@ -9,6 +9,7 @@
 #include <dinput.h>
 
 #include "Types.h"
+#include "EngineModule.h"
 
 /* ====== DEFINES ====== */
 typedef u8 _DIKEYSTATE[256];
@@ -21,7 +22,7 @@ enum eMouseButton
 };
 
 /* ====== STRUCTURES ====== */
-class InputModule
+class InputModule : public EngineModule
 {
     LPDIRECTINPUT8 m_pDInput;
 
