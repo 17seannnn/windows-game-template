@@ -1,5 +1,5 @@
 /* ====== INCLUDES ====== */
-#include "Clock.h"
+#include "ClockModule.h"
 
 /* ====== VARIABLES ====== */
 ClockModule g_clockModule;

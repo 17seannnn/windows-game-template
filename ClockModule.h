@@ -1,11 +1,11 @@
-#ifndef CLOCK_H_
-#define CLOCK_H_
+#ifndef CLOCKMODULE_H_
+#define CLOCKMODULE_H_
 
 /* ====== INCLUDES ====== */
 #include "EngineModule.h"
 
 /* ====== STRUCTURES ====== */
-class Clock : EngineModule
+class ClockModule : public EngineModule
 {
     u32 m_startTime;
     u32 m_msSyncDelay;
@@ -17,6 +17,6 @@ public:
     void Sync() const;
 };
 
-extern Clock g_clockModule;
+extern ClockModule g_clockModule;
 
-#endif CLOCK_H_
+#endif CLOCKMODULE_H_

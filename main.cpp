@@ -15,7 +15,7 @@
 
 #include "Log.h"
 #include "Windows.h"
-#include "Clock.h"
+#include "ClockModule.h"
 #include "Graphics.h"
 #include "Input.h"
 #include "Sound.h"
