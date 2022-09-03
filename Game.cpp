@@ -1,7 +1,7 @@
 /* ====== INCLUDES ====== */
 #include "GraphicsModule.h"
 #include "InputModule.h"
-#include "Sound.h"
+#include "SoundModule.h"
 #include "Log.h"
 
 #include "Game.h"

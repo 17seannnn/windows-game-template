@@ -18,7 +18,7 @@
 #include "ClockModule.h"
 #include "GraphicsModule.h"
 #include "InputModule.h"
-#include "Sound.h"
+#include "SoundModule.h"
 #include "Game.h"
 
 #define FPS 30

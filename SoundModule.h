@@ -1,5 +1,5 @@
-#ifndef SOUND_H_
-#define SOUND_H_
+#ifndef SOUNDMODULE_H_
+#define SOUNDMODULE_H_
 
 /* ====== INCLUDES ====== */
 #define WIN32_LEAN_AND_MEAN
@@ -19,7 +19,7 @@
 #define MAX_MIDI 64
 
 /* ====== STRUCTURES ====== */
-class Sound
+class SoundModule
 {
 private:
     enum eState
@@ -80,6 +80,6 @@ public:
     b32 StopMIDI(s32 id);
 };
 
-extern Sound g_soundModule;
+extern SoundModule g_soundModule;
 
-#endif // SOUND_H_
+#endif // SOUNDMODULE_H_

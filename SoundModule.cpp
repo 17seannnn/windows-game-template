@@ -9,7 +9,7 @@
 #include <direct.h> // _getcwd()
 
 #define INITGUID
-#include "Sound.h"
+#include "SoundModule.h"
 #undef INITGUID
 
 /* ====== DEFINES ====== */
