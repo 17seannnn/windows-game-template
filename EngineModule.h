@@ -11,7 +11,7 @@ class EngineModule
     s32 m_moduleChannel;
 protected:
     void SetModuleInfo(const char* name, s32 channel);
-    void AddNote(s32 priority, const char* fmt, ...);
+    void AddNote(s32 priority, const char* fmt, ...) const;
 };
 
 #endif // ENGINEMODULE_H_

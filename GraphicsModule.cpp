@@ -29,6 +29,9 @@ GraphicsModule g_graphicsModule;
 /* ====== METHODS ====== */
 b32 GraphicsModule::StartUp(HWND hWindow, s32 width, s32 height, s32 bpp)
 {
+    // Set module info
+    SetModuleInfo("Graphics Module", Log::CHANNEL_GRAPHICS);
+
     // Set screen variables
     m_screenWidth = width;
     m_screenHeight = height;
@@ -99,7 +102,7 @@ b32 GraphicsModule::StartUp(HWND hWindow, s32 width, s32 height, s32 bpp)
         return false;
 
     // Make note
-    g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module started");
+    AddNote(Log::PRIORITY_NOTE, "Module started");
 
     return true;
 }
@@ -138,7 +141,7 @@ void GraphicsModule::ShutDown()
         m_pDDraw= NULL;
     }
 
-    g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_NOTE, "Module shut down");
+    AddNote(Log::PRIORITY_NOTE, "Module shut down");
 }
 
 void GraphicsModule::ClearScreen()
@@ -533,7 +536,7 @@ b32 GraphicsModule::DrawText_GDI(s32 x, s32 y, s32 r, s32 g, s32 b, const char* 
     HDC hDC;
     if ( FAILED(m_pDDScreenBack->GetDC(&hDC)) )
     {
-        g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, "Can't get back screen DC");
+        AddNote(Log::PRIORITY_ERROR, "Can't get back screen DC");
         return false;
     }
 
@@ -585,6 +588,7 @@ LPDIRECTDRAWSURFACE7 GraphicsModule::LoadBMP(const char* fileName) const
     return pDDSurface;
 }
 
+// TODO(sean) i think it should return string instead of taking care of debug log
 void GraphicsModule::DDrawError(HRESULT error) const
 {
     char dderr[256];
@@ -712,7 +716,7 @@ void GraphicsModule::DDrawError(HRESULT error) const
     default : sprintf(dderr, "Unknown Error"); break;
     }
     
-    g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, dderr);
+    AddNote(Log::PRIORITY_ERROR, dderr);
 }
 
 LPDIRECTDRAWCLIPPER GraphicsModule::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, const LPRECT clipList, s32 count) const
@@ -807,11 +811,11 @@ LPDIRECTDRAWSURFACE7 GraphicsModule::CreateSurface(s32 width, s32 height, b32 bV
         s32 res = m_pDDraw->CreateSurface(&DDSurfaceDesc, &pDDSurface, NULL);
         if (FAILED(res))
         {
-            g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_ERROR, "Can't make surface %dx%d, check DDrawError below", width, height);
+            AddNote(Log::PRIORITY_ERROR, "Can't make surface %dx%d, check DDrawError below", width, height);
             DDrawError(res);
             return NULL;
         }
-        g_logModule.Note(Log::CHANNEL_GRAPHICS, Log::PRIORITY_WARNING, "Have no videomemory for %dx%d surface, put it in system memory", width, height);
+        AddNote(Log::PRIORITY_WARNING, "Have no videomemory for %dx%d surface, put it in system memory", width, height);
     }
 
     // Set color key

@@ -8,6 +8,7 @@
 
 #include "Types.h"
 #include "GTMath.h"
+#include "EngineModule.h"
 
 /* ====== DEFINES ====== */
 #define _RGB16BIT565(R, G, B) ( ((R & 31) << 11) + ((G & 63) << 5) + (B & 31) )
@@ -16,7 +17,7 @@
 #define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
 /* ====== STRUCTURES ====== */
-class GraphicsModule
+class GraphicsModule : public EngineModule
 {
     s32 m_screenWidth;
     s32 m_screenHeight;
