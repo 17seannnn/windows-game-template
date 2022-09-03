@@ -1,6 +1,6 @@
 /* ====== INCLUDES ====== */
 #include "GraphicsModule.h"
-#include "Input.h"
+#include "InputModule.h"
 #include "Sound.h"
 #include "Log.h"
 

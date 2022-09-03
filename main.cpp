@@ -17,7 +17,7 @@
 #include "Windows.h"
 #include "ClockModule.h"
 #include "GraphicsModule.h"
-#include "Input.h"
+#include "InputModule.h"
 #include "Sound.h"
 #include "Game.h"
 

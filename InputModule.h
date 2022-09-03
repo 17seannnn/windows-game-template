@@ -1,5 +1,5 @@
-#ifndef INPUT_H_
-#define INPUT_H_
+#ifndef INPUTMODULE_H_
+#define INPUTMODULE_H_
 
 /* ====== INCLUDES ====== */
 #define WIN32_LEAN_AND_MEAN
@@ -21,7 +21,7 @@ enum eMouseButton
 };
 
 /* ====== STRUCTURES ====== */
-class Input
+class InputModule
 {
     LPDIRECTINPUT8 m_pDInput;
 
@@ -46,6 +46,6 @@ public:
     s32 GetMouseRelZ() const { return m_mouseState.lZ; }
 };
 
-extern Input g_inputModule;
+extern InputModule g_inputModule;
 
-#endif // INPUT_H_
+#endif // INPUTMODULE_H_

@@ -3,14 +3,14 @@
 
 #define INITGUID
 #include <objbase.h>
-#include "Input.h"
+#include "InputModule.h"
 #undef INITGUID
 
 /* ====== VARIABLES ====== */
-Input g_inputModule;
+InputModule g_inputModule;
 
 /* ====== METHODS ====== */
-b32 Input::StartUp(HINSTANCE hInstance, HWND hWindow)
+b32 InputModule::StartUp(HINSTANCE hInstance, HWND hWindow)
 {
     // Init DirectInput
     if ( FAILED(DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_pDInput, NULL)) )
@@ -63,7 +63,7 @@ b32 Input::StartUp(HINSTANCE hInstance, HWND hWindow)
     return true;
 }
 
-void Input::ShutDown()
+void InputModule::ShutDown()
 {
     if (m_pDIMouse)
     {
@@ -88,7 +88,7 @@ void Input::ShutDown()
     g_logModule.Note(Log::CHANNEL_INPUT, Log::PRIORITY_NOTE, "Module shut down");
 }
 
-b32 Input::HandleEvents()
+b32 InputModule::HandleEvents()
 {
     // Try to get keyboard state
     HRESULT hRes;
