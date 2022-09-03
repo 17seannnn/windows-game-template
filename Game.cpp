@@ -1,7 +1,3 @@
-/* TODO
- * - Game should be module
- */
-
 /* ====== INCLUDES ====== */
 #include "GraphicsModule.h"
 #include "InputModule.h"
@@ -16,15 +12,20 @@ Game g_game;
 /* ====== METHODS====== */
 b32 Game::StartUp()
 {
+    // Set module info
+    SetModuleInfo("Game", DebugLogManager::CHANNEL_GAME);
+
+    // Defaults
     m_bRunning = true;
 
-    g_debugLogMgr.Note(DebugLogManager::CHANNEL_GAME, DebugLogManager::PRIORITY_NOTE, "%f\n", 1e-4);
+    AddNote(DebugLogManager::PRIORITY_NOTE, "Module started");
 
     return true;
 }
 
 void Game::ShutDown()
 {
+    AddNote(DebugLogManager::PRIORITY_NOTE, "Module shut down");
 }
 
 void Game::Update(f32 dtTime)

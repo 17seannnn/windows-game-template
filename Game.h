@@ -1,10 +1,12 @@
 #ifndef GAME_H_
 #define GAME_H_
 
+/* ====== INCLUDES ====== */
 #include "Types.h"
 #include "GraphicsModule.h"
- 
-class Game
+
+/* ====== STRUCTURES ====== */
+class Game : public EngineModule
 {
     f32 m_dtTime;
     b32 m_bRunning;
