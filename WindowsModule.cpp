@@ -12,6 +12,9 @@ WindowsModule g_windowsModule;
 /* ====== METHODS ====== */
 b32 WindowsModule::StartUp(HINSTANCE hInstance, const char* title)
 {
+    // Set module info
+    SetModuleInfo("Windows Module", Log::CHANNEL_WINDOWS);
+
     // Defaults
     m_nExitCode = EC_SUCCESS;
     m_bWindowClosed = false;
@@ -57,7 +60,9 @@ b32 WindowsModule::StartUp(HINSTANCE hInstance, const char* title)
     HideMouse();
     
     // Init rand seed
-    srand(GetTickCount());
+    srand(GetTickCount()); // TODO(sean) maybe move this stuff in GTMath?
+
+    AddNote(Log::PRIORITY_NOTE, "Module started");
 
     // Success
     return true;
@@ -66,6 +71,8 @@ b32 WindowsModule::StartUp(HINSTANCE hInstance, const char* title)
 void WindowsModule::ShutDown()
 {
     ShowMouse();
+
+    AddNote(Log::PRIORITY_NOTE, "Module shut down");
 }
 
 b32 WindowsModule::HandleEvents()

@@ -1,17 +1,20 @@
 #ifndef WINDOWSMODULE_H_
 #define WINDOWSMODULE_H_
 
+/* ====== INCLUDES ====== */
 #define WIN32_LEAN_AND_MEAN // No extra stuff
 #include <windows.h>
 #include <windowsx.h>
 
 #include "Types.h"
+#include "EngineModule.h"
 
-// Macroses
+/* ====== DEFINES ====== */
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
 #define KEYUP(VK)   (GetAsyncKeyState(VK) & 0x8000 ? 0 : 1)
 
-class WindowsModule
+/* ====== STRUCTURES ====== */
+class WindowsModule : public EngineModule
 {
     s32 m_nExitCode;
     b32 m_bWindowClosed;

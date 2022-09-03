@@ -1,3 +1,7 @@
+/* TODO
+ * - ClockModule -> ClockMgr
+ */
+
 /* ====== INCLUDES ====== */
 #include "ClockModule.h"
 
