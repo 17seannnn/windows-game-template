@@ -17,6 +17,7 @@ class Log
     HFILE hMath;
     HFILE hGraphics;
     HFILE hInput;
+    HFILE hSound;
     HFILE hGame;
 
 public:
@@ -29,7 +30,8 @@ public:
         CHANNEL_MATH     = 1 << 3,
         CHANNEL_GRAPHICS = 1 << 4,
         CHANNEL_INPUT    = 1 << 5,
-        CHANNEL_GAME     = 1 << 6
+        CHANNEL_SOUND    = 1 << 6,
+        CHANNEL_GAME     = 1 << 7
     };
 
     enum ePriority

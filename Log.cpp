@@ -92,6 +92,7 @@ enum eChannelColor
     CHANNEL_COLOR_MATH      = FG_LIGHTRED,
     CHANNEL_COLOR_GRAPHICS  = FG_LIGHTGREEN,
     CHANNEL_COLOR_INPUT     = FG_LIGHTCYAN,
+    CHANNEL_COLOR_SOUND     = FG_GRAY,
     CHANNEL_COLOR_GAME      = FG_BROWN,
 };
 
@@ -116,6 +117,7 @@ b32 Log::StartUp()
     CreateDirectory(DIR_LOGS, NULL);
 
     OFSTRUCT fileInfo;
+    // TODO(sean) Module*.txt -> *Module.txt
     if (-1 == (hFullLog = OpenFile(DIR_LOGS"FullLog.txt", &fileInfo, OF_CREATE)) )
         return false;
     if (-1 == (hLog = OpenFile(DIR_LOGS"ModuleLog.txt", &fileInfo, OF_CREATE)) )
@@ -129,6 +131,8 @@ b32 Log::StartUp()
     if (-1 == (hGraphics = OpenFile(DIR_LOGS"ModuleGraphics.txt", &fileInfo, OF_CREATE)) )
         return false;
     if (-1 == (hInput = OpenFile(DIR_LOGS"ModuleGraphics.txt", &fileInfo, OF_CREATE)) )
+        return false;
+    if (-1 == (hSound = OpenFile(DIR_LOGS"ModuleSound.txt", &fileInfo, OF_CREATE)) )
         return false;
     if (-1 == (hGame = OpenFile(DIR_LOGS"ModuleGame.txt", &fileInfo, OF_CREATE)) )
         return false;
@@ -147,6 +151,7 @@ void Log::ShutDown()
     _lclose(hClock);
     _lclose(hMath);
     _lclose(hInput);
+    _lclose(hSound);
     _lclose(hGraphics);
     _lclose(hGame);
 
@@ -200,6 +205,12 @@ void Log::Note2(s32 channel, s32 priority, const char* name, const char* fmt, va
     {
         hFile = hInput;
         noteColor |= CHANNEL_COLOR_INPUT;
+    } break;
+
+    case CHANNEL_SOUND:
+    {
+        hFile = hSound;
+        noteColor |= CHANNEL_COLOR_SOUND;
     } break;
 
     case CHANNEL_GAME:

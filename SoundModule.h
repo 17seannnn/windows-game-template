@@ -13,13 +13,14 @@
 #include <dmusicf.h>
 
 #include "Types.h"
+#include "EngineModule.h"
 
 /* ====== DEFINES====== */
 #define MAX_SOUNDS 256
 #define MAX_MIDI 64
 
 /* ====== STRUCTURES ====== */
-class SoundModule
+class SoundModule : public EngineModule
 {
 private:
     enum eState
