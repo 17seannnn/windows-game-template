@@ -1,5 +1,5 @@
-#ifndef WINDOWS_H_
-#define WINDOWS_H_
+#ifndef WINDOWSMODULE_H_
+#define WINDOWSMODULE_H_
 
 #define WIN32_LEAN_AND_MEAN // No extra stuff
 #include <windows.h>
@@ -11,7 +11,7 @@
 #define KEYDOWN(VK) (GetAsyncKeyState(VK) & 0x8000)
 #define KEYUP(VK)   (GetAsyncKeyState(VK) & 0x8000 ? 0 : 1)
 
-class Windows
+class WindowsModule
 {
     s32 m_nExitCode;
     b32 m_bWindowClosed;
@@ -42,6 +42,6 @@ private:
 
 };
 
-extern Windows g_windowsModule;
+extern WindowsModule g_windowsModule;
 
-#endif // WINDOWS_H_
+#endif // WINDOWSMODULE_H_

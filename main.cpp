@@ -14,7 +14,7 @@
  */
 
 #include "Log.h"
-#include "Windows.h"
+#include "WindowsModule.h"
 #include "ClockModule.h"
 #include "GraphicsModule.h"
 #include "InputModule.h"
@@ -72,7 +72,7 @@ static void ShutDown()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     if (!GT::StartUp(hInstance))
-        return Windows::EC_ERROR;
+        return WindowsModule::EC_ERROR;
 
     while (g_game.Running())
     {

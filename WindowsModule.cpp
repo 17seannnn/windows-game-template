@@ -1,16 +1,16 @@
 /* ====== INCLUDES ====== */
 #include <stdlib.h>
 
-#include "Windows.h"
+#include "WindowsModule.h"
 
 /* ====== DEFINES ====== */
 #define WINDOW_CLASS_NAME "WINDOWCLASS1"
 
 /* ====== VARIABLES ====== */
-Windows g_windowsModule;
+WindowsModule g_windowsModule;
 
 /* ====== METHODS ====== */
-b32 Windows::StartUp(HINSTANCE hInstance, const char* title)
+b32 WindowsModule::StartUp(HINSTANCE hInstance, const char* title)
 {
     // Defaults
     m_nExitCode = EC_SUCCESS;
@@ -63,12 +63,12 @@ b32 Windows::StartUp(HINSTANCE hInstance, const char* title)
     return true;
 }
 
-void Windows::ShutDown()
+void WindowsModule::ShutDown()
 {
     ShowMouse();
 }
 
-b32 Windows::HandleEvents()
+b32 WindowsModule::HandleEvents()
 {
     MSG msg;
 
@@ -87,7 +87,7 @@ b32 Windows::HandleEvents()
     return true;
 }
 
-LRESULT CALLBACK Windows::WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowsModule::WinProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
