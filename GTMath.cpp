@@ -6,8 +6,6 @@
 /* ====== INCLUDES ====== */
 #include <math.h>
 
-#include "Log.h"
-
 #include "GTMath.h"
 
 /* ====== VARIABLES ====== */
@@ -42,16 +40,11 @@ b32 GTM::StartUp()
         m_cosLook[i] = cosf(angle);
     }
 
-    // Add note
-    g_logModule.Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "Module started");
-
     return true;
 }
 
 void GTM::ShutDown()
 {
-    // Add note
-    g_logModule.Note(Log::CHANNEL_MATH, Log::PRIORITY_NOTE, "Module shut down");
 }
 
 f32 SinLook(s32 angle)

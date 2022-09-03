@@ -1,12 +1,14 @@
-#ifndef LOG_H_
-#define LOG_H_
+#ifndef DEBUGLOGMANAGER_H_
+#define DEBUGLOGMANAGER_H_
 
+/* ====== INCLUDES ======= */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include "Types.h"
 
-class Log
+/* ====== STRUCTURES ======= */
+class DebugLogManager
 {
     HANDLE hConsole;
     HFILE hFullLog;
@@ -48,6 +50,6 @@ public:
     void Note(s32 channel, s32 priority, const char* fmt, ...);
 };
 
-extern Log g_logModule;
+extern DebugLogManager g_debugLogMgr;
 
-#endif // LOG_H_
+#endif // DEBUGLOGMANAGER_H_

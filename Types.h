@@ -1,6 +1,8 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
+#include <stddef.h> // NULL
+
 // Integer
 typedef char      s8;
 typedef short int s16;

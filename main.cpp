@@ -13,7 +13,7 @@
  * - Make engine multithreaded?
  */
 
-#include "Log.h"
+#include "DebugLogManager.h"
 #include "WindowsModule.h"
 #include "ClockModule.h"
 #include "GraphicsModule.h"
@@ -28,7 +28,7 @@ namespace GT
 
 static b32 StartUp(HINSTANCE hInstance)
 {
-    if (!g_logModule.StartUp())
+    if (!g_debugLogMgr.StartUp())
         return false;
 
     if (!g_windowsModule.StartUp(hInstance))
@@ -64,7 +64,7 @@ static void ShutDown()
     GTM::ShutDown();
     g_clockModule.ShutDown();
     g_windowsModule.ShutDown();
-    g_logModule.ShutDown();
+    g_debugLogMgr.ShutDown();
 }
 
 } // namespace GT

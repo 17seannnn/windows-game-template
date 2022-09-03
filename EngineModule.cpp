@@ -1,5 +1,5 @@
 /* ====== INCLUDES ====== */
-#include "Log.h"
+#include "DebugLogManager.h"
 
 #include "EngineModule.h"
 
@@ -14,6 +14,6 @@ void EngineModule::AddNote(s32 priority, const char* fmt, ...) const
 {
     va_list vl;
     va_start(vl, fmt);
-    g_logModule.Note2(m_moduleChannel, priority, m_moduleName, fmt, vl);
+    g_debugLogMgr.Note2(m_moduleChannel, priority, m_moduleName, fmt, vl);
     va_end(vl);
 }

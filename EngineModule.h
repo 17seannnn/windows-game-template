@@ -2,7 +2,8 @@
 #define ENGINEMODULE_H_
 
 /* ====== INCLUDES ====== */
-#include "Log.h"
+#include "Types.h"
+#include "DebugLogManager.h"
 
 /* ====== STRUCTURES ====== */
 class EngineModule
@@ -12,6 +13,9 @@ class EngineModule
 protected:
     void SetModuleInfo(const char* name, s32 channel);
     void AddNote(s32 priority, const char* fmt, ...) const;
+public:
+    const char* GetModuleName() const { return m_moduleName; }
+    s32 GetModuleChannel() const { return m_moduleChannel; }
 };
 
 #endif // ENGINEMODULE_H_

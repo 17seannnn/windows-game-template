@@ -2,7 +2,7 @@
 #define GTMATH_H_
 
 /* ====== INCLUDES ====== */
-#include <stddef.h>
+#include <string.h> // memcpy/memset()
 
 #include "Types.h"
 

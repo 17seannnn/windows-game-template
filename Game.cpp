@@ -1,8 +1,12 @@
+/* TODO
+ * - Game should be module
+ */
+
 /* ====== INCLUDES ====== */
 #include "GraphicsModule.h"
 #include "InputModule.h"
 #include "SoundModule.h"
-#include "Log.h"
+#include "DebugLogManager.h" // TODO(sean) remove this after making Game module
 
 #include "Game.h"
 
@@ -14,7 +18,7 @@ b32 Game::StartUp()
 {
     m_bRunning = true;
 
-    g_logModule.Note(Log::CHANNEL_GAME, Log::PRIORITY_NOTE, "%f\n", 1e-4);
+    g_debugLogMgr.Note(DebugLogManager::CHANNEL_GAME, DebugLogManager::PRIORITY_NOTE, "%f\n", 1e-4);
 
     return true;
 }

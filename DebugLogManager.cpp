@@ -17,10 +17,10 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "Log.h"
+#include "DebugLogManager.h"
 
 /* ====== VARIABLES ====== */
-Log g_logModule;
+DebugLogManager g_debugLogMgr;
 
 /* ====== DEFINES ====== */
 #define NOTE_PREFIX_BUFSIZE  64
@@ -105,7 +105,7 @@ enum ePriorityColor
 };
 
 /* ====== METHODS ====== */
-b32 Log::StartUp()
+b32 DebugLogManager::StartUp()
 {
 #ifdef _DEBUG
     // Allocate console
@@ -141,7 +141,7 @@ b32 Log::StartUp()
 #endif
 }
 
-void Log::ShutDown()
+void DebugLogManager::ShutDown()
 {
 #ifdef _DEBUG
     // Close log files
@@ -160,7 +160,7 @@ void Log::ShutDown()
 #endif
 }
 
-void Log::Note2(s32 channel, s32 priority, const char* name, const char* fmt, va_list vl)
+void DebugLogManager::Note2(s32 channel, s32 priority, const char* name, const char* fmt, va_list vl)
 {
 #ifdef _DEBUG
     HFILE hFile;
@@ -283,7 +283,7 @@ void Log::Note2(s32 channel, s32 priority, const char* name, const char* fmt, va
 #endif
 }
 
-void Log::Note(s32 channel, s32 priority, const char* fmt, ...)
+void DebugLogManager::Note(s32 channel, s32 priority, const char* fmt, ...)
 {
 #ifdef _DEBUG
     HFILE hFile;
