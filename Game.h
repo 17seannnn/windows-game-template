@@ -2,7 +2,7 @@
 #define GAME_H_
 
 #include "Types.h"
-#include "Graphics.h"
+#include "GraphicsModule.h"
  
 class Game
 {

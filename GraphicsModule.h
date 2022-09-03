@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_H_
-#define GRAPHICS_H_
+#ifndef GRAPHICSMODULE_H_
+#define GRAPHICSMODULE_H_
 
 /* ====== INCLUDES ====== */
 #define WIN32_LEAN_AND_MEAN
@@ -16,7 +16,7 @@
 #define _RGB32BIT(A, R, G, B) ( ((A % 255) << 24) + ((R & 255) << 16) + ((G & 255) << 8) + (B & 255) )
 
 /* ====== STRUCTURES ====== */
-class Graphics
+class GraphicsModule
 {
     s32 m_screenWidth;
     s32 m_screenHeight;
@@ -76,6 +76,6 @@ private:
     void EmulationBlitClipped(u32* videoBuffer, s32 pitch32, s32 posX, s32 posY, u32* bitMap, s32 w, s32 h) const;
 };
 
-extern Graphics g_graphicsModule;
+extern GraphicsModule g_graphicsModule;
 
-#endif GRAPHICS_H_
+#endif // GRAPHICSMODULE_H_

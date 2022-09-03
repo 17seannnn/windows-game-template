@@ -14,7 +14,7 @@
 #include "Log.h"
 
 #define INITGUID // For DirectX in "Graphics.h"
-#include "Graphics.h"
+#include "GraphicsModule.h"
 #undef INITGUID
 
 /* ====== DEFINES ====== */
