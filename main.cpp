@@ -15,7 +15,7 @@
 
 #include "DebugLogManager.h"
 #include "WindowsModule.h"
-#include "ClockModule.h"
+#include "ClockManager.h"
 #include "GraphicsModule.h"
 #include "InputModule.h"
 #include "SoundModule.h"
@@ -34,7 +34,7 @@ static b32 StartUp(HINSTANCE hInstance)
     if (!g_windowsModule.StartUp(hInstance))
         return false;
 
-    if (!g_clockModule.StartUp(FPS))
+    if (!g_clockMgr.StartUp(FPS))
         return false;
 
     if (!GTM::StartUp())
@@ -62,7 +62,7 @@ static void ShutDown()
     g_inputModule.ShutDown();
     g_graphicsModule.ShutDown();
     GTM::ShutDown();
-    g_clockModule.ShutDown();
+    g_clockMgr.ShutDown();
     g_windowsModule.ShutDown();
     g_debugLogMgr.ShutDown();
 }
@@ -81,14 +81,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         if (!g_inputModule.HandleEvents())
             break;
 
-        f32 dtTime = g_clockModule.GetDelta();
+        f32 dtTime = g_clockMgr.GetDelta();
 
         g_game.Update(dtTime);
         if (g_windowsModule.IsWindowClosed())
             break;
         g_game.Render();
 
-        g_clockModule.Sync();
+        g_clockMgr.Sync();
     }
 
     GT::ShutDown();

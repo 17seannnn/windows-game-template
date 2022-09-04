@@ -1,28 +1,26 @@
 /* ====== INCLUDES ====== */
-#include "Clock.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#include "ClockManager.h"
 
 /* ====== VARIABLES ====== */
-ClockModule g_clockModule;
+ClockManager g_clockMgr;
 
 /* ====== METHODS ====== */
-b32 ClockModule::StartUp(s32 fps)
+b32 ClockManager::StartUp(s32 fps)
 {
-    SetModuleInfo("Clock", Log::CHANNEL_CLOCK);
-
     m_startTime = GetTickCount();
     m_msSyncDelay = (u32)(1000.0f / fps);
-
-    AddNote(Log::PRIORITY_NOTE, "Hello, world");
 
     return true;
 }
 
-void ClockModule::ShutDown()
+void ClockManager::ShutDown()
 {
-    g_logModule.Note(Log::CHANNEL_CLOCK, Log::PRIORITY_NOTE, "Module shut down");
 }
 
-f32 ClockModule::GetDelta()
+f32 ClockManager::GetDelta()
 {
     u32 curTime = GetTickCount();
     f32 dtTime = (f32)(curTime - m_startTime);
@@ -31,7 +29,7 @@ f32 ClockModule::GetDelta()
     return dtTime;
 }
 
-void ClockModule::Sync() const
+void ClockManager::Sync() const
 {
     while (GetTickCount() - m_startTime < m_msSyncDelay)
         {}

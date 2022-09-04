@@ -2,7 +2,6 @@
 #include "GraphicsModule.h"
 #include "InputModule.h"
 #include "SoundModule.h"
-#include "DebugLogManager.h" // TODO(sean) remove this after making Game module
 
 #include "Game.h"
 
