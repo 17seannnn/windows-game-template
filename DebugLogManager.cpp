@@ -1,6 +1,5 @@
 /* ====== TODO ======
  * - Rename files according to module names
- * - PRIORITY_* -> PR_* because it's hard to type
 
  * - Timestamp
  * - Use Win32 funcs for files handling
@@ -209,19 +208,19 @@ void DebugLogManager::AddNote(s32 channel, s32 priority, const char* name, const
     // Background color and priority prefix
     switch (priority)
     {
-    case PRIORITY_ERROR:
+    case PR_ERROR:
     {
         priorityPrefix = PRIORITY_PREFIX_ERROR;
         noteColor |= PRIORITY_COLOR_ERROR;
     } break;
 
-    case PRIORITY_WARNING:
+    case PR_WARNING:
     {
         priorityPrefix = PRIORITY_PREFIX_WARNING;
         noteColor |= PRIORITY_COLOR_WARNING;
     } break;
 
-    case PRIORITY_NOTE:
+    case PR_NOTE:
     {
         priorityPrefix = PRIORITY_PREFIX_NOTE;
         noteColor |= PRIORITY_COLOR_NOTE;

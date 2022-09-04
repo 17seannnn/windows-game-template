@@ -22,7 +22,7 @@ SoundModule g_soundModule;
 b32 SoundModule::StartUp(HWND hWindow)
 {
     // Set module info
-    SetModuleInfo("Sound Module", DebugLogManager::CHANNEL_SOUND);
+    SetModuleInfo("Sound Module", CHANNEL_SOUND);
 
     // Start up DirectSound
     if ( FAILED(DirectSoundCreate(NULL, &m_pDSound, NULL)) )
@@ -90,7 +90,7 @@ b32 SoundModule::StartUp(HWND hWindow)
         m_aMIDI[id].state = STATE_NULL;
     }
 
-    AddNote(DebugLogManager::PRIORITY_NOTE, "Module started");
+    AddNote(PR_NOTE, "Module started");
 
     return true;
 }
@@ -145,7 +145,7 @@ void SoundModule::ShutDown()
         m_pDSound = NULL;
     }
 
-    AddNote(DebugLogManager::PRIORITY_NOTE, "Module shut down");
+    AddNote(PR_NOTE, "Module shut down");
 }
 
 s32 SoundModule::LoadWAV(const char *fileName)

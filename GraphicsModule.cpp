@@ -29,7 +29,7 @@ GraphicsModule g_graphicsModule;
 b32 GraphicsModule::StartUp(HWND hWindow, s32 width, s32 height, s32 bpp)
 {
     // Set module info
-    SetModuleInfo("Graphics Module", DebugLogManager::CHANNEL_GRAPHICS);
+    SetModuleInfo("Graphics Module", CHANNEL_GRAPHICS);
 
     // Set screen variables
     m_screenWidth = width;
@@ -101,7 +101,7 @@ b32 GraphicsModule::StartUp(HWND hWindow, s32 width, s32 height, s32 bpp)
         return false;
 
     // Make note
-    AddNote(DebugLogManager::PRIORITY_NOTE, "Module started");
+    AddNote(PR_NOTE, "Module started");
 
     return true;
 }
@@ -140,7 +140,7 @@ void GraphicsModule::ShutDown()
         m_pDDraw= NULL;
     }
 
-    AddNote(DebugLogManager::PRIORITY_NOTE, "Module shut down");
+    AddNote(PR_NOTE, "Module shut down");
 }
 
 void GraphicsModule::ClearScreen()
@@ -535,7 +535,7 @@ b32 GraphicsModule::DrawText_GDI(s32 x, s32 y, s32 r, s32 g, s32 b, const char* 
     HDC hDC;
     if ( FAILED(m_pDDScreenBack->GetDC(&hDC)) )
     {
-        AddNote(DebugLogManager::PRIORITY_ERROR, "Can't get back screen DC");
+        AddNote(PR_ERROR, "Can't get back screen DC");
         return false;
     }
 
@@ -715,7 +715,7 @@ void GraphicsModule::DDrawError(HRESULT error) const
     default : sprintf(dderr, "Unknown Error"); break;
     }
     
-    AddNote(DebugLogManager::PRIORITY_ERROR, dderr);
+    AddNote(PR_ERROR, dderr);
 }
 
 LPDIRECTDRAWCLIPPER GraphicsModule::AttachClipper(LPDIRECTDRAWSURFACE7 pDDSurface, const LPRECT clipList, s32 count) const
@@ -810,11 +810,11 @@ LPDIRECTDRAWSURFACE7 GraphicsModule::CreateSurface(s32 width, s32 height, b32 bV
         s32 res = m_pDDraw->CreateSurface(&DDSurfaceDesc, &pDDSurface, NULL);
         if (FAILED(res))
         {
-            AddNote(DebugLogManager::PRIORITY_ERROR, "Can't make surface %dx%d, check DDrawError below", width, height);
+            AddNote(PR_ERROR, "Can't make surface %dx%d, check DDrawError below", width, height);
             DDrawError(res);
             return NULL;
         }
-        AddNote(DebugLogManager::PRIORITY_WARNING, "Have no videomemory for %dx%d surface, put it in system memory", width, height);
+        AddNote(PR_WARNING, "Have no videomemory for %dx%d surface, put it in system memory", width, height);
     }
 
     // Set color key

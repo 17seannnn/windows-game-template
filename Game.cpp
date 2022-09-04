@@ -12,19 +12,19 @@ Game g_game;
 b32 Game::StartUp()
 {
     // Set module info
-    SetModuleInfo("Game", DebugLogManager::CHANNEL_GAME);
+    SetModuleInfo("Game", CHANNEL_GAME);
 
     // Defaults
     m_bRunning = true;
 
-    AddNote(DebugLogManager::PRIORITY_NOTE, "Module started");
+    AddNote(PR_NOTE, "Module started");
 
     return true;
 }
 
 void Game::ShutDown()
 {
-    AddNote(DebugLogManager::PRIORITY_NOTE, "Module shut down");
+    AddNote(PR_NOTE, "Module shut down");
 }
 
 void Game::Update(f32 dtTime)
