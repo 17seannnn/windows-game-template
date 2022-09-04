@@ -1,8 +1,8 @@
 /* ====== TODO ======
+ * - Rename files according to module names
  * - AddNote() instead of Note()
- * - Log -> DebugLogManager, g_logModule -> g_debugLogMgr;
- *
  * - PRIORITY_* -> PR_* because it's hard to type
+
  * - Timestamp
  * - Use Win32 funcs for files handling
  * - Filter
@@ -31,8 +31,6 @@ DebugLogManager g_debugLogMgr;
 #define CHANNEL_PREFIX_UNDEFINED "Undefined"
 #define CHANNEL_PREFIX_LOG       "Log"
 #define CHANNEL_PREFIX_WINDOWS   "Windows"
-#define CHANNEL_PREFIX_CLOCK     "Clock"
-#define CHANNEL_PREFIX_MATH      "Math"
 #define CHANNEL_PREFIX_GRAPHICS  "Graphics"
 #define CHANNEL_PREFIX_INPUT     "Input"
 #define CHANNEL_PREFIX_GAME      "Game"
@@ -88,8 +86,8 @@ enum eChannelColor
     CHANNEL_COLOR_UNDEFINED = FG_LIGHTMAGENTA,
     CHANNEL_COLOR_LOG       = FG_WHITE,
     CHANNEL_COLOR_WINDOWS   = FG_LIGHTBLUE,
-    CHANNEL_COLOR_CLOCK     = FG_YELLOW,
-    CHANNEL_COLOR_MATH      = FG_LIGHTRED,
+    CHANNEL_COLOR_FREE1     = FG_YELLOW,
+    CHANNEL_COLOR_FREE2     = FG_LIGHTRED,
     CHANNEL_COLOR_GRAPHICS  = FG_LIGHTGREEN,
     CHANNEL_COLOR_INPUT     = FG_LIGHTCYAN,
     CHANNEL_COLOR_SOUND     = FG_GRAY,
@@ -124,10 +122,6 @@ b32 DebugLogManager::StartUp()
         return false;
     if (-1 == (hWindows = OpenFile(DIR_LOGS"ModuleWindows.txt", &fileInfo, OF_CREATE)) )
         return false;
-    if (-1 == (hClock = OpenFile(DIR_LOGS"ModuleClock.txt", &fileInfo, OF_CREATE)) )
-        return false;
-    if (-1 == (hMath = OpenFile(DIR_LOGS"ModuleMath.txt", &fileInfo, OF_CREATE)) )
-        return false;
     if (-1 == (hGraphics = OpenFile(DIR_LOGS"ModuleGraphics.txt", &fileInfo, OF_CREATE)) )
         return false;
     if (-1 == (hInput = OpenFile(DIR_LOGS"ModuleGraphics.txt", &fileInfo, OF_CREATE)) )
@@ -148,8 +142,6 @@ void DebugLogManager::ShutDown()
     _lclose(hFullLog);
     _lclose(hLog);
     _lclose(hWindows);
-    _lclose(hClock);
-    _lclose(hMath);
     _lclose(hInput);
     _lclose(hSound);
     _lclose(hGraphics);
@@ -181,18 +173,6 @@ void DebugLogManager::Note2(s32 channel, s32 priority, const char* name, const c
     {
         hFile = hWindows;
         noteColor |= CHANNEL_COLOR_WINDOWS;
-    } break;
-
-    case CHANNEL_CLOCK:
-    {
-        hFile = hClock;
-        noteColor |= CHANNEL_COLOR_CLOCK;
-    } break;
-
-    case CHANNEL_MATH:
-    {
-        hFile = hMath;
-        noteColor |= CHANNEL_COLOR_MATH;
     } break;
 
     case CHANNEL_GRAPHICS:
@@ -307,20 +287,6 @@ void DebugLogManager::Note(s32 channel, s32 priority, const char* fmt, ...)
         hFile = hWindows;
         channelPrefix = CHANNEL_PREFIX_WINDOWS;
         noteColor |= CHANNEL_COLOR_WINDOWS;
-    } break;
-
-    case CHANNEL_CLOCK:
-    {
-        hFile = hClock;
-        channelPrefix = CHANNEL_PREFIX_CLOCK;
-        noteColor |= CHANNEL_COLOR_CLOCK;
-    } break;
-
-    case CHANNEL_MATH:
-    {
-        hFile = hMath;
-        channelPrefix = CHANNEL_PREFIX_MATH;
-        noteColor |= CHANNEL_COLOR_MATH;
     } break;
 
     case CHANNEL_GRAPHICS:

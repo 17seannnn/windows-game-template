@@ -15,8 +15,6 @@ class DebugLogManager
 
     HFILE hLog;
     HFILE hWindows;
-    HFILE hClock;
-    HFILE hMath;
     HFILE hGraphics;
     HFILE hInput;
     HFILE hSound;
