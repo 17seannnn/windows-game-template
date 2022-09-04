@@ -11,7 +11,7 @@ InputModule g_inputModule;
 b32 InputModule::StartUp(HINSTANCE hInstance, HWND hWindow)
 {
     // Set module info
-    SetModuleInfo("Input Module", CHANNEL_INPUT);
+    SetModuleInfo("InputModule", CHANNEL_INPUT);
 
     // Init DirectInput
     if ( FAILED(DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_pDInput, NULL)) )

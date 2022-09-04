@@ -29,7 +29,7 @@ GraphicsModule g_graphicsModule;
 b32 GraphicsModule::StartUp(HWND hWindow, s32 width, s32 height, s32 bpp)
 {
     // Set module info
-    SetModuleInfo("Graphics Module", CHANNEL_GRAPHICS);
+    SetModuleInfo("GraphicsModule", CHANNEL_GRAPHICS);
 
     // Set screen variables
     m_screenWidth = width;

@@ -1,6 +1,4 @@
 /* ====== TODO ======
- * - <%ModuleName% Module> should be together
- *
  * - Timestamp
  * - Use Win32 funcs for files handling
  * - Filter

@@ -22,7 +22,7 @@ SoundModule g_soundModule;
 b32 SoundModule::StartUp(HWND hWindow)
 {
     // Set module info
-    SetModuleInfo("Sound Module", CHANNEL_SOUND);
+    SetModuleInfo("SoundModule", CHANNEL_SOUND);
 
     // Start up DirectSound
     if ( FAILED(DirectSoundCreate(NULL, &m_pDSound, NULL)) )

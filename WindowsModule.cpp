@@ -13,7 +13,7 @@ WindowsModule g_windowsModule;
 b32 WindowsModule::StartUp(HINSTANCE hInstance, const char* title)
 {
     // Set module info
-    SetModuleInfo("Windows Module", CHANNEL_WINDOWS);
+    SetModuleInfo("WindowsModule", CHANNEL_WINDOWS);
 
     // Defaults
     m_nExitCode = EC_SUCCESS;
