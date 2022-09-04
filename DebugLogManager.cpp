@@ -1,6 +1,6 @@
 /* ====== TODO ======
- * - Rename files according to module names
-
+ * - <%ModuleName% Module> should be together
+ *
  * - Timestamp
  * - Use Win32 funcs for files handling
  * - Filter
@@ -25,20 +25,21 @@ DebugLogManager g_debugLogMgr;
 #define NOTE_MESSAGE_BUFSIZE 512
 #define NOTE_FINAL_BUFSIZE   1024
 
-// TODO(sean) remove this stuff
-#define CHANNEL_PREFIX_UNDEFINED "Undefined"
-#define CHANNEL_PREFIX_LOG       "Log"
-#define CHANNEL_PREFIX_WINDOWS   "Windows"
-#define CHANNEL_PREFIX_GRAPHICS  "Graphics"
-#define CHANNEL_PREFIX_INPUT     "Input"
-#define CHANNEL_PREFIX_GAME      "Game"
-
 #define PRIORITY_PREFIX_UNDEFINED "Undefined"
 #define PRIORITY_PREFIX_ERROR     "Error"
 #define PRIORITY_PREFIX_WARNING   "Warning"
 #define PRIORITY_PREFIX_NOTE      "Note"
 
 #define DIR_LOGS "logs\\"
+#define LOGS_EXTENSION ".log"
+
+#define FILENAME_LOGFULL         DIR_LOGS ## "LogFull" ## LOGS_EXTENSION
+#define FILENAME_DEBUGLOGMANAGER DIR_LOGS ## "DebugLogManager" ## LOGS_EXTENSION
+#define FILENAME_WINDOWSMODULE   DIR_LOGS ## "WindowsModule" ## LOGS_EXTENSION
+#define FILENAME_GRAPHICSMODULE  DIR_LOGS ## "GraphicsModule" ## LOGS_EXTENSION
+#define FILENAME_INPUTMODULE     DIR_LOGS ## "InputModule" ## LOGS_EXTENSION
+#define FILENAME_SOUNDMODULE     DIR_LOGS ## "SoundModule" ## LOGS_EXTENSION
+#define FILENAME_GAME            DIR_LOGS ## "Game" ## LOGS_EXTENSION
 
 enum eFgColor
 {
@@ -114,20 +115,22 @@ b32 DebugLogManager::StartUp()
 
     OFSTRUCT fileInfo;
     // TODO(sean) Module*.txt -> *Module.txt
-    if (-1 == (hFullLog = OpenFile(DIR_LOGS"FullLog.txt", &fileInfo, OF_CREATE)) )
+    if (-1 == (hFullLog = OpenFile(FILENAME_LOGFULL, &fileInfo, OF_CREATE)) )
         return false;
-    if (-1 == (hLog = OpenFile(DIR_LOGS"ModuleLog.txt", &fileInfo, OF_CREATE)) )
+    if (-1 == (hLog = OpenFile(FILENAME_DEBUGLOGMANAGER, &fileInfo, OF_CREATE)) )
         return false;
-    if (-1 == (hWindows = OpenFile(DIR_LOGS"ModuleWindows.txt", &fileInfo, OF_CREATE)) )
+    if (-1 == (hWindows = OpenFile(FILENAME_WINDOWSMODULE, &fileInfo, OF_CREATE)) )
         return false;
-    if (-1 == (hGraphics = OpenFile(DIR_LOGS"ModuleGraphics.txt", &fileInfo, OF_CREATE)) )
+    if (-1 == (hGraphics = OpenFile(FILENAME_GRAPHICSMODULE, &fileInfo, OF_CREATE)) )
         return false;
-    if (-1 == (hInput = OpenFile(DIR_LOGS"ModuleGraphics.txt", &fileInfo, OF_CREATE)) )
+    if (-1 == (hInput = OpenFile(FILENAME_INPUTMODULE, &fileInfo, OF_CREATE)) )
         return false;
-    if (-1 == (hSound = OpenFile(DIR_LOGS"ModuleSound.txt", &fileInfo, OF_CREATE)) )
+    if (-1 == (hSound = OpenFile(FILENAME_SOUNDMODULE, &fileInfo, OF_CREATE)) )
         return false;
-    if (-1 == (hGame = OpenFile(DIR_LOGS"ModuleGame.txt", &fileInfo, OF_CREATE)) )
+    if (-1 == (hGame = OpenFile(FILENAME_GAME, &fileInfo, OF_CREATE)) )
         return false;
+
+    AddNote(CHANNEL_LOG, PR_NOTE, "DebugLogManager", "Manager started");
 
     return true;
 #endif
@@ -136,6 +139,8 @@ b32 DebugLogManager::StartUp()
 void DebugLogManager::ShutDown()
 {
 #ifdef _DEBUG
+    AddNote(CHANNEL_LOG, PR_NOTE, "DebugLogManager", "Manager shut down");
+
     // Close log files
     _lclose(hFullLog);
     _lclose(hLog);
@@ -150,7 +155,7 @@ void DebugLogManager::ShutDown()
 #endif
 }
 
-void DebugLogManager::AddNote(s32 channel, s32 priority, const char* name, const char* fmt, va_list vl)
+void DebugLogManager::VAddNote(s32 channel, s32 priority, const char* name, const char* fmt, va_list vl)
 {
 #ifdef _DEBUG
     HFILE hFile;
@@ -261,3 +266,14 @@ void DebugLogManager::AddNote(s32 channel, s32 priority, const char* name, const
 #endif
 }
 
+void DebugLogManager::AddNote(s32 channel, s32 priority, const char* name, const char* fmt, ...)
+{
+#ifdef _DEBUG
+    va_list vl;
+    va_start(vl, fmt);
+
+    VAddNote(channel, priority, name, fmt, vl);
+
+    va_end(vl);
+#endif
+}
