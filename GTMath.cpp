@@ -193,3 +193,23 @@ void GTM::MulMat12x32(const Mat12* m1, const Mat32* m2, Mat12* mr)
         mr->c[col] = sum;
     }
 }
+
+fixed16 GTM::MulFixed16(fixed16 f1, fixed16 f2)
+{
+    fixed16 res;
+
+    _asm
+    {
+        mov     eax, f1         // f1 -> eax
+        imul    f2              // f1 * f2 = EDX:EAX
+        shrd    eax, edx, 16    // 16 low bits of eax -> edx
+        mov     res, eax        // eax -> res
+    }
+
+    return res;
+}
+
+fixed16 GTM::DivFixed16(fixed16 f1, fixed16 f2)
+{
+    return 0; // TODO(sean)
+}

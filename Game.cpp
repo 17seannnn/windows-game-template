@@ -17,6 +17,12 @@ b32 Game::StartUp()
     // Defaults
     m_bRunning = true;
 
+    { // DEBUG(sean)
+        fixed16 f1 = F32_TO_FIXED16(123.5f);
+        f1 = GTM::MulFixed16(f1, F32_TO_FIXED16(2));
+        AddNote(PR_NOTE, "%f\n", FIXED16_TO_F32(f1));
+    }
+
     AddNote(PR_NOTE, "Module started");
 
     return true;

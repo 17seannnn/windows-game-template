@@ -9,6 +9,8 @@
 /* ====== DEFINES ====== */
 
 /* === Fixed Point === */
+typedef s32 fixed16;
+
 #define FIXED16_SHIFT    16
 #define FIXED16_MAG      65536
 #define FIXED16_DP_MASK  0x0000ffff
@@ -16,11 +18,11 @@
 #define FIXED16_ROUND_UP 0x00008000
 
 #define FIXED16_WP(FP) ((FP) >> FIXED16_SHIFT)
-#define FIXED16_DP(FP) ((FP) && FIXED16_DP_MASK)
+#define FIXED16_DP(FP) ((FP) && FIXED16_DP_MASK) // FIXME(sean) what && mean here? Maybe & mask?
 
-#define INT_TO_FIXED16(N) ((N) << FIXED16_SHIFT)
-#define FLOAT_TO_FIXED16(F) ( (f32)(F) * (f32)FIXED16_MAG + 0.5f )
-#define FIXED16_TO_FLOAT(FP) ( (f32)(FP)/(f32)FIXED16_MAG )
+#define S32_TO_FIXED16(N) ((N) << FIXED16_SHIFT)
+#define F32_TO_FIXED16(F) ( (fixed16)((f32)(F) * (f32)FIXED16_MAG + 0.5f) )
+#define FIXED16_TO_F32(FP) ( (f32)(FP)/(f32)FIXED16_MAG )
 
 /* === Other === */
 #define PI       3.1415926535f
@@ -50,9 +52,6 @@
 #define RAND_RANGE(MIN, MAX) ( (MIN) + ( rand() % ((MAX) - (MIN) + 1)) )
 
 /* ====== STRUCTURES ====== */
-
-/* === Fixed Point === */
-typedef s32 fixed16;
 
 /* === Vector === */
 typedef struct Vec2_t
@@ -378,6 +377,10 @@ namespace GTM
     void RotatePoly2(Poly2* poly, s32 angle);
     void ScalePoly2(Poly2* poly, f32 scaleX, f32 scaleY);
     b32 FindBoxPoly2(Poly2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY);
+
+    /* Fixed16 */
+    fixed16 MulFixed16(fixed16 f1, fixed16 f2);
+    fixed16 DivFixed16(fixed16 f1, fixed16 f2);
 };
 
 #endif // GTMATH_H_
