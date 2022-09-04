@@ -56,7 +56,7 @@ public:
         { videoBuffer[y*pitch32 + x] = _RGB32BIT(a, r, g, b); }
 
     void DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX, s32 fromY, s32 toX, s32 toY) const;
-    void DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch) const;
+    void DrawPoly2(const Poly2* poly, u8* videoBuffer, s32 pitch) const;
 
     void DrawTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3) const;
     void DrawTopTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3) const;

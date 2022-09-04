@@ -1,6 +1,5 @@
 /* ====== TODO ======
  * - Rename files according to module names
- * - AddNote() instead of Note()
  * - PRIORITY_* -> PR_* because it's hard to type
 
  * - Timestamp

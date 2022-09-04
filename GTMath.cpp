@@ -1,6 +1,4 @@
 /* ====== TODO ======
- * - Simplify structures' name
- * - Remove math from log
  */
 
 /* ====== INCLUDES ====== */
@@ -87,7 +85,7 @@ f32 GTM::FastDist3(f32 fx, f32 fy, f32 fz)
     return (f32)(dist >> 10);
 }
 
-void GTM::TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy)
+void GTM::TranslatePoly2(Poly2* poly, f32 dx, f32 dy)
 {
     if (!poly)
         return;
@@ -96,54 +94,54 @@ void GTM::TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy)
     poly->y += dy;
 }
 
-void GTM::RotatePolygon2(Polygon2* poly, s32 angle)
+void GTM::RotatePoly2(Poly2* poly, s32 angle)
 {
     if (!poly)
         return;
 
-    for (s32 i = 0; i < poly->vertexCount; ++i)
+    for (s32 i = 0; i < poly->vtxCount; ++i)
     {
-        f32 x = poly->aVertex[i].x*m_cosLook[angle] - poly->aVertex[i].y*m_sinLook[angle];
-        f32 y = poly->aVertex[i].x*m_sinLook[angle] + poly->aVertex[i].y*m_cosLook[angle];
+        f32 x = poly->aVtx[i].x*m_cosLook[angle] - poly->aVtx[i].y*m_sinLook[angle];
+        f32 y = poly->aVtx[i].x*m_sinLook[angle] + poly->aVtx[i].y*m_cosLook[angle];
 
-        poly->aVertex[i].x = x;
-        poly->aVertex[i].y = y;
+        poly->aVtx[i].x = x;
+        poly->aVtx[i].y = y;
     }
 }
 
-void GTM::ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY)
+void GTM::ScalePoly2(Poly2* poly, f32 scaleX, f32 scaleY)
 {
     if (!poly)
         return;
 
-    for (s32 i = 0; i < poly->vertexCount; ++i)
+    for (s32 i = 0; i < poly->vtxCount; ++i)
     {
-        poly->aVertex[i].x *= scaleX;
-        poly->aVertex[i].y *= scaleY;
+        poly->aVtx[i].x *= scaleX;
+        poly->aVtx[i].y *= scaleY;
     }
 }
 
-b32 GTM::FindBoxPoly2(Polygon2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY)
+b32 GTM::FindBoxPoly2(Poly2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY)
 {
     // Check if polygon is correct
-    if (!poly || poly->vertexCount <= 0)
+    if (!poly || poly->vtxCount <= 0)
         return false;
 
     // Init coords
     minX = minY = maxX = maxY = 0;
 
     // Find box
-    for (s32 i = 0; i < poly->vertexCount; ++i)
+    for (s32 i = 0; i < poly->vtxCount; ++i)
     {
-        if (poly->aVertex[i].x < minX)
-            minX = poly->aVertex[i].x;
-        if (poly->aVertex[i].x > maxX)
-            maxX = poly->aVertex[i].x;
+        if (poly->aVtx[i].x < minX)
+            minX = poly->aVtx[i].x;
+        if (poly->aVtx[i].x > maxX)
+            maxX = poly->aVtx[i].x;
 
-        if (poly->aVertex[i].y < minY)
-            minY = poly->aVertex[i].y;
-        if (poly->aVertex[i].y > maxY)
-            maxY = poly->aVertex[i].y;
+        if (poly->aVtx[i].y < minY)
+            minY = poly->aVtx[i].y;
+        if (poly->aVtx[i].y > maxY)
+            maxY = poly->aVtx[i].y;
     }
 
     return true;

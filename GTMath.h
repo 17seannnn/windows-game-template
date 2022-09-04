@@ -260,16 +260,14 @@ struct Spher3
 };
 
 /* === Polygon === */
-struct Polygon2
+struct Poly2
 {
     s32 state;
-    s32 vertexCount;
+    s32 vtxCount;
     f32 x, y;
     f32 vx, vy;
     s32 color;
-    Vtx2* aVertex;
-
-    Polygon2() : aVertex(NULL) {}
+    Vtx2* aVtx;
 };
 
 /* ====== VARIABLES ====== */
@@ -376,10 +374,10 @@ namespace GTM
     inline void CopyQuat(Quat* dst, Quat* src) { dst->w = src->w; dst->x = src->x; dst->y = src->y; dst->z = src->z; }
 
     /* Polygon */
-    void TranslatePolygon2(Polygon2* poly, f32 dx, f32 dy);
-    void RotatePolygon2(Polygon2* poly, s32 angle);
-    void ScalePolygon2(Polygon2* poly, f32 scaleX, f32 scaleY);
-    b32 FindBoxPoly2(Polygon2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY);
+    void TranslatePoly2(Poly2* poly, f32 dx, f32 dy);
+    void RotatePoly2(Poly2* poly, s32 angle);
+    void ScalePoly2(Poly2* poly, f32 scaleX, f32 scaleY);
+    b32 FindBoxPoly2(Poly2* poly, f32 minX, f32 minY, f32 maxX, f32 maxY);
 };
 
 #endif // GTMATH_H_

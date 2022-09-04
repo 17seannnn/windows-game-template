@@ -275,20 +275,20 @@ void GraphicsModule::DrawLine8(u8* videoBuffer, s32 pitch, s32 color, s32 fromX,
     }
 }
 
-void GraphicsModule::DrawPolygon2(const Polygon2* poly, u8* videoBuffer, s32 pitch) const
+void GraphicsModule::DrawPoly2(const Poly2* poly, u8* videoBuffer, s32 pitch) const
 {
     if (!poly || !poly->state)
         return;
 
-    for (s32 i = 0; i < poly->vertexCount-1; ++i)
-        DrawLine8(videoBuffer, pitch, poly->color, (s32)(poly->x + poly->aVertex[i].x), (s32)(poly->y + (s32)poly->aVertex[i].y),
-                                                   (s32)(poly->x + poly->aVertex[i+1].x), (s32)(poly->y + poly->aVertex[i+1].y));
+    for (s32 i = 0; i < poly->vtxCount-1; ++i)
+        DrawLine8(videoBuffer, pitch, poly->color, (s32)(poly->x + poly->aVtx[i].x), (s32)(poly->y + (s32)poly->aVtx[i].y),
+                                                   (s32)(poly->x + poly->aVtx[i+1].x), (s32)(poly->y + poly->aVtx[i+1].y));
 
     // Closure
-    DrawLine8(videoBuffer, pitch, poly->color, (s32)(poly->x + poly->aVertex[poly->vertexCount-1].x),
-                                               (s32)(poly->y + poly->aVertex[poly->vertexCount-1].y),
-                                               (s32)(poly->x + poly->aVertex[0].x),
-                                               (s32)(poly->y + poly->aVertex[0].y));
+    DrawLine8(videoBuffer, pitch, poly->color, (s32)(poly->x + poly->aVtx[poly->vtxCount-1].x),
+                                               (s32)(poly->y + poly->aVtx[poly->vtxCount-1].y),
+                                               (s32)(poly->x + poly->aVtx[0].x),
+                                               (s32)(poly->y + poly->aVtx[0].y));
 }
 
 void GraphicsModule::DrawTriangle(u8* videoBuffer, s32 pitch, s32 color, s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3) const
