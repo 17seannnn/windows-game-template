@@ -44,8 +44,7 @@ public:
     b32 StartUp();
     void ShutDown();
 
-    void Note2(s32 channel, s32 priority, const char* name, const char* fmt, va_list vl);
-    void Note(s32 channel, s32 priority, const char* fmt, ...);
+    void AddNote(s32 channel, s32 priority, const char* name, const char* fmt, va_list vl);
 };
 
 extern DebugLogManager g_debugLogMgr;
